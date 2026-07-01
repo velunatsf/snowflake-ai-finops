@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 06: Token Usage Tracking - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link active" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 66.7%;"></div>
+    <span class="progress-text">6 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 06</span>
+        <span class="timing-badge lab">12 min</span>
+      </div>
+      <h1 class="module-title">Token & Credit Usage Tracking</h1>
+      <p class="module-subtitle">Your real-time FinOps console for AI spend</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Query live token and credit consumption</li>
+          <li>Attribute cost by user, function, and model</li>
+          <li>Set up cost alerts before problems occur</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="callout tip">
+      <h5>Bookmark These Queries</h5>
+      <p>Everything in this module runs in Snowsight. These queries are your real-time FinOps console for AI spend. Save them as worksheets for quick access.</p>
+    </div>
+
+    <div class="callout warn">
+      <h5>Latency Note</h5>
+      <p><code>account_usage</code> views have approximately <strong>45 minutes of latency</strong>. Very recent queries from Module 05 may not appear immediately. For real-time monitoring, use the INFORMATION_SCHEMA alternative at the bottom of this module.</p>
+    </div>
+
+    <div class="callout cost">
+      <h5>Cloud Services Credits ≠ AI Token Credits</h5>
+      <p><code>query_history.credits_used_cloud_services</code> measures <strong>cloud services overhead</strong> (query compilation, metadata) - <strong>not</strong> AI token credits. A Cortex call costing 0.5 AI credits may show only 0.000036 in cloud services.</p>
+      <p style="margin-top: var(--space-sm);">The real AI cost lives in dedicated views: <code>CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code> (<code>CREDITS</code> column) and <code>CORTEX_AISQL_USAGE_HISTORY</code> (<code>TOKEN_CREDITS</code> column). Queries 2–6 below use these dedicated views.</p>
+    </div>
+
+    <!-- ─── ACCOUNT_USAGE Views Quick Reference ────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">REF</div>
+        <h2 class="section-title">AI Cost Tracking - ACCOUNT_USAGE Views</h2>
+      </div>
+
+      <p>Five views in <code>SNOWFLAKE.ACCOUNT_USAGE</code> cover AI spend. Each has different granularity, latency (~45 min), and key columns.</p>
+
+      <div class="callout warn" style="margin-bottom: var(--space-lg);">
+        <h5>Resource Monitors Do NOT Cover AI/Serverless</h5>
+        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. To track and cap AI token credits, use <strong>Snowflake Budgets</strong> and the views below.</p>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="comparison-table" style="min-width: 700px;">
+          <thead>
+            <tr>
+              <th style="width: 30%;">View</th>
+              <th style="width: 35%;">Tracks</th>
+              <th style="width: 35%;">Key Columns</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code style="font-size: 0.8rem;">CORTEX_AISQL_USAGE_HISTORY</code></td>
+              <td>Analyst, Agents, Intelligence</td>
+              <td><code>TOKEN_CREDITS</code>, <code>TOKENS</code>, <code>QUERY_TAG</code></td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
+              <td>AI_COMPLETE, AI_SENTIMENT, etc.</td>
+              <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code></td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">CORTEX_SEARCH_DAILY_USAGE_HISTORY</code></td>
+              <td>Search indexing &amp; queries</td>
+              <td><code>CREDITS</code>, <code>SERVICE_NAME</code>, <code>CONSUMPTION_TYPE</code></td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">DOCUMENT_AI_USAGE_HISTORY</code></td>
+              <td>Document AI extraction</td>
+              <td><code>CREDITS_USED</code>, <code>MODEL_NAME</code></td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">METERING_DAILY_HISTORY</code></td>
+              <td>Aggregated daily metering</td>
+              <td><code>CREDITS_BILLED</code>, <code>SERVICE_TYPE</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── Query 1 ────────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 1: AI Credits by Cortex Function</h4>
+          <span class="badge medium">Weekly Review</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly FinOps review - uses the dedicated <code>CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code> view for accurate AI token credits (not cloud services overhead).</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    FUNCTION_NAME,
+    COUNT(*)                                    AS call_count,
+    ROUND(SUM(CREDITS), 4)                      AS total_ai_credits,
+    ROUND(AVG(CREDITS), 6)                      AS avg_credits_per_call,
+    ROUND(MIN(CREDITS), 6)                      AS min_credits,
+    ROUND(MAX(CREDITS), 6)                      AS max_credits,
+    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+WHERE START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP)
+GROUP BY FUNCTION_NAME
+ORDER BY total_ai_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 3 ────────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 2: Model Cost Comparison</h4>
+          <span class="badge high">Key Insight</span>
+        </div>
+        <p><strong>When to run:</strong> After Exercise 4 in Module 05 - see real AI credit cost per model from <code>CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code>, not estimates.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    MODEL_NAME,
+    FUNCTION_NAME,
+    COUNT(*)                                    AS calls,
+    ROUND(SUM(CREDITS), 4)                      AS total_ai_credits,
+    ROUND(AVG(CREDITS), 6)                      AS credits_per_call,
+    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+WHERE START_TIME >= DATEADD(hour, -2, CURRENT_TIMESTAMP)
+  AND FUNCTION_NAME IN ('COMPLETE', 'AI_COMPLETE')
+GROUP BY MODEL_NAME, FUNCTION_NAME
+ORDER BY total_ai_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 4 ────────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 3: Hourly AI Spend Trend</h4>
+          <span class="badge medium">Pattern Analysis</span>
+        </div>
+        <p><strong>When to run:</strong> To identify usage patterns and anomalies - tracks real AI credits from the dedicated view, not cloud services overhead.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    DATE_TRUNC('hour', START_TIME)              AS hour_bucket,
+    FUNCTION_NAME,
+    COUNT(*)                                    AS ai_calls,
+    ROUND(SUM(CREDITS), 4)                      AS ai_credits,
+    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+WHERE START_TIME >= DATEADD(day, -1, CURRENT_TIMESTAMP)
+GROUP BY 1, 2
+ORDER BY 1 DESC, ai_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 5 ────────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 4: Cost Projection Query</h4>
+          <span class="badge high">Non-Negotiable</span>
+        </div>
+        <p><strong>When to run:</strong> <strong>BEFORE</strong> running any AI at scale. Use after Module 05 Exercise 5.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Step 1: Find your recent AI call costs from the dedicated view:
+SELECT
+    QUERY_ID,
+    FUNCTION_NAME,
+    MODEL_NAME,
+    ROUND(CREDITS, 6)                           AS ai_credits,
+    START_TIME
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+WHERE START_TIME >= DATEADD(hour, -1, CURRENT_TIMESTAMP)
+ORDER BY START_TIME DESC
+LIMIT 10;</pre>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin-top: var(--space-lg);">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Step 2: Project costs at scale using real AI credits:
+WITH sample_cost AS (
+    SELECT
+        SUM(CREDITS)                            AS sample_credits,
+        COUNT(*)                                AS sample_calls
+    FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+    WHERE QUERY_ID IN (
+        -- *** PASTE YOUR TEST QUERY IDs HERE ***
+        'your_query_id_1',
+        'your_query_id_2'
+    )
+)
+SELECT
+    sample_credits,
+    sample_calls,
+    ROUND(sample_credits / NULLIF(sample_calls, 0), 6) 
+                                                AS credits_per_call,
+    ROUND(sample_credits * 100, 4)              AS projected_500_rows,
+    ROUND(sample_credits * 10000, 2)            AS projected_50k_rows,
+    ROUND(sample_credits * 100000, 2)           AS projected_500k_rows,
+    -- Dollar estimates at ~$3/credit
+    ROUND(sample_credits * 100000 * 3, 2)       AS projected_500k_dollars
+FROM sample_cost;</pre>
+          </div>
+        </div>
+
+        <div class="callout cost" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>This Query is Non-Negotiable</h5>
+          <p>This projection query must be run before any production AI pipeline. Paste your test query_ids and know your cost before you scale.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Snowsight Navigation ───────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">GUI</div>
+        <h2 class="section-title">Snowsight Navigation</h2>
+      </div>
+
+      <p>For visual cost monitoring without SQL, use the Snowsight Cost Management interface:</p>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Navigate to Cost Management</h4>
+          <p>Admin → Cost Management → Consumption</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Filter by Service Type</h4>
+          <p>Use the Service Type filter → Select "AI/ML Functions"</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Drill Into Cortex</h4>
+          <p>Click on individual Cortex functions to see breakdown by function type</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Set Notification Threshold</h4>
+          <p>Admin → Notifications → Create alert for AI spend thresholds</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Shadow Waste Detection Queries                                      -->
+    <!-- Source: AI Shadow Waste in Snowflake AI presentation                -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">SW</div>
+        <h2 class="section-title">Shadow Waste Detection</h2>
+      </div>
+
+      <p>Shadow waste is AI credit consumption that delivers little or no business value. AI services are serverless - no warehouse to watch, no query fails, no alert fires. Credits silently drain. The queries below detect the most common patterns.</p>
+
+      <div class="callout warn">
+        <h5>8 Shadow Waste Patterns</h5>
+        <p>Idle Search services, over-sized models, redundant calls, verbose prompts, agent loops, dev/test in prod, cost spikes, and missing attribution. The queries below target each pattern.</p>
+      </div>
+    </section>
+
+    <!-- ─── Query 5: Idle Cortex Search Detection ────────────────────────── -->
+    <section class="section" id="query-6">
+      <div class="panel" style="border-left: 4px solid var(--sf-danger);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 5: Idle Cortex Search Detection</h4>
+          <span class="badge high">Shadow Waste #4</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly. Cortex Search services consume credits for <strong>serving</strong> (6.3 credits/GB/month) even with zero queries. Idle services = 100% waste.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>WITH costs AS (
+    SELECT SERVICE_NAME,
+           SUM(CASE WHEN CONSUMPTION_TYPE = 'SERVING'
+                    THEN CREDITS ELSE 0 END)           AS serving_credits,
+           SUM(CASE WHEN CONSUMPTION_TYPE = 'BATCH'
+                    THEN CREDITS ELSE 0 END)           AS query_credits,
+           SUM(CASE WHEN CONSUMPTION_TYPE = 'EMBED_TEXT_TOKENS'
+                    THEN CREDITS ELSE 0 END)           AS embedding_credits
+    FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_SEARCH_DAILY_USAGE_HISTORY
+    WHERE  USAGE_DATE >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+    GROUP  BY SERVICE_NAME
+)
+SELECT SERVICE_NAME,
+       serving_credits,
+       embedding_credits,
+       query_credits,
+       ROUND(query_credits / NULLIF(serving_credits, 0) * 100, 1) AS query_pct
+FROM   costs
+WHERE  serving_credits > 0
+ORDER  BY query_pct ASC;</pre>
+          </div>
+        </div>
+
+        <div class="callout cost" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Reading the Results</h5>
+          <p><code>query_pct</code> near <strong>0%</strong> means the service is incurring standing serving cost but nobody is querying it. Consider suspending or dropping unused services:</p>
+<pre style="margin-top: var(--space-sm); font-size: 0.85rem;"><code>ALTER CORTEX SEARCH SERVICE my_idle_svc SUSPEND SERVING;  -- stops standing cost
+ALTER CORTEX SEARCH SERVICE my_idle_svc SUSPEND;          -- stops both serving + indexing
+DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;    -- permanent removal</code></pre>
+          <p style="margin-top: var(--space-sm);"><strong>CONSUMPTION_TYPE values:</strong> <code>SERVING</code> (standing cost, 24/7), <code>EMBED_TEXT_TOKENS</code> (indexing on data change), <code>BATCH</code> (query usage).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 6: Over-Sized Models ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 6: Over-Sized Model Detection</h4>
+          <span class="badge high">Shadow Waste #1</span>
+        </div>
+        <p><strong>When to run:</strong> Monthly - developers default to the most capable (expensive) model. Compare <code>credits_per_1M_tokens</code> across models to find where a cheaper model would suffice.</p>
+        <p><strong>Source:</strong> <code>CORTEX_AISQL_USAGE_HISTORY</code> - has <code>TOKENS</code> and <code>TOKEN_CREDITS</code> granularity.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT MODEL_NAME, FUNCTION_NAME,
+       SUM(TOKENS)        AS total_tokens,
+       SUM(TOKEN_CREDITS)  AS total_credits,
+       ROUND(SUM(TOKEN_CREDITS)
+             / NULLIF(SUM(TOKENS),0) * 1000000, 2)
+                            AS credits_per_1m_tokens
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+WHERE  USAGE_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+GROUP  BY MODEL_NAME, FUNCTION_NAME
+ORDER  BY credits_per_1m_tokens DESC;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Savings Potential: 40–75%</h5>
+          <p>Replace <code>AI_COMPLETE('sentiment...')</code> with <code>AI_SENTIMENT(text)</code> for 40–70% savings. Replace <code>AI_COMPLETE('classify...')</code> with <code>AI_CLASSIFY(text,[...])</code> for 50–75%. Task-specific functions are purpose-built and cheaper.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 7: Redundant / Duplicate AI Calls ───────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 7: Redundant / Duplicate AI Calls</h4>
+          <span class="badge high">Shadow Waste #2</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly - pipelines re-processing unchanged rows every scheduled run, multiple users running overlapping queries. 10K rows hourly = same tokens 24x/day.</p>
+        <p><strong>Fix:</strong> Incremental processing (<code>WHERE ai_processed_at IS NULL</code>), cache AI results, tag pipelines with <code>QUERY_TAG</code>.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Find repeated calls by user/day
+SELECT h.USER_ID, u.NAME,
+       h.FUNCTION_NAME,
+       DATE_TRUNC('day', h.START_TIME)  AS day,
+       COUNT(*)                         AS daily_calls,
+       SUM(h.CREDITS)                   AS daily_credits
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY h
+JOIN   SNOWFLAKE.ACCOUNT_USAGE.USERS u
+       ON h.USER_ID = u.USER_ID
+WHERE  h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP  BY h.USER_ID, u.NAME, h.FUNCTION_NAME, day
+HAVING COUNT(*) > 20
+ORDER  BY daily_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 8: Verbose / Bloated Prompts ────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 8: Verbose / Bloated Prompts</h4>
+          <span class="badge medium">Shadow Waste #3</span>
+        </div>
+        <p><strong>When to run:</strong> Monthly - prompts with excessive instructions or entire documents when only a paragraph is relevant. 50-word filler x 100K rows = 12.3 credits wasted.</p>
+        <p><strong>Fix:</strong> Trim prompts, pre-filter with <code>LEFT(document_text, 500)</code>, use <code>AI_COUNT_TOKENS</code> as pre-flight check.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Compare avg tokens/call over time
+SELECT FUNCTION_NAME,
+       DATE_TRUNC('week', USAGE_TIME)  AS week,
+       AVG(TOKENS)                     AS avg_tokens_per_call,
+       SUM(TOKEN_CREDITS)              AS weekly_credits
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+WHERE  USAGE_TIME >= DATEADD('day', -60, CURRENT_TIMESTAMP())
+GROUP  BY FUNCTION_NAME, week
+ORDER  BY FUNCTION_NAME, week;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Prompt Engineering IS Cost Engineering</h5>
+          <p>Rising <code>avg_tokens_per_call</code> over time = prompt bloat. Check <code>TOKENS_GRANULAR</code> for input vs output split. Truncating input can cut costs 50%+.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 9: Uncontrolled Agent Loops ─────────────────────────────── -->
+    <section class="section">
+      <div class="panel" style="border-left: 4px solid var(--sf-danger);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 9: Uncontrolled Agent Loops</h4>
+          <span class="badge high">Shadow Waste #5</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly - agents orchestrate multi-step tool calls. Without budgets, an agent can loop endlessly. Worst case: 100K+ tokens = 0.18+ credits per question.</p>
+        <p><strong>Signal:</strong> <code>MAX(TOKEN_CREDITS) >> AVG(TOKEN_CREDITS)</code> = unbounded calls. Set token + time budgets on all agents.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Find runaway agent calls
+SELECT DATE_TRUNC('day', USAGE_TIME) AS day,
+       MAX(TOKEN_CREDITS)            AS max_call,
+       AVG(TOKEN_CREDITS)            AS avg_call,
+       COUNT(*)                      AS total_calls
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+WHERE  USAGE_TIME >= DATEADD('day', -14, CURRENT_TIMESTAMP())
+GROUP  BY day
+ORDER  BY day DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 10: Dev/Test in Production ───────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 10: Dev/Test in Production</h4>
+          <span class="badge medium">Shadow Waste #6</span>
+        </div>
+        <p><strong>When to run:</strong> Monthly - developers experimenting with AI using production credentials. Notebooks, ad-hoc queries, prototypes consuming prod credits without business value.</p>
+        <p><strong>Fix:</strong> RBAC (<code>REVOKE USE AI FUNCTIONS</code> from dev roles), separate dev/prod accounts, enforce tagging.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- AI usage by role (LATERAL FLATTEN on ROLE_NAMES array)
+SELECT r.VALUE::STRING   AS role_name,
+       h.FUNCTION_NAME,
+       COUNT(*)           AS calls,
+       SUM(h.CREDITS)     AS total_credits
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY h,
+       LATERAL FLATTEN(input => h.ROLE_NAMES) r
+WHERE  h.START_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+GROUP  BY role_name, h.FUNCTION_NAME
+ORDER  BY total_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 11: WoW Cost Anomaly Detection ──────────────────────────── -->
+    <section class="section">
+      <div class="panel" style="border-left: 4px solid var(--sf-danger);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 11: Week-over-Week Cost Anomaly Detection</h4>
+          <span class="badge high">Shadow Waste #7</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly - a code change or misconfigured schedule causes a spike. Unnoticed until the monthly bill. Example: WHERE clause change - 1K rows becomes 1M.</p>
+        <p><strong>Fix:</strong> Activate account budget with email notifications, enable low-latency refresh (1hr vs 6.5hr default).</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Week-over-week anomaly detection
+WITH daily AS (
+    SELECT USAGE_DATE::DATE AS day,
+           SUM(CREDITS_BILLED) AS credits
+    FROM   SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
+    WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT')
+      AND  USAGE_DATE >= DATEADD('day', -60, CURRENT_DATE())
+    GROUP  BY day
+)
+SELECT day, credits,
+       LAG(credits, 7) OVER (ORDER BY day)   AS last_week,
+       ROUND((credits - LAG(credits, 7) OVER (ORDER BY day))
+             / NULLIF(LAG(credits, 7) OVER (ORDER BY day), 0)
+             * 100, 1)                         AS wow_pct
+FROM   daily
+ORDER  BY day DESC;</pre>
+          </div>
+        </div>
+
+        <div class="callout cost" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Reading the Results</h5>
+          <p><code>wow_pct > 200</code> = spend more than tripled vs same day last week - investigate immediately. Even +50% week-over-week warrants review. Pair this with budget email alerts for proactive detection.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 12: Missing Cost Attribution ─────────────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 12: Missing Cost Attribution</h4>
+          <span class="badge medium">Shadow Waste #8</span>
+        </div>
+        <p><strong>When to run:</strong> Monthly - without tagging, AI costs = one aggregated number. Nobody knows which team/project/pipeline owns the spend. Can't charge back, can't optimize.</p>
+        <p><strong>Fix:</strong> Enforce <code>ALTER SESSION SET QUERY_TAG='team=X,project=Y,env=prod'</code>. Target: >90% credits should be tagged.</p>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Check tagging coverage
+SELECT CASE WHEN QUERY_TAG IS NOT NULL AND QUERY_TAG != ''
+            THEN 'Tagged' ELSE 'Untagged'
+       END                              AS attribution,
+       COUNT(*)                          AS calls,
+       SUM(TOKEN_CREDITS)                AS credits,
+       ROUND(SUM(TOKEN_CREDITS)
+             / (SELECT SUM(TOKEN_CREDITS)
+                FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+                WHERE USAGE_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP()))
+             * 100, 1)                   AS pct_of_total
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+WHERE  USAGE_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+GROUP  BY attribution;</pre>
+          </div>
+        </div>
+
+        <div class="callout warn" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Unattributed Spend Cannot Be Optimized</h5>
+          <p>Query tagging is free - one SQL line per session. Use a consistent standard like <code>team=&lt;team&gt;,project=&lt;project&gt;,env=&lt;env&gt;</code> to enable automated cost reporting and chargeback.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Download SQL ───────────────────────────────────────────────────── -->
+    <section class="section text-center">
+      <a href="../sql/06-token-tracking.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download All Tracking Queries
+      </a>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="05-ai-sql-hands-on.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 05: AI SQL Hands-On
+      </a>
+      <a href="07-ai-credits-transition.html" class="nav-btn next">
+        Module 07: Spend Controls
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 06: Token Usage Tracking</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

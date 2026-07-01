@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 02: Cortex AI Capabilities - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link active" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 22.2%;"></div>
+    <span class="progress-text">2 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 02</span>
+        <span class="timing-badge concept">15 min</span>
+      </div>
+      <h1 class="module-title">Cortex AI Capabilities</h1>
+      <p class="module-subtitle">A complete map of AI functions available in Snowflake Cortex</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Know all Cortex AI functions available in Snowflake</li>
+          <li>Understand when to use each function</li>
+          <li>Know the cost tier of each function</li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ─── Section A: Capability Map ──────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">Cortex AI Capability Map</h2>
+      </div>
+
+      <p>Snowflake Cortex provides three categories of AI capabilities, each with different use cases and cost profiles.</p>
+
+      <div class="capability-grid">
+        <div class="capability-column">
+          <h4>AI Functions</h4>
+          <div class="capability-item">AI_COMPLETE()</div>
+          <div class="capability-item">AI_SENTIMENT()</div>
+          <div class="capability-item">AI_SUMMARIZE_AGG()</div>
+          <div class="capability-item">AI_TRANSLATE()</div>
+          <div class="capability-item">AI_CLASSIFY()</div>
+          <div class="capability-item">AI_EXTRACT()</div>
+          <div class="capability-item">AI_FILTER()</div>
+        </div>
+        <div class="capability-column">
+          <h4>Search & Embed</h4>
+          <div class="capability-item">Cortex Search</div>
+          <div class="capability-item">AI_EMBED()</div>
+          <div class="capability-item">AI_SIMILARITY()</div>
+          <div class="capability-item">Cortex Analyst</div>
+        </div>
+        <div class="capability-column">
+          <h4>ML Functions</h4>
+          <div class="capability-item">FORECAST()</div>
+          <div class="capability-item">ANOMALY_DETECTION()</div>
+          <div class="capability-item">CLASSIFICATION()</div>
+          <div class="capability-item">CONTRIBUTION_EXPLORER()</div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Function Selection Strategy</h5>
+        <p>Start with specialized functions (AI_SENTIMENT, AI_CLASSIFY) before reaching for AI_COMPLETE(). Specialized functions are optimized for their specific task and typically cost less than using a general-purpose LLM for the same job.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section B: Model Cards ─────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Model Cards</h2>
+      </div>
+
+      <p>When using <code>AI_COMPLETE()</code>, you choose which model to use. Each model has different capabilities and costs.</p>
+
+      <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">Budget Tier - High Volume, Simple Tasks</h4>
+      <div class="cols three" style="margin-top: var(--space-md);">
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">mistral-7b</div>
+              <div class="model-provider">Mistral AI</div>
+            </div>
+            <span class="badge budget">Budget</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Best for simple extraction, basic classification, high-volume text processing</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">8.3M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">8.3M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">32K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">llama3.1-8b</div>
+              <div class="model-provider">Meta</div>
+            </div>
+            <span class="badge budget">Budget</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Fast inference, good for straightforward Q&A and summarization</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">5.3M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">5.3M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">llama3.3-70b</div>
+              <div class="model-provider">Meta</div>
+            </div>
+            <span class="badge budget">Budget</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Strong reasoning at budget price, instruction following</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">826K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">826K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-md);">
+        <h5>Context Window = Capacity, Not Cost</h5>
+        <p>The context window (e.g. 32K tokens) is the <strong>maximum</strong> a model can process per call - you only pay for tokens actually used. If your prompt is 500 tokens and the response is 200 tokens, you pay for 700 tokens, not 32K.</p>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl); color: var(--sf-blue);">Standard Tier - Balance of Quality and Cost</h4>
+      <div class="cols three" style="margin-top: var(--space-md);">
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">llama3.1-70b</div>
+              <div class="model-provider">Meta</div>
+            </div>
+            <span class="badge standard">Standard</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Complex reasoning, nuanced analysis, better instruction following</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">826K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">826K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">mistral-large2</div>
+              <div class="model-provider">Mistral AI</div>
+            </div>
+            <span class="badge standard">Standard</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">High quality, multilingual, good for complex tasks</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">455K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">455K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">snowflake-arctic</div>
+              <div class="model-provider">Snowflake</div>
+            </div>
+            <span class="badge standard">Standard</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Enterprise tasks, SQL generation, Snowflake-optimized</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">1.2M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">1.2M/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl); color: var(--sf-danger);">Premium Tier - Highest Quality</h4>
+      <div class="cols three" style="margin-top: var(--space-md);">
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">claude-4-sonnet</div>
+              <div class="model-provider">Anthropic</div>
+            </div>
+            <span class="badge premium">Premium</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Highest quality, complex analysis, coding, long-form content</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">667K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">133K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">200K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">llama3.1-405b</div>
+              <div class="model-provider">Meta</div>
+            </div>
+            <span class="badge premium">Premium</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Maximum capability, complex reasoning, research-grade tasks</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">333K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">333K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">openai-gpt-4.1</div>
+              <div class="model-provider">OpenAI</div>
+            </div>
+            <span class="badge premium">Premium</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Leading proprietary model, strong reasoning and coding</p>
+          <div class="model-stats">
+            <div class="model-stat">
+              <span class="model-stat-label">Input Rate</span>
+              <span class="model-stat-value">400K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Output Rate</span>
+              <span class="model-stat-value">100K/credit</span>
+            </div>
+            <div class="model-stat">
+              <span class="model-stat-label">Context (max)</span>
+              <span class="model-stat-value">128K tokens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section C: Function Deep Dive ──────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Function Deep Dive</h2>
+      </div>
+
+      <!-- AI_SENTIMENT -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SENTIMENT(text [, categories])</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Returns an OBJECT with sentiment categories (positive, negative, neutral, mixed, unknown)</p>
+          </div>
+          <span class="badge low">Lowest Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Customer feedback, support tickets, reviews, social media</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.095 credits per 1M characters</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">No model selection - Snowflake-optimized. Optional categories array for aspect-level sentiment.</p>
+          </div>
+        </div>
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>FinOps Tip</h5>
+          <p style="margin-bottom: 0;">AI_SENTIMENT is the most cost-efficient Cortex function for sentiment analysis. Always use it instead of prompting AI_COMPLETE() for sentiment.</p>
+        </div>
+      </div>
+
+      <!-- AI_COMPLETE -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_COMPLETE(model, prompt)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">General-purpose LLM generation with model selection</p>
+          </div>
+          <span class="badge high">Variable Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Classification, extraction, generation, complex reasoning</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Varies widely by model (see Model Cards above)</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">First parameter is model name as string</p>
+          </div>
+        </div>
+        <div class="callout warn" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Cost Warning</h5>
+          <p style="margin-bottom: 0;">Most expensive function category. Always specify the cheapest model that meets your quality requirements. The cost difference between mistral-7b and claude-4-sonnet can be 50× or more.</p>
+        </div>
+      </div>
+
+      <!-- AI_SUMMARIZE_AGG -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SUMMARIZE_AGG(expr)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Aggregate function - summarizes a column of text data across multiple rows</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Summarizing columns of reviews, call transcripts, logs, meeting notes</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Uses underlying model rates (typically llama-based)</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">Handles datasets larger than max context window. For single-row summarization, use AI_COMPLETE with a summarize prompt.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_TRANSLATE -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_TRANSLATE(text, source_lang, target_lang)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Translates text between 24+ languages with auto-detect support</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Multilingual content, localization, international data</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.333 credits per 1M characters</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Languages</strong>
+            <p style="margin: var(--space-xs) 0 0;">en, es, fr, de, it, pt, ja, ko, zh, and 80+ more</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_CLASSIFY -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_CLASSIFY(text, categories)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Zero-shot classification into provided categories (single or multi-label)</p>
+          </div>
+          <span class="badge low">Lower Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Ticket routing, content tagging, intent detection</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Lower than equivalent AI_COMPLETE() prompt</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">Pass categories as an array. Access result via <code>:labels[0]::VARCHAR</code></p>
+          </div>
+        </div>
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>FinOps Tip</h5>
+          <p style="margin-bottom: 0;">More cost-efficient than AI_COMPLETE() for classification tasks. Use it instead of prompting an LLM with "Classify this text as one of the following..."</p>
+        </div>
+      </div>
+
+      <!-- AI_EXTRACT -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EXTRACT(text, fields)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Extracts structured fields from unstructured text</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Document extraction, form parsing, data capture from text</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Pattern</strong>
+            <p style="margin: var(--space-xs) 0 0;">Provide text + array of field names to extract</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_EMBED -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EMBED(model, input)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Generate vector embeddings for text or images - unified replacement for EMBED_TEXT_768/1024</p>
+          </div>
+          <span class="badge low">Lower Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Semantic search, similarity matching, clustering</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.13 credits per 1M tokens</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Models</strong>
+            <p style="margin: var(--space-xs) 0 0;">snowflake-arctic-embed-l-v2.0, nv-embed-qa-4, multilingual-e5-large, voyage-multimodal-3 (images)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section D: Cortex Code Specific ────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">Cortex Code</h2>
+      </div>
+
+      <p>Cortex Code is Snowflake's AI-powered coding assistant - available in both Snowsight (web UI) and as a CLI for local development. It adds capabilities beyond the SQL functions covered above.</p>
+
+      <div class="cols two">
+        <div class="panel">
+          <h4>What Cortex Code Adds</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem;">
+            <li>Natural language → SQL generation</li>
+            <li>Code explanation and documentation</li>
+            <li>Agentic workflows and multi-step reasoning</li>
+            <li>CLI-driven interaction for developers</li>
+            <li>Integration with MCP servers and external tools</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Cost Tracking for Cortex Code</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem;">
+            <li><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></li>
+            <li><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></li>
+            <li>Tracks user, timestamp, tokens, credits</li>
+            <li>CREDITS_GRANULAR JSON breakdown by model</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Key Insight</h5>
+        <p>Cortex Code is the AI layer that helps you <strong>write</strong> the SQL that calls the other Cortex functions. It accelerates development of your AI pipelines. In Module 07, we'll use Cortex Code to build the Streamlit dashboard that tracks all Cortex AI spend.</p>
+      </div>
+    </section>
+
+    <!-- ─── Checkpoint ─────────────────────────────────────────────────────── -->
+    <section class="checkpoint">
+      <h3>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Knowledge Check
+      </h3>
+
+      <div class="checkpoint-question">
+        <p><strong>Q1:</strong> Which Cortex function is most cost-efficient for analyzing customer feedback sentiment?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>AI_SENTIMENT()</strong> - It uses Snowflake's optimized internal model at 0.095 credits per 1M characters. Using AI_COMPLETE() with a prompt like "Rate the sentiment of this text" would cost significantly more.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q2:</strong> When should you use AI_CLASSIFY() instead of AI_COMPLETE()?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Use <strong>AI_CLASSIFY()</strong> when you need to categorize text into a set of predefined categories. It's more cost-efficient and purpose-built for this task. Only use AI_COMPLETE() for classification when you need reasoning, explanations, or categories that emerge dynamically from the text.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q3:</strong> What's the cost difference between mistral-7b and claude-4-sonnet for the same workload?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>Approximately 10-50× difference.</strong> mistral-7b processes ~8.3M input tokens per credit, while claude-4-sonnet processes ~667K input tokens per credit (input) and only ~133K output tokens per credit. For output-heavy workloads, the difference can be even greater.
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="01-ai-token-economy.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 01: AI Token Economy
+      </a>
+      <a href="03-environment-setup.html" class="nav-btn next">
+        Module 03: Environment Setup
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 02: Cortex AI Capabilities</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

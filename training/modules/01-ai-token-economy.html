@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 01: AI Token Economy - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link active" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 11.1%;"></div>
+    <span class="progress-text">1 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 01</span>
+        <span class="timing-badge concept">10 min</span>
+      </div>
+      <h1 class="module-title">AI Token Economy</h1>
+      <p class="module-subtitle">Understanding the fundamental unit of AI cost in Snowflake</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Understand what a token is and how it maps to cost</li>
+          <li>Know the two cost layers in Snowflake AI workloads</li>
+          <li>Estimate query cost before running at scale</li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ─── Section A: What Is a Token? ────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">What Is a Token?</h2>
+      </div>
+
+      <p>Every AI model processes text by breaking it into smaller pieces called <strong>tokens</strong>. These tokens are the fundamental billing unit for AI operations in Snowflake Cortex.</p>
+
+      <div class="cols two">
+        <div class="panel">
+          <h4>Token Basics</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem;">
+            <li><strong>1 token ≈ 0.75 English words</strong></li>
+            <li>Common words = 1 token</li>
+            <li>Long/uncommon words = multiple tokens</li>
+            <li>Spaces and punctuation = tokens</li>
+            <li>Both input AND output count toward cost</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Quick Estimates</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: var(--space-xs) 0;"><code>100 words</code> ≈ 130 tokens</li>
+            <li style="padding: var(--space-xs) 0;"><code>1 page of text</code> ≈ 500 tokens</li>
+            <li style="padding: var(--space-xs) 0;"><code>1 short email</code> ≈ 100–200 tokens</li>
+            <li style="padding: var(--space-xs) 0;"><code>1 SQL query</code> ≈ 50–150 tokens</li>
+          </ul>
+        </div>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl);">Token Visualization</h4>
+      <p>See how a sentence breaks into tokens:</p>
+
+      <div class="token-visual">
+        <div class="token-block">Show</div>
+        <div class="token-block">me</div>
+        <div class="token-block">the</div>
+        <div class="token-block">top</div>
+        <div class="token-block">cust</div>
+        <div class="token-block">omers</div>
+      </div>
+      <p class="text-center" style="color: #6b7280; font-size: 0.9rem; margin-top: var(--space-sm);">
+        "Show me the top customers" = <strong>6 tokens</strong> (note: "customers" splits into 2 tokens)
+      </p>
+
+      <h4 style="margin-top: var(--space-xl);">Prompt + Response Anatomy</h4>
+      <p>Every AI call has two token components that get billed:</p>
+
+      <div class="cost-diagram">
+        <div class="header">PROMPT (Input Tokens)</div>
+        <div class="input">System message    : 50 tokens</div>
+        <div class="input">Your instruction  : 30 tokens</div>
+        <div class="input">Data context      : 200 tokens</div>
+        <div class="divider"></div>
+        <div class="header">RESPONSE (Output Tokens)</div>
+        <div class="output">Model reply       : 150 tokens</div>
+        <div class="divider"></div>
+        <div class="total">Total this call: 430 tokens</div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Key Insight</h5>
+        <p>Output tokens typically cost <strong>more</strong> than input tokens for premium models. A verbose model response can cost significantly more than a concise one - this is why prompt engineering to request brief answers is a real cost optimization technique.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section B: Two Cost Layers ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Two Cost Layers in Snowflake AI</h2>
+      </div>
+
+      <p>When you run AI workloads in Snowflake, you're dealing with <strong>two distinct cost layers</strong>. Understanding this distinction is crucial for FinOps.</p>
+
+      <div class="cols two">
+        <div class="panel" style="border-left: 4px solid var(--sf-blue);">
+          <h4 style="color: var(--sf-blue);">Layer 1: Warehouse Compute Credits</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; margin-top: var(--space-md);">
+            <li>Traditional Snowflake billing</li>
+            <li>Based on warehouse size × time running</li>
+            <li><strong>Stops when warehouse suspends</strong></li>
+            <li>You control this via auto-suspend settings</li>
+          </ul>
+          <div style="margin-top: var(--space-md); padding: var(--space-md); background: var(--sf-ice); border-radius: var(--radius-sm);">
+            <strong>Example:</strong> SMALL warehouse = 2 credits/hour
+          </div>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--sf-danger);">
+          <h4 style="color: var(--sf-danger);">Layer 2: AI Token Credits (Cortex)</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; margin-top: var(--space-md);">
+            <li>New billing layer for AI functions</li>
+            <li>Based on tokens consumed per call</li>
+            <li><strong>Does NOT stop when warehouse suspends</strong></li>
+            <li>Some functions run serverless</li>
+          </ul>
+          <div style="margin-top: var(--space-md); padding: var(--space-md); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm);">
+            <strong>Example:</strong> 1M tokens on claude-4-sonnet = 1.5-7.5 credits
+          </div>
+        </div>
+      </div>
+
+      <div class="callout cost">
+        <h5>Critical Cost Warning</h5>
+        <p><strong>Token costs do not stop when you suspend your warehouse.</strong> A misconfigured loop calling AI_COMPLETE() across 1 million rows can exceed a week of warehouse compute in minutes. This is the #1 surprise cost for teams adopting Cortex AI.</p>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl);">Serverless vs. Warehouse-Based</h4>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Execution Mode</th>
+            <th>Functions</th>
+            <th>Cost Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Serverless</strong></td>
+            <td>AI_COMPLETE, AI_SENTIMENT, AI_SUMMARIZE_AGG, AI_TRANSLATE, AI_CLASSIFY</td>
+            <td>Token credits only - no warehouse needed</td>
+          </tr>
+          <tr>
+            <td><strong>Warehouse + Serverless</strong></td>
+            <td>Cortex Search, Cortex Analyst</td>
+            <td>Both warehouse compute AND token credits</td>
+          </tr>
+          <tr>
+            <td><strong>Warehouse-based</strong></td>
+            <td>FORECAST, ANOMALY_DETECTION</td>
+            <td>Primarily warehouse compute</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ─── Section C: Token → Credit → Dollar ─────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Token → Credit → Dollar Table</h2>
+      </div>
+
+      <p>Use this reference table for cost estimation. Rates are from Snowflake's official Credit Consumption Table.</p>
+
+      <h4 style="margin-top: var(--space-lg);">Cortex LLM Functions (AI_COMPLETE)</h4>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Provider</th>
+            <th>Input Tokens/Credit</th>
+            <th>Output Tokens/Credit</th>
+            <th>Cost Tier</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="budget-row">
+            <td><code>mistral-7b</code></td>
+            <td>Mistral AI</td>
+            <td>8,333,333</td>
+            <td>8,333,333</td>
+            <td><span class="badge budget">Budget</span></td>
+            <td>Simple extraction, classification</td>
+          </tr>
+          <tr class="budget-row">
+            <td><code>llama3.1-8b</code></td>
+            <td>Meta</td>
+            <td>5,263,158</td>
+            <td>5,263,158</td>
+            <td><span class="badge budget">Budget</span></td>
+            <td>Fast inference, high volume</td>
+          </tr>
+          <tr class="standard-row">
+            <td><code>llama3.1-70b</code></td>
+            <td>Meta</td>
+            <td>826,446</td>
+            <td>826,446</td>
+            <td><span class="badge standard">Standard</span></td>
+            <td>Complex reasoning, instruction following</td>
+          </tr>
+          <tr class="standard-row">
+            <td><code>mistral-large2</code></td>
+            <td>Mistral AI</td>
+            <td>454,545</td>
+            <td>454,545</td>
+            <td><span class="badge standard">Standard</span></td>
+            <td>High quality, multilingual</td>
+          </tr>
+          <tr class="premium-row">
+            <td><code>llama3.1-405b</code></td>
+            <td>Meta</td>
+            <td>333,333</td>
+            <td>333,333</td>
+            <td><span class="badge premium">Premium</span></td>
+            <td>Maximum open-source capability</td>
+          </tr>
+          <tr class="premium-row">
+            <td><code>claude-4-sonnet</code></td>
+            <td>Anthropic</td>
+            <td>666,667</td>
+            <td>133,333</td>
+            <td><span class="badge premium">Premium</span></td>
+            <td>Highest quality, coding, analysis</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">Optimized Internal Models (Billed Per Character)</h4>
+      <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);">These functions use Snowflake's own optimized internal models - not LLMs like mistral or claude. They process raw text directly by character count, not through a tokenizer. Snowflake bills them at a flat rate per character processed.</p>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Unit</th>
+            <th>Credits</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_SENTIMENT()</code></td>
+            <td>Per 1M characters</td>
+            <td>0.095</td>
+            <td>Fixed internal model - most cost-efficient</td>
+          </tr>
+          <tr>
+            <td><code>AI_TRANSLATE()</code></td>
+            <td>Per 1M characters</td>
+            <td>0.333</td>
+            <td>24+ languages supported with auto-detect</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">LLM-Powered Functions (Billed Per Token)</h4>
+      <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);">These functions use LLM models (mistral, llama, claude, etc.) that tokenize input. Cost varies by model selected - same token-based pricing as AI_COMPLETE.</p>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Unit</th>
+            <th>Credits</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_CLASSIFY()</code></td>
+            <td>Per 1M tokens</td>
+            <td>Varies by model</td>
+            <td>Cheaper than AI_COMPLETE for classification</td>
+          </tr>
+          <tr>
+            <td><code>AI_SUMMARIZE_AGG()</code></td>
+            <td>Per 1M tokens</td>
+            <td>Varies by model</td>
+            <td>Aggregate summarization across rows</td>
+          </tr>
+          <tr>
+            <td><code>AI_EMBED()</code></td>
+            <td>Per 1M tokens</td>
+            <td>0.13</td>
+            <td>Unified embedding function (text + images)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">ML Functions</h4>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Billing Basis</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>FORECAST()</code></td>
+            <td>Warehouse compute</td>
+            <td>Time-series forecasting, warehouse-based execution</td>
+          </tr>
+          <tr>
+            <td><code>ANOMALY_DETECTION()</code></td>
+            <td>Warehouse compute</td>
+            <td>Outlier detection, warehouse-based execution</td>
+          </tr>
+          <tr>
+            <td><code>CLASSIFICATION()</code></td>
+            <td>Warehouse compute</td>
+            <td>ML classification, warehouse-based</td>
+          </tr>
+          <tr>
+            <td><code>CONTRIBUTION_EXPLORER()</code></td>
+            <td>Warehouse compute</td>
+            <td>Root cause analysis</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <h5>Cost Conversion</h5>
+        <p>At typical contract rates of <strong>$2.50–$4.00 per credit</strong>, use $3/credit as a reasonable estimate. Always validate against your specific contract terms.</p>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl);">Shadow Waste Savings: Task-Specific Functions vs AI_COMPLETE</h4>
+      <p>The most common shadow waste pattern: using <code>AI_COMPLETE()</code> for tasks that have a dedicated, cheaper function. The table below shows expected savings when switching - validate with your own workload before projecting.</p>
+
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Instead of&hellip;</th>
+            <th>Use&hellip;</th>
+            <th>Expected Savings</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_COMPLETE('Classify sentiment&hellip;')</code></td>
+            <td><code>AI_SENTIMENT(text)</code></td>
+            <td><span class="badge good" style="background: var(--sf-good); color: #fff;">40–70%</span></td>
+            <td>Purpose-built model, no prompt tokens, lower per-call cost</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Classify into: A, B, C&hellip;')</code></td>
+            <td><code>AI_CLASSIFY(text, [&hellip;])</code></td>
+            <td><span class="badge good" style="background: var(--sf-good); color: #fff;">50–75%</span></td>
+            <td>Zero-shot classification without prompt engineering overhead</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Translate to French&hellip;')</code></td>
+            <td><code>AI_TRANSLATE(text, 'fr')</code></td>
+            <td><span class="badge good" style="background: var(--sf-good); color: #fff;">40–60%</span></td>
+            <td>Optimized translation model, 90+ languages, no prompt tokens</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Summarize this&hellip;')</code> with premium model</td>
+            <td><code>AI_COMPLETE()</code> with <code>mistral-7b</code></td>
+            <td><span class="badge good" style="background: var(--sf-good); color: #fff;">30–60%</span></td>
+            <td>Budget model usually sufficient for summarization</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE()</code> with <code>claude-4-sonnet</code></td>
+            <td><code>AI_COMPLETE()</code> with <code>mistral-7b</code></td>
+            <td><span class="badge good" style="background: var(--sf-good); color: #fff;">10–50x</span></td>
+            <td>Right-sizing: cheapest model that meets quality bar</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn" style="margin-top: var(--space-md);">
+        <h5>Detect This Pattern Automatically</h5>
+        <p>Module 06, Query 8 uses <code>credits_per_1M_tokens</code> from <code>CORTEX_AISQL_USAGE_HISTORY</code> to flag over-sized model usage. Run it monthly to catch waste before it compounds.</p>
+      </div>
+
+      <div class="callout cost" style="margin-top: var(--space-xl);">
+        <h5>Standing Cost: Cortex Search Services</h5>
+        <p>Unlike pay-per-call AI functions, <strong>Cortex Search</strong> has a standing cost model with <strong>two cost components</strong> that accrue regardless of query volume:</p>
+
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" style="min-width: 600px;">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Cost Component</th>
+                <th style="width: 25%;">Rate</th>
+                <th style="width: 45%;">Trigger</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Serving Compute</strong></td>
+                <td><code>6.3 credits/GB/month</code></td>
+                <td>Continuous while service is <em>resumed</em>, even with zero queries</td>
+              </tr>
+              <tr>
+                <td><strong>Indexing</strong> (Warehouse + AI_EMBED tokens)</td>
+                <td><code>Variable</code></td>
+                <td>On source data change: warehouse refreshes + token embedding costs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="margin-top: var(--space-sm);"><strong>Key distinction:</strong> Serving credits burn 24/7 as long as the service status is "resumed." Indexing costs fire only when source data changes, but for active tables, that can be continuous too.</p>
+
+        <ul style="list-style: disc; padding-left: 1.5rem; margin-top: var(--space-sm);">
+          <li>An idle Search service with serving resumed = <strong>100% waste</strong> on serving credits</li>
+          <li><strong>Weekly audit:</strong> is each service actively queried?</li>
+          <li>Use <code>CORTEX_SEARCH_DAILY_USAGE_HISTORY</code> with <code>CONSUMPTION_TYPE = 'SERVING'</code> to find silent cost</li>
+          <li><strong>Suspend</strong> unused services or <strong>DROP</strong> them immediately</li>
+          <li>See <a href="06-token-usage-tracking.html#query-6">Module 06, Query 6: Idle Cortex Search Detection</a> for the full detection query</li>
+        </ul>
+
+        <div class="code-block" style="margin-top: var(--space-md);">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Suspend serving only (stops the 6.3 credits/GB/month standing cost)
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND SERVING;
+
+-- Suspend indexing only (stops warehouse + embedding costs on data changes)
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND INDEXING;
+
+-- Suspend both serving AND indexing
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND;
+
+-- Resume when needed (typically takes a few minutes)
+ALTER CORTEX SEARCH SERVICE my_search_svc RESUME;
+
+-- Nuclear option: permanently remove an abandoned service
+DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section D: Token Cost Estimator ────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">Token Cost Estimator</h2>
+      </div>
+
+      <p>Use this calculator to estimate costs <strong>before</strong> running AI workloads at scale.</p>
+
+      <div class="calculator" id="token-calculator">
+        <div class="cols two">
+          <div>
+            <div class="calculator-row">
+              <label class="calculator-label">
+                Prompt Tokens: <span id="prompt-value">500</span>
+              </label>
+              <input type="range" class="calculator-slider" id="calc-prompt-tokens" min="0" max="4000" value="500" step="50">
+            </div>
+
+            <div class="calculator-row">
+              <label class="calculator-label">
+                Response Tokens: <span id="response-value">200</span>
+              </label>
+              <input type="range" class="calculator-slider" id="calc-response-tokens" min="0" max="4000" value="200" step="50">
+            </div>
+
+            <div class="calculator-row">
+              <label class="calculator-label">
+                Calls Per Day: <span id="calls-value">1000</span>
+              </label>
+              <input type="range" class="calculator-slider" id="calc-calls-per-day" min="1" max="100000" value="1000" step="100">
+            </div>
+
+            <div class="calculator-row">
+              <label class="calculator-label">Model</label>
+              <select class="calculator-input" id="calc-model">
+                <option value="mistral-7b">mistral-7b (Budget)</option>
+                <option value="llama3-8b">llama3-8b (Budget)</option>
+                <option value="mixtral-8x7b">mixtral-8x7b (Standard)</option>
+                <option value="llama3-70b" selected>llama3-70b (Standard)</option>
+                <option value="snowflake-arctic">snowflake-arctic (Standard)</option>
+                <option value="mistral-large">mistral-large (Premium)</option>
+                <option value="claude-4-sonnet">claude-4-sonnet (Premium)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="calculator-output">
+            <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Estimated Costs</h4>
+            <div class="calculator-result">
+              <span class="calculator-result-label">Credits per call</span>
+              <span class="calculator-result-value" id="result-per-call">0.000847</span>
+            </div>
+            <div class="calculator-result">
+              <span class="calculator-result-label">Daily credits</span>
+              <span class="calculator-result-value" id="result-daily">0.8470</span>
+            </div>
+            <div class="calculator-result">
+              <span class="calculator-result-label">Monthly credits</span>
+              <span class="calculator-result-value" id="result-monthly">25.41</span>
+            </div>
+            <div class="calculator-result" style="border-top: 1px solid var(--sf-blue); padding-top: var(--space-md); margin-top: var(--space-sm);">
+              <span class="calculator-result-label">Est. $/month (@ $3/credit)</span>
+              <span class="calculator-result-value" style="color: var(--sf-good); font-size: 1.2rem;" id="result-dollars">$76.23</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Use This Estimator First</h5>
+        <p>Run this estimator before building any AI pipeline. The difference between <code>mistral-7b</code> and <code>claude-4-sonnet</code> can be <strong>10–50× in credit cost</strong> for the same prompt. Choose the cheapest model that meets your quality requirements.</p>
+      </div>
+    </section>
+
+    <!-- ─── Checkpoint ─────────────────────────────────────────────────────── -->
+    <section class="checkpoint">
+      <h3>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Knowledge Check
+      </h3>
+
+      <div class="checkpoint-question">
+        <p><strong>Q1:</strong> A 500-token prompt generates a 300-token response. How many total tokens are billed?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>800 tokens total.</strong> Both input (prompt) and output (response) tokens are billed. This is why limiting response length is a cost optimization technique.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q2:</strong> Which cost layer stops when you suspend your warehouse?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>Layer 1: Warehouse Compute Credits.</strong> Layer 2 (AI Token Credits) continues to accumulate on every Cortex function call, regardless of warehouse state. Some Cortex functions run serverless and don't use a warehouse at all.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q3:</strong> What does "serverless Cortex" mean for cost tracking?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>You pay only for tokens, not warehouse time.</strong> Functions like AI_SENTIMENT(), AI_COMPLETE(), and AI_TRANSLATE() run on Snowflake's managed infrastructure. This is efficient for sporadic use, but can accumulate rapidly at scale since there's no auto-suspend safety net.
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="../index.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Home
+      </a>
+      <a href="02-cortex-ai-capabilities.html" class="nav-btn next">
+        Module 02: Cortex AI Capabilities
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 01: AI Token Economy</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

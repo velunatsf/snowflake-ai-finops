@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 03: Environment Setup - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link active" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 33.3%;"></div>
+    <span class="progress-text">3 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 03</span>
+        <span class="timing-badge lab">10 min</span>
+      </div>
+      <h1 class="module-title">Environment Setup</h1>
+      <p class="module-subtitle">Build a governed AI lab environment with cost controls</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Sign up for Cortex Code and create your training user</li>
+          <li>Build a governed AI lab environment in Snowflake</li>
+          <li>Configure role, warehouse, and MFA for secure access</li>
+          <li>Understand why each step exists from a cost governance lens</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="callout cost">
+      <h5>Key Principle - Two Cost Layers</h5>
+      <p>Resource Monitors cap <strong>warehouse compute</strong> credits. Cortex AI functions consume <strong>AI token credits</strong> billed separately. You need both: a Resource Monitor for compute and <code>METERING_DAILY_HISTORY</code> / Budgets for AI spend.</p>
+    </div>
+
+    <!-- ─── Section A: Sign Up for Cortex Code ──────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">Sign Up for Cortex Code</h2>
+      </div>
+
+      <div class="callout warn">
+        <h5>Complete Before the Session</h5>
+        <p>Account activation can take a few minutes. If you haven't done this yet, complete it now before proceeding to the hands-on modules.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Create Your Cortex Code Account</h4>
+          <p>Visit the Cortex Code signup page to create your account:</p>
+          <p><a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="font-size: 1.1rem; font-weight: 600;">https://signup.snowflake.com/cortex-code</a></p>
+          <p style="color: #6b7280; font-size: 0.9rem;">Trial accounts include credits to explore Cortex Code capabilities.</p>
+          <div class="callout warn" style="margin-top: var(--space-sm);">
+            <h5>Credit Card Required</h5>
+            <p>Cortex Code signup requires a credit card on file. No charges are applied during the trial period, but the card must be present to complete setup.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Existing Snowflake Account</h4>
+          <p>If you already have a Snowflake account, you can use Cortex Code with your existing credentials. The CLI will connect to your account using either:</p>
+          <ul style="margin-top: var(--space-sm);">
+            <li><strong>Browser-based SSO</strong> - Interactive use on a machine with a web browser</li>
+            <li><strong>Programmatic Access Token (PAT)</strong> - Headless environments or automation</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section B: Create Role and User ─────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Create Role, User, and Database</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Create Training Role and User</h4>
+          <p><strong>Why:</strong> Dedicated role and user for training participants with only the permissions needed. Run the following as <code>ACCOUNTADMIN</code>:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>USE ROLE ACCOUNTADMIN;
+
+-- Create dedicated training role
+CREATE ROLE cortex_analyst;
+
+-- Create training user
+CREATE USER USER_COCO PASSWORD = '********';
+
+-- Create training database and schema
+CREATE DATABASE cortex_lab;
+CREATE SCHEMA cortex_lab.ai_workshop;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Grant Ownership and Permissions</h4>
+          <p><strong>Why:</strong> The training role needs full ownership of the lab objects and access to Cortex AI capabilities.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>-- Grant ownership on training objects
+GRANT OWNERSHIP ON DATABASE cortex_lab TO ROLE cortex_analyst;
+GRANT OWNERSHIP ON SCHEMA cortex_lab.ai_workshop TO ROLE cortex_analyst;
+
+-- Assign role to user
+GRANT ROLE cortex_analyst TO USER USER_COCO;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section C: Create Warehouse ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Create Warehouse with FinOps Settings</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Provision Warehouse</h4>
+          <p><strong>Why:</strong> 300-second (5 min) auto-suspend balances cost and resume latency. SMALL size is sufficient for training workloads. <code>MAX_CLUSTER_COUNT = 1</code> prevents multi-cluster scaling.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>CREATE WAREHOUSE cortex_wh
+    WAREHOUSE_SIZE = 'SMALL'
+    AUTO_SUSPEND = 300
+    AUTO_RESUME = TRUE
+    MAX_CLUSTER_COUNT = 1;
+
+-- Grant ownership to training role
+GRANT OWNERSHIP ON WAREHOUSE cortex_wh TO ROLE cortex_analyst;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section D: Grant Cortex Access ──────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">Grant Cortex AI Access</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Enable Cortex Capabilities</h4>
+          <p><strong>Why:</strong> The <code>COPILOT_USER</code> and <code>CORTEX_USER</code> database roles are required to use Cortex AI functions and Copilot features. Imported privileges on the SNOWFLAKE database enable access to account usage views for cost tracking.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>-- Grant Cortex AI capabilities
+GRANT DATABASE ROLE SNOWFLAKE.COPILOT_USER TO ROLE cortex_analyst;
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE cortex_analyst;
+
+-- Grant access to account usage views (for cost tracking)
+GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_analyst;</pre>
+            </div>
+          </div>
+          <div class="callout tip">
+            <h5>Permission Note</h5>
+            <p>The <code>SNOWFLAKE.CORTEX_USER</code> database role is granted to PUBLIC by default, but explicit grants provide better governance visibility. The <code>IMPORTED PRIVILEGES</code> grant enables querying <code>ACCOUNT_USAGE</code> views in later modules.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section E: MFA Setup ────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">E</div>
+        <h2 class="section-title">MFA Setup</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Configure Multi-Factor Authentication</h4>
+          <p><strong>Why:</strong> MFA is required for Snowflake CoCo CLI authentication. After first login, Snowflake will prompt you to set up MFA.</p>
+          
+          <p style="margin-top: var(--space-md);"><strong>Step 1:</strong> Choose your MFA method. Snowflake supports Passkey, Authenticator app, or Duo:</p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/MFA-Setup-1.png" alt="MFA Setup - Choose method: Passkey (Recommended), Authenticator, or Duo" style="max-width: 400px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+
+          <p style="margin-top: var(--space-md);"><strong>Step 2:</strong> After adding your authenticator, give it a nickname for easy identification (e.g., <code>USER_COCO</code>):</p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/MFA-Setup-2.png" alt="MFA Setup - Authenticator successfully added with nickname USER_COCO" style="max-width: 400px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+
+          <div class="callout tip" style="margin-top: var(--space-md);">
+            <h5>Recommended: Authenticator App</h5>
+            <p>We recommend using an authenticator app (Google Authenticator, Microsoft Authenticator, or similar) for the most reliable experience with Snowflake CoCo CLI. The nickname helps identify this MFA method in your Snowflake settings.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section F: Resource Monitor ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">F</div>
+        <h2 class="section-title">Resource Monitor (Warehouse Compute Guard)</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Create Resource Monitor</h4>
+          <p><strong>Why:</strong> Resource Monitors control <strong>warehouse compute</strong> credits. They do not cap Cortex AI token credits, which are billed separately. This monitor protects against runaway warehouse costs during training.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>CREATE RESOURCE MONITOR IF NOT EXISTS cortex_lab_monitor
+    WITH CREDIT_QUOTA = 50
+    TRIGGERS
+        ON 50 PERCENT DO NOTIFY
+        ON 75 PERCENT DO NOTIFY
+        ON 90 PERCENT DO SUSPEND_IMMEDIATE;
+
+ALTER WAREHOUSE cortex_wh
+    SET RESOURCE_MONITOR = cortex_lab_monitor;</pre>
+            </div>
+          </div>
+          <div class="callout tip">
+            <h5>Why SUSPEND_IMMEDIATE at 90%?</h5>
+            <p>This prevents the warehouse from running up compute credits. Note: Cortex AI token costs are separate and not capped by Resource Monitors. To track AI spend, query <code>METERING_DAILY_HISTORY</code> or use Snowflake Budgets.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section G: Sample Data ──────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">G</div>
+        <h2 class="section-title">Load Sample Data</h2>
+      </div>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Login as USER_COCO</h5>
+        <p>From this point onward, <strong>log in as USER_COCO</strong> (the training user created in Step A) to create and own the sample data sets. This ensures the cortex_analyst role has full ownership of all lab objects.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Create Customer Feedback Table</h4>
+          <p><strong>Why:</strong> Customer feedback data for sentiment analysis and classification exercises. Uses SNOWFLAKE_SAMPLE_DATA available in all accounts.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>USE ROLE cortex_analyst;
+USE SCHEMA cortex_lab.ai_workshop;
+USE WAREHOUSE cortex_wh;
+
+CREATE OR REPLACE TABLE cortex_lab.ai_workshop.customer_feedback AS
+SELECT
+    c.c_custkey                         AS customer_id,
+    c.c_name                            AS customer_name,
+    c.c_comment                         AS feedback_text,
+    c.c_mktsegment                      AS market_segment,
+    c.c_acctbal                         AS account_balance,
+    n.n_name                            AS country,
+    CURRENT_TIMESTAMP()                 AS loaded_at
+FROM snowflake_sample_data.tpch_sf1.customer c
+JOIN snowflake_sample_data.tpch_sf1.nation n
+    ON c.c_nationkey = n.n_nationkey
+LIMIT 500;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Create ORDERS, CUSTOMER, and SUPPLIER Tables</h4>
+          <p><strong>Why:</strong> Larger datasets for AI_FILTER, cost tracking exercises, and multi-table analysis scenarios.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>-- ORDERS
+CREATE TABLE cortex_lab.ai_workshop.ORDERS (
+    O_ORDERKEY      NUMBER(38,0) NOT NULL,
+    O_CUSTKEY       NUMBER(38,0) NOT NULL,
+    O_ORDERSTATUS   VARCHAR(1)   NOT NULL,
+    O_TOTALPRICE    NUMBER(12,2) NOT NULL,
+    O_ORDERDATE     DATE         NOT NULL,
+    O_ORDERPRIORITY VARCHAR(15)  NOT NULL,
+    O_CLERK         VARCHAR(15)  NOT NULL,
+    O_SHIPPRIORITY  NUMBER(38,0) NOT NULL,
+    O_COMMENT       VARCHAR(79)  NOT NULL
+);
+
+INSERT INTO cortex_lab.ai_workshop.ORDERS
+SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF10.ORDERS;
+
+-- CUSTOMER
+CREATE TABLE cortex_lab.ai_workshop.CUSTOMER (
+    C_CUSTKEY    NUMBER(38,0) NOT NULL,
+    C_NAME       VARCHAR(25)  NOT NULL,
+    C_ADDRESS    VARCHAR(40)  NOT NULL,
+    C_NATIONKEY  NUMBER(38,0) NOT NULL,
+    C_PHONE      VARCHAR(15)  NOT NULL,
+    C_ACCTBAL    NUMBER(12,2) NOT NULL,
+    C_MKTSEGMENT VARCHAR(10),
+    C_COMMENT    VARCHAR(117)
+);
+
+INSERT INTO cortex_lab.ai_workshop.CUSTOMER
+SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF10.CUSTOMER;
+
+-- SUPPLIER
+CREATE TABLE cortex_lab.ai_workshop.SUPPLIER (
+    S_SUPPKEY   NUMBER(38,0) NOT NULL,
+    S_NAME      VARCHAR(25)  NOT NULL,
+    S_ADDRESS   VARCHAR(40)  NOT NULL,
+    S_NATIONKEY NUMBER(38,0) NOT NULL,
+    S_PHONE     VARCHAR(15)  NOT NULL,
+    S_ACCTBAL   NUMBER(12,2) NOT NULL,
+    S_COMMENT   VARCHAR(101)
+);
+
+INSERT INTO cortex_lab.ai_workshop.SUPPLIER
+SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF10.SUPPLIER;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section H: Verify ───────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">H</div>
+        <h2 class="section-title">Verify Setup</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Confirm All Objects</h4>
+          <p><strong>Why:</strong> Confirm all objects are created correctly before proceeding to the hands-on exercises.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>-- Check Resource Monitor
+SHOW RESOURCE MONITORS LIKE 'CORTEX_LAB_MONITOR';
+
+-- Check Warehouse
+SHOW WAREHOUSES LIKE 'CORTEX_WH';
+
+-- Check sample data loaded
+SELECT COUNT(*) AS row_count 
+FROM cortex_lab.ai_workshop.customer_feedback;
+
+-- Preview sample data
+SELECT 
+    customer_id,
+    customer_name,
+    LEFT(feedback_text, 80) AS feedback_preview,
+    market_segment,
+    country
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 5;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Expected Results ───────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel" style="background: linear-gradient(135deg, var(--sf-good), #059669); color: white;">
+        <h4 style="color: white;">Setup Complete - Expected Results</h4>
+        <ul style="list-style: none; padding: 0; margin-top: var(--space-md);">
+          <li style="padding: var(--space-xs) 0;">&#10003; User: <code style="background: rgba(255,255,255,0.2); color: white;">USER_COCO</code></li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Role: <code style="background: rgba(255,255,255,0.2); color: white;">cortex_analyst</code> with Cortex access</li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Database: <code style="background: rgba(255,255,255,0.2); color: white;">cortex_lab</code></li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Schema: <code style="background: rgba(255,255,255,0.2); color: white;">cortex_lab.ai_workshop</code></li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Warehouse: <code style="background: rgba(255,255,255,0.2); color: white;">cortex_wh</code> (SMALL, 5 min auto-suspend)</li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Resource Monitor: <code style="background: rgba(255,255,255,0.2); color: white;">cortex_lab_monitor</code> (50 credit quota)</li>
+          <li style="padding: var(--space-xs) 0;">&#10003; Table: <code style="background: rgba(255,255,255,0.2); color: white;">customer_feedback</code> (500 rows)</li>
+          <li style="padding: var(--space-xs) 0;">&#10003; MFA: Configured for <code style="background: rgba(255,255,255,0.2); color: white;">USER_COCO</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ─── Download SQL ───────────────────────────────────────────────────── -->
+    <section class="section text-center">
+      <a href="../sql/04-environment-setup.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Complete SQL Script
+      </a>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="02-cortex-ai-capabilities.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 02: Cortex AI Capabilities
+      </a>
+      <a href="04-cortex-code-setup.html" class="nav-btn next">
+        Module 04: CoCo Setup
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 03: Environment Setup</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

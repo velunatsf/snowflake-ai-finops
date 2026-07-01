@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 05: AI SQL Hands-On - AI for FinOps</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link active" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 55.6%;"></div>
+    <span class="progress-text">5 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 05</span>
+        <span class="timing-badge lab">20 min</span>
+      </div>
+      <h1 class="module-title">AI SQL - Hands-On Exercises</h1>
+      <p class="module-subtitle">Run Cortex AI functions and compare costs across models</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Run five Cortex AI functions against real data</li>
+          <li>Compare cost across functions and models</li>
+          <li>Apply the cost-check habit after each exercise</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="callout cost">
+      <h5>The FinOps Habit</h5>
+      <p>After <strong>EVERY</strong> exercise in this module, switch to Module 06 and run the token tracking query. Record your running credit total. This is how FinOps practitioners build cost intuition.</p>
+    </div>
+
+    <!-- ─── Exercise 1: Sentiment ──────────────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 1</span>
+            <h3 style="margin-top: var(--space-sm);">Sentiment Analysis</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge low">Lowest Cost</span>
+            <span class="badge budget">AI_SENTIMENT()</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Analyze customer feedback sentiment using Snowflake's most cost-efficient AI function.</p>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Approach A: New AI_SENTIMENT (returns OBJECT with category strings)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    customer_id,
+    customer_name,
+    LEFT(feedback_text, 80)                     AS feedback_preview,
+    AI_SENTIMENT(feedback_text)                 AS sentiment_result,
+    AI_SENTIMENT(
+        feedback_text
+    ):categories[0]:sentiment::VARCHAR          AS sentiment_label
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 20;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">Approach B: Legacy SENTIMENT (returns numeric score -1 to 1)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    customer_id,
+    customer_name,
+    LEFT(feedback_text, 80)                     AS feedback_preview,
+    SNOWFLAKE.CORTEX.SENTIMENT(
+        feedback_text
+    )                                           AS sentiment_score,
+    CASE
+        WHEN SNOWFLAKE.CORTEX.SENTIMENT(feedback_text) > 0.3
+             THEN 'Positive'
+        WHEN SNOWFLAKE.CORTEX.SENTIMENT(feedback_text) < -0.3
+             THEN 'Negative'
+        ELSE 'Neutral'
+    END                                         AS sentiment_label
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 20;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <h5>AI_SENTIMENT vs SENTIMENT</h5>
+          <p><strong>AI_SENTIMENT()</strong> (new) returns an OBJECT: <code>{"categories":[{"name":"overall","sentiment":"positive"}]}</code>. Extract via <code>:categories[0]:sentiment::VARCHAR</code>.</p>
+          <p><strong>SNOWFLAKE.CORTEX.SENTIMENT()</strong> (legacy) returns a float from -1.0 to 1.0. Both are highly cost-efficient - no model parameter required.</p>
+        </div>
+
+        <div class="cost-check">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Cost Check: Record credits used before next exercise
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 2: Classification ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 2</span>
+            <h3 style="margin-top: var(--space-sm);">Text Classification</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge low">Lower Cost</span>
+            <span class="badge standard">AI_CLASSIFY()</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Route customer feedback to support teams by categorizing into predefined topics.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    customer_id,
+    market_segment,
+    LEFT(feedback_text, 80)                     AS feedback_preview,
+    AI_CLASSIFY(
+        feedback_text,
+        ['billing',
+         'technical_issue',
+         'general_inquiry',
+         'complaint',
+         'praise']
+    ):labels[0]::VARCHAR                        AS category
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 20;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <h5>AI_CLASSIFY vs AI_COMPLETE</h5>
+          <p>AI_CLASSIFY() is significantly cheaper than using AI_COMPLETE() with a classification prompt. Always use the specialized function when available.</p>
+        </div>
+
+        <div class="cost-check">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Cost Check: How did this compare to Exercise 1?
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 3: Extraction ─────────────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 3</span>
+            <h3 style="margin-top: var(--space-sm);">Text Extraction</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge medium">Medium Cost</span>
+            <span class="badge budget">mistral-7b</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Extract structured information from unstructured text using a budget-tier model.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    customer_id,
+    feedback_text,
+    AI_COMPLETE(
+        'mistral-7b',
+        CONCAT(
+            'Extract the main complaint topic from this customer ',
+            'feedback in 3 words or less. ',
+            'Reply with only the topic, nothing else. ',
+            'Feedback: ', feedback_text
+        )
+    )                                           AS extracted_topic
+FROM cortex_lab.ai_workshop.customer_feedback
+WHERE LENGTH(feedback_text) > 50
+LIMIT 10;</pre>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <h5>Model Choice Matters</h5>
+          <p>Notice we use <code>mistral-7b</code> - the budget tier model. For a simple 3-word extraction task, a premium model would cost 10–20× more with no quality gain.</p>
+        </div>
+
+        <div class="cost-check">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Cost Check: Compare AI_COMPLETE() cost vs AI_CLASSIFY()
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 4: Model Comparison ───────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise" style="border-left-color: var(--sf-danger);">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 4 - Core FinOps Exercise</span>
+            <h3 style="margin-top: var(--space-sm);">Model Cost Comparison</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge high">Variable Cost</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Same prompt, three models, three cost points. This is the single most important FinOps exercise in this training.</p>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">Model A: Budget Tier (mistral-7b)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT 
+    'mistral-7b' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'mistral-7b',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_budget
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Model B: Standard Tier (llama3-70b)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT 
+    'llama3-70b' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'llama3-70b',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_standard
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-danger);">Model C: Premium Tier (claude-4-sonnet)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT 
+    'claude-4-sonnet' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'claude-4-sonnet',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_premium
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-xl);">Fill in Your Results</h4>
+        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);"><strong>Cost Index</strong> = Credits Used / Credits Used by mistral-7b (baseline). This shows how many times more expensive each model is relative to the cheapest option.</p>
+        <table class="comparison-table" id="cost-comparison-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Quality (Your Observation)</th>
+              <th>Credits Used</th>
+              <th>Cost Index</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="budget-row">
+              <td><code>mistral-7b</code></td>
+              <td><input type="text" placeholder="Your observation..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><input type="text" class="credits-input" data-model="base" placeholder="0.00XXX" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><span class="cost-index-value" style="font-weight: 600;">1x</span></td>
+            </tr>
+            <tr class="standard-row">
+              <td><code>llama3-70b</code></td>
+              <td><input type="text" placeholder="Your observation..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><input type="text" class="credits-input" placeholder="0.00XXX" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><span class="cost-index-value" style="font-weight: 600;">-</span></td>
+            </tr>
+            <tr class="premium-row">
+              <td><code>claude-4-sonnet</code></td>
+              <td><input type="text" placeholder="Your observation..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><input type="text" class="credits-input" placeholder="0.00XXX" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
+              <td><span class="cost-index-value" style="font-weight: 600;">-</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <script>
+        (function() {
+          const table = document.getElementById('cost-comparison-table');
+          const inputs = table.querySelectorAll('.credits-input');
+          const indexCells = table.querySelectorAll('.cost-index-value');
+
+          function recalculate() {
+            const baseVal = parseFloat(inputs[0].value);
+            indexCells[0].textContent = baseVal > 0 ? '1x' : '1x';
+            for (let i = 1; i < inputs.length; i++) {
+              const val = parseFloat(inputs[i].value);
+              if (baseVal > 0 && val > 0) {
+                indexCells[i].textContent = (val / baseVal).toFixed(1) + 'x';
+              } else {
+                indexCells[i].textContent = '-';
+              }
+            }
+          }
+
+          inputs.forEach(function(input) {
+            input.addEventListener('input', recalculate);
+          });
+        })();
+        </script>
+
+        <div class="callout cost">
+          <h5>Key Insight</h5>
+          <p>This comparison is the core FinOps lesson. The right model choice for your use case can reduce AI spend by <strong>80–90%</strong> with equivalent output quality. The cheapest model that meets your quality bar is the correct choice.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 5: Scale Simulation ───────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 5</span>
+            <h3 style="margin-top: var(--space-sm);">Summarization at Scale Simulation</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge medium">Projection</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Understand cost before running at scale. This is the test → measure → project → decide pattern.</p>
+
+        <h4 style="margin-top: var(--space-lg);">Step 1: Run on 5 rows</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    customer_id,
+    AI_COMPLETE(
+        'mistral-7b',
+        CONCAT('Summarize this feedback in 2 sentences: ', feedback_text)
+    ) AS summary
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 5;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg);">Step 2: Check Cost (Module 06)</h4>
+        <p>Run the Module 06 tracking query to get credits used for those 5 rows.</p>
+
+        <h4 style="margin-top: var(--space-lg);">Step 3: Project to Full Scale</h4>
+        <div class="panel" style="border-left: 4px solid var(--sf-blue);">
+          <h4 style="color: var(--sf-blue);">Live Cost Projection Calculator</h4>
+          <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);">Enter your test results below - projections update automatically.</p>
+          <table style="width: 100%; border-collapse: separate; border-spacing: 0 6px;">
+            <tr>
+              <td style="padding: var(--space-sm); width: 55%;">Credits used for test rows:</td>
+              <td style="padding: var(--space-sm);">
+                <input type="number" id="calc-credits" step="0.000001" min="0" placeholder="e.g. 0.000150"
+                  style="width: 160px; padding: 0.5em; border: 2px solid var(--sf-blue); border-radius: 6px; font-family: monospace;">
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: var(--space-sm);">Number of test rows:</td>
+              <td style="padding: var(--space-sm);">
+                <input type="number" id="calc-rows" step="1" min="1" value="5" placeholder="5"
+                  style="width: 160px; padding: 0.5em; border: 2px solid var(--sf-blue); border-radius: 6px; font-family: monospace;">
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: var(--space-sm);">Credit rate ($/credit):</td>
+              <td style="padding: var(--space-sm);">
+                <input type="number" id="calc-rate" step="0.01" min="0" value="3.00" placeholder="3.00"
+                  style="width: 160px; padding: 0.5em; border: 1px solid #ccc; border-radius: 6px; font-family: monospace;">
+              </td>
+            </tr>
+            <tr style="background: #f0f9ff;">
+              <td style="padding: var(--space-sm); font-weight: 600;">Credits per row:</td>
+              <td style="padding: var(--space-sm);"><span id="calc-per-row" style="font-family: monospace; font-weight: 600; color: var(--sf-blue);">-</span></td>
+            </tr>
+          </table>
+
+          <h5 style="margin-top: var(--space-lg); margin-bottom: var(--space-sm); color: var(--sf-navy);">Scale Projections</h5>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: var(--sf-navy); color: white;">
+                <th style="padding: 0.6em 0.8em; text-align: left; border-radius: 6px 0 0 0;">Target Rows</th>
+                <th style="padding: 0.6em 0.8em; text-align: right;">Projected Credits</th>
+                <th style="padding: 0.6em 0.8em; text-align: right; border-radius: 0 6px 0 0;">Estimated Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.6em 0.8em;">500</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-500-cr">-</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-500-dl">-</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.6em 0.8em;">5,000</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-5k-cr">-</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-5k-dl">-</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.6em 0.8em;">50,000</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-50k-cr">-</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-50k-dl">-</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.6em 0.8em;">500,000</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-500k-cr">-</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace;" id="proj-500k-dl">-</td>
+              </tr>
+              <tr style="background: var(--sf-ice);">
+                <td style="padding: 0.6em 0.8em; font-weight: 700;">1,000,000</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace; font-weight: 700;" id="proj-1m-cr">-</td>
+                <td style="padding: 0.6em 0.8em; text-align: right; font-family: monospace; font-weight: 700; color: var(--sf-danger);" id="proj-1m-dl">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <script>
+        (function() {
+          const creditsInput = document.getElementById('calc-credits');
+          const rowsInput = document.getElementById('calc-rows');
+          const rateInput = document.getElementById('calc-rate');
+          const perRowSpan = document.getElementById('calc-per-row');
+          const projections = [
+            { rows: 500,     crId: 'proj-500-cr',  dlId: 'proj-500-dl'  },
+            { rows: 5000,    crId: 'proj-5k-cr',   dlId: 'proj-5k-dl'  },
+            { rows: 50000,   crId: 'proj-50k-cr',  dlId: 'proj-50k-dl' },
+            { rows: 500000,  crId: 'proj-500k-cr', dlId: 'proj-500k-dl'},
+            { rows: 1000000, crId: 'proj-1m-cr',   dlId: 'proj-1m-dl'  }
+          ];
+
+          function recalc() {
+            const credits = parseFloat(creditsInput.value);
+            const testRows = parseInt(rowsInput.value);
+            const rate = parseFloat(rateInput.value) || 3;
+
+            if (!credits || !testRows || credits <= 0 || testRows <= 0) {
+              perRowSpan.textContent = '-';
+              projections.forEach(function(p) {
+                document.getElementById(p.crId).textContent = '-';
+                document.getElementById(p.dlId).textContent = '-';
+              });
+              return;
+            }
+
+            const perRow = credits / testRows;
+            perRowSpan.textContent = perRow.toFixed(6);
+
+            projections.forEach(function(p) {
+              const projCredits = perRow * p.rows;
+              const projDollars = projCredits * rate;
+              document.getElementById(p.crId).textContent = projCredits.toFixed(4);
+              document.getElementById(p.dlId).textContent = '$' + projDollars.toFixed(2);
+            });
+          }
+
+          creditsInput.addEventListener('input', recalc);
+          rowsInput.addEventListener('input', recalc);
+          rateInput.addEventListener('input', recalc);
+        })();
+        </script>
+
+        <div class="callout cost">
+          <h5>The #1 FinOps Habit</h5>
+          <p>Always test on 5–10 rows, measure the cost, then project before running on your full dataset. This projection query is non-negotiable before any production AI pipeline.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 6: AI_FILTER ────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 6</span>
+            <h3 style="margin-top: var(--space-sm);">Boolean Filtering with AI_FILTER</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge low">Lower Cost</span>
+            <span class="badge standard">AI_FILTER()</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Filter rows using natural language conditions instead of writing complex LIKE/REGEXP patterns. AI_FILTER returns TRUE/FALSE for each row based on a text description.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- AI_FILTER: Find orders with urgent/escalation language
+SELECT
+    O_ORDERKEY,
+    O_ORDERPRIORITY,
+    O_COMMENT,
+    SNOWFLAKE.CORTEX.AI_FILTER(CONCAT(
+        O_COMMENT,
+        'This text mentions a delay, complaint, or urgent issue'))
+FROM cortex_lab.ai_workshop.ORDERS
+LIMIT 10;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <h5>AI_FILTER Syntax</h5>
+          <p><code>AI_FILTER</code> takes a single argument: the text concatenated with a natural language description of the boolean condition. Use it as a cheaper alternative to <code>AI_COMPLETE()</code> for yes/no filtering tasks.</p>
+        </div>
+
+        <div class="callout warn">
+          <h5>Common Pitfalls</h5>
+          <ul style="margin-top: var(--space-sm);">
+            <li>Can use <code>AI_FILTER</code> directly (no prefix needed) or <code>SNOWFLAKE.CORTEX.AI_FILTER</code> (fully qualified)</li>
+            <li>The argument is <code>CONCAT(column, 'description')</code> - not two separate arguments</li>
+            <li>Returns a boolean, so use directly in WHERE or SELECT</li>
+          </ul>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg);">Use in WHERE clause</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Filter only rows where the condition is TRUE
+SELECT
+    O_ORDERKEY,
+    O_ORDERPRIORITY,
+    O_COMMENT
+FROM cortex_lab.ai_workshop.ORDERS
+WHERE SNOWFLAKE.CORTEX.AI_FILTER(CONCAT(
+    O_COMMENT,
+    'This text mentions a delay, complaint, or urgent issue'))
+LIMIT 10;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Key Takeaways ──────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel panel-dark">
+        <h3 style="color: var(--sf-blue); margin-bottom: var(--space-lg);">Key Takeaways</h3>
+        <ol style="line-height: 2;">
+          <li><strong>AI_SENTIMENT()</strong> is the cheapest function - use it for sentiment, not AI_COMPLETE()</li>
+          <li><strong>AI_CLASSIFY()</strong> is cheaper than AI_COMPLETE() for classification tasks</li>
+          <li><strong>AI_FILTER()</strong> is cheaper than AI_COMPLETE() for boolean yes/no filtering</li>
+          <li><strong>Model choice</strong> can mean 10–50x cost difference for the same task</li>
+          <li><strong>Always test small</strong>, measure cost, then project before scaling</li>
+          <li>The right model is the <strong>cheapest one that meets your quality requirements</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ─── Download SQL ───────────────────────────────────────────────────── -->
+    <section class="section text-center">
+      <a href="../sql/05-ai-queries.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Complete SQL Script
+      </a>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="04-cortex-code-setup.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 04: CoCo Setup
+      </a>
+      <a href="06-token-usage-tracking.html" class="nav-btn next">
+        Module 06: Token Usage Tracking
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 05: AI SQL Hands-On</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

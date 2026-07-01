@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 04: CoCo Setup - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link active" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 44.4%;"></div>
+    <span class="progress-text">4 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 04</span>
+        <span class="timing-badge setup">5 min</span>
+      </div>
+      <h1 class="module-title">CoCo Setup</h1>
+      <p class="module-subtitle">Install the Snowflake CoCo CLI and connect to your Snowflake account</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Install the Snowflake CoCo CLI on your workstation</li>
+          <li>Connect to your Snowflake account via Browser-Based SSO</li>
+          <li>Run your first prompt and verify the connection</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="panel" style="margin-top: var(--space-lg);">
+      <h4>Requirements</h4>
+      <ul style="list-style: disc; padding-left: 1.5rem;">
+        <li>Snowflake account with <code>cortex_analyst</code> role configured (Module 03)</li>
+        <li>Terminal with bash, zsh, or fish (macOS/Linux) or PowerShell (Windows)</li>
+        <li>The <code>SNOWFLAKE.CORTEX_USER</code> database role (granted in Module 03)</li>
+      </ul>
+    </div>
+
+    <!-- ─── Section A: CLI Installation ──────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">CLI Installation</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>macOS and Linux (including WSL)</h4>
+          <p>Open a terminal and run the installer:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Bash</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>curl -LsS https://ai.snowflake.com/static/cc-scripts/install.sh | sh</pre>
+            </div>
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem;">The script installs the <code>cortex</code> executable to <code>~/.local/bin</code> and adds it to your PATH.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Windows (Native - Preview)</h4>
+          <p>Open PowerShell and run:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>irm https://ai.snowflake.com/static/cc-scripts/install.ps1 | iex</pre>
+            </div>
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem;">The executable installs to <code>%LOCALAPPDATA%\cortex</code> and is added to your PATH automatically.</p>
+
+          <p style="margin-top: var(--space-md);"><strong>Installation Output:</strong></p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/Window-powershell-Cortex-Install.png" alt="PowerShell showing Cortex Code v1.0.73 installation - download, verify checksum, extract, and install successfully" style="max-width: 700px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem;">The installer downloads the latest version, verifies the checksum, and installs Cortex Code. The warning about symlinks on Windows is expected and does not affect core functionality.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Verify Installation</h4>
+          <p>Confirm Snowflake CoCo CLI is installed correctly:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Bash</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>cortex --version</pre>
+            </div>
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem;">You should see the installed version number printed to the terminal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section B: Connect to Cortex ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Connect to Cortex</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Launch Snowflake CoCo CLI</h4>
+          <p>Start the CLI by typing <code>cortex</code> in your terminal:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Bash</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>cortex</pre>
+            </div>
+          </div>
+          <p style="margin-top: var(--space-md);">You'll see the Cortex Code welcome screen:</p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/Window-powershell-Cortex-conn-1.png" alt="Cortex Code v1.0.73 welcome screen showing Welcome to Cortex Code - Snowflake's Coding Agent" style="max-width: 550px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Set Up Agent Account</h4>
+          <p>On first launch, the CLI will prompt you to set up your agent account. Select <strong>"Sync from app.snowflake.com"</strong> to import your existing Snowflake connection:</p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/Window-powershell-Cortex-conn-2.png" alt="Agent account setup - options: Sync from app.snowflake.com, Enter connection details manually, Sign up for a free Cortex Code trial, Quit setup" style="max-width: 550px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+          <p style="margin-top: var(--space-md);">Available options:</p>
+          <ul style="margin-top: var(--space-sm);">
+            <li><strong>Sync from app.snowflake.com</strong> - Import connections from your Snowflake account (recommended)</li>
+            <li><strong>Enter connection details manually</strong> - Type account identifier, username, and auth method</li>
+            <li><strong>Sign up for a free Cortex Code trial</strong> - Create a new trial account</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Choose Your Connection</h4>
+          <p>If you have multiple Snowflake accounts, select the one you configured in Module 03:</p>
+          <div style="text-align: center; margin: var(--space-md) 0;">
+            <img src="../icons/Window-powershell-Cortex-conn-3.png" alt="Choose your agent account - showing connections: UVB68880 (VELUNATSF) and VB24499 (USER_AI)" style="max-width: 550px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem; margin-top: var(--space-sm);">The connection list shows your account name, account identifier, and associated user. Select the account where you created the <code>cortex_analyst</code> role.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Browser-Based SSO Authentication</h4>
+          <p>When you select <strong>externalbrowser</strong> as the authenticator (the default), the following flow occurs:</p>
+
+          <p style="margin-top: var(--space-md);"><strong>What happens during Browser-based SSO:</strong></p>
+          <ol style="padding-left: 1.5rem; margin-top: var(--space-sm);">
+            <li>CLI opens your default browser to the Snowflake login page</li>
+            <li>You authenticate with your Snowflake credentials (MFA required)</li>
+            <li>Browser redirects back to a local callback URL</li>
+            <li>CLI receives the authentication token and stores it for the session</li>
+          </ol>
+
+          <div class="callout tip" style="margin-top: var(--space-md);">
+            <h5>connections.toml Configuration</h5>
+            <p>After first connection, your config is saved in <code>~/.snowflake/connections.toml</code>:</p>
+            <div class="code-block" style="margin-top: var(--space-sm);">
+              <div class="code-header">
+                <span class="code-lang">TOML</span>
+                <button class="copy-btn"><span>Copy</span></button>
+              </div>
+              <div class="code-content">
+                <pre>[connections.my_account]
+account = "ORGNAME-ACCTNAME"
+user = "YOUR_USER"
+authenticator = "externalbrowser"
+role = "cortex_analyst"
+warehouse = "cortex_wh"
+database = "cortex_lab"</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout warn" style="margin-top: var(--space-sm);">
+            <h5>Troubleshooting SSO</h5>
+            <ul style="list-style: disc; padding-left: 1.5rem; margin-top: var(--space-xs);">
+              <li>If the browser does not open automatically, copy the URL from the terminal and paste it manually</li>
+              <li>Ensure pop-ups are not blocked for the Snowflake domain</li>
+              <li>If using a remote/headless environment, switch to <strong>Programmatic Access Token (PAT)</strong> instead</li>
+              <li>Token expires after the session ends. Re-running <code>cortex</code> will re-authenticate via browser</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h4>Verify Connection</h4>
+          <p>Once connected, verify your session status:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Cortex Code</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>/status</pre>
+            </div>
+          </div>
+          <p style="color: #6b7280; font-size: 0.9rem;">This prints your active connection, role, warehouse, database, and schema.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section C: Run Your First Prompt ─────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Run Your First Prompt</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Ask a Plain-English Question</h4>
+          <p>Type a natural language query:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Cortex Code</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>What databases do I have access to?</pre>
+            </div>
+          </div>
+          <p>Cortex Code translates your request into SQL, runs it against Snowflake, and returns the results directly in the terminal.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Try More Examples</h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Cortex Code</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>Show me the top 10 largest tables in my account by row count</pre>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Cortex Code</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content">
+              <pre>Explain what the SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY view contains</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Build the Cost-Check Habit</h5>
+        <p>Your first prompt cost tokens. At this point, you should already be thinking: "How much did that cost?" This cost awareness habit is what we're building throughout this training. In Module 06, you'll learn to query your actual token consumption.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section D: Useful CLI Commands ───────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">Useful CLI Commands</h2>
+      </div>
+
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/status</code></td>
+            <td>Show current connection, role, warehouse, database, schema</td>
+          </tr>
+          <tr>
+            <td><code>/help</code></td>
+            <td>List all available slash commands</td>
+          </tr>
+          <tr>
+            <td><code>/sql SELECT ...</code></td>
+            <td>Run SQL directly</td>
+          </tr>
+          <tr>
+            <td><code>/new</code></td>
+            <td>Start a fresh session</td>
+          </tr>
+          <tr>
+            <td><code>/resume</code></td>
+            <td>List and resume previous sessions</td>
+          </tr>
+          <tr>
+            <td><code>/rename &lt;name&gt;</code></td>
+            <td>Rename the current session</td>
+          </tr>
+          <tr>
+            <td><code>/rewind</code></td>
+            <td>Roll back to an earlier point in the conversation</td>
+          </tr>
+          <tr>
+            <td><code>/fork</code></td>
+            <td>Create a new session branched from current point</td>
+          </tr>
+          <tr>
+            <td><code>Ctrl+T</code></td>
+            <td>Open the built-in table viewer for query results</td>
+          </tr>
+          <tr>
+            <td><code>#TABLE_NAME</code></td>
+            <td>Reference a table - pulls schema and sample rows into context</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <h5>Table Reference Shortcut</h5>
+        <p>Prefix a fully qualified table name with <code>#</code> to automatically pull its schema and sample rows into the conversation:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Cortex Code</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>Tell me about #SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="03-environment-setup.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 03: Environment Setup
+      </a>
+      <a href="05-ai-sql-hands-on.html" class="nav-btn next">
+        Module 05: AI SQL Hands-On
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 04: CoCo Setup</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

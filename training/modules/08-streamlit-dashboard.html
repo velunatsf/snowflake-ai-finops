@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 08: Streamlit Dashboard - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <!-- ─── Top Navigation ───────────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
+        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link active" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 88.9%;"></div>
+    <span class="progress-text">8 of 9</span>
+  </div>
+
+  <main class="container">
+    <!-- ─── Module Header ──────────────────────────────────────────────────── -->
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 08</span>
+        <span class="timing-badge lab">13 min</span>
+      </div>
+      <h1 class="module-title">Streamlit AI Cost Dashboard</h1>
+      <p class="module-subtitle">Build a live FinOps dashboard using Cortex Code</p>
+      
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Build a working AI cost dashboard using Cortex Code</li>
+          <li>Use Snowflake CoCo CLI to generate the dashboard code</li>
+          <li>Deploy and share in Streamlit in Snowflake</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="callout tip">
+      <h5>AI Building AI Governance</h5>
+      <p>This module uses Cortex Code to <strong>build</strong> the dashboard. We are using AI to govern AI spend. Cortex Code generates the Streamlit code from a natural language prompt - you review, refine, and deploy.</p>
+    </div>
+
+    <!-- ─── Section A: Generate with Cortex Code ───────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">Generate with Snowflake CoCo CLI</h2>
+      </div>
+
+      <p>Open your Snowflake CoCo CLI and use this prompt to generate the dashboard:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Cortex Code Prompt</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content">
+          <pre>Build a Streamlit in Snowflake dashboard to track 
+Snowflake Cortex AI credit consumption. Include:
+
+1. KPI row: total queries, total credits, avg credits per call,
+   unique users - all filterable by date range
+2. Area chart: hourly credit consumption trend
+3. Bar chart: credits by Cortex function type
+4. Model cost comparison: credits by model (AI_COMPLETE calls)
+5. Table: top 20 most expensive AI queries with user, function,
+   model, credits, timestamp
+6. AI Credits Transition: new SERVICE_TYPE breakout from
+   METERING_DAILY_HISTORY (AI_SERVICES, CORTEX_AGENTS,
+   CORTEX_CODE_CLI, CORTEX_CODE_SNOWSIGHT,
+   SNOWFLAKE_INTELLIGENCE)
+7. Shadow Waste Detection: attribution coverage donut chart
+   (tagged vs untagged spend) + WoW anomaly bar chart
+8. Cortex Code Usage: per-user credit spend from CLI and
+   Snowsight using LATERAL FLATTEN on TOKENS_GRANULAR
+
+Data sources:
+- SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+  (CREDITS, FUNCTION_NAME, MODEL_NAME, USER_ID)
+- SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+  (TOKEN_CREDITS, QUERY_TAG for attribution)
+- SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
+  (SERVICE_TYPE for transition + WoW anomaly)
+- SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY
+  (TOKEN_CREDITS, TOKENS_GRANULAR for model breakdown)
+- SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY
+- JOIN to SNOWFLAKE.ACCOUNT_USAGE.USERS for user names
+
+Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Review Before Deploy</h5>
+        <p>Review the generated code carefully before deploying. Cortex Code is a co-pilot - your review is the quality gate. The complete, tested code is provided below if you prefer to use it directly.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section B: Dashboard Features ──────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Dashboard Features</h2>
+      </div>
+
+      <div class="cols three">
+        <div class="panel">
+          <h4 style="color: var(--sf-blue);">KPI Metrics</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li>Total AI Queries</li>
+            <li>Total Credits Used</li>
+            <li>Avg Credits per Call</li>
+            <li>Unique Users</li>
+            <li>Est. Dollar Cost</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4 style="color: var(--sf-blue);">Visualizations</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li>Hourly Trend Chart</li>
+            <li>Function Breakdown</li>
+            <li>Model Cost Comparison</li>
+            <li>Spend Controls</li>
+            <li>Top Expensive Queries</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4 style="color: var(--sf-blue);">Shadow Waste</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li>Attribution Coverage Donut</li>
+            <li>WoW Anomaly Detection</li>
+            <li>Time Range (1-30 days)</li>
+            <li>User Filter</li>
+            <li>Function Type Filter</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section C: Sample Dashboard Output ─────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Sample Dashboard Output</h2>
+      </div>
+
+      <p>Here is what the deployed Streamlit dashboard looks like. The sample data below illustrates the layout, KPI cards, charts, and waste-detection panels you will build.</p>
+
+      <!-- Scoped dashboard preview styles -->
+      <style>
+        .dash-preview {
+          background: linear-gradient(135deg, #0B2B4E 0%, #0d3a66 100%);
+          border-radius: var(--radius-lg);
+          padding: 0;
+          overflow: hidden;
+          box-shadow: var(--shadow-lg);
+          margin-top: var(--space-lg);
+          font-family: var(--font-body);
+          color: #C9EBF7;
+          font-size: 0.85rem;
+        }
+        .dash-preview * { box-sizing: border-box; }
+        .dash-header {
+          background: linear-gradient(135deg, #0B2B4E 0%, #1a4a7a 100%);
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid rgba(41,181,232,0.2);
+        }
+        .dash-header h3 { color: #29B5E8; margin: 0; font-size: 1.3rem; font-weight: 700; }
+        .dash-header p { color: #C9EBF7; margin: 0.25rem 0 0; font-size: 0.8rem; opacity: 0.8; }
+        .dash-body { padding: 1.25rem 1.5rem; }
+        .dash-kpi-row {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 0.75rem;
+          margin-bottom: 1.25rem;
+        }
+        .dash-kpi {
+          background: rgba(255,255,255,0.06);
+          border-radius: 8px;
+          padding: 0.85rem;
+          border: 1px solid rgba(41,181,232,0.15);
+          text-align: center;
+        }
+        .dash-kpi-label { font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+        .dash-kpi-value { font-size: 1.35rem; font-weight: 700; color: #FFFFFF; }
+        .dash-kpi-value.accent { color: #29B5E8; }
+        .dash-kpi-value.cost { color: #00C49A; }
+        .dash-kpi-value.warn { color: #F59E0B; }
+        .dash-divider { height: 1px; background: rgba(41,181,232,0.15); margin: 1rem 0; }
+        .dash-row { display: grid; gap: 1rem; margin-bottom: 1.25rem; }
+        .dash-row.two { grid-template-columns: 3fr 2fr; }
+        .dash-row.equal { grid-template-columns: 1fr 1fr; }
+        .dash-panel {
+          background: rgba(255,255,255,0.04);
+          border-radius: 8px;
+          padding: 1rem;
+          border: 1px solid rgba(41,181,232,0.1);
+        }
+        .dash-panel h4 { color: #FFFFFF; font-size: 0.85rem; margin: 0 0 0.75rem; font-weight: 600; }
+        /* Area chart mockup */
+        .dash-area-chart {
+          height: 120px;
+          background: linear-gradient(180deg, rgba(41,181,232,0.3) 0%, rgba(41,181,232,0.05) 100%);
+          border-radius: 4px;
+          position: relative;
+          overflow: hidden;
+        }
+        .dash-area-chart::before {
+          content: '';
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          height: 100%;
+          background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120'%3E%3Cpath d='M0,100 Q50,90 80,70 T160,55 T240,40 T320,60 T400,30 L400,120 L0,120 Z' fill='rgba(41,181,232,0.25)' stroke='%2329B5E8' stroke-width='2'/%3E%3C/svg%3E") no-repeat bottom;
+          background-size: 100% 100%;
+        }
+        .dash-area-chart .dash-chart-label {
+          position: absolute; bottom: 4px; right: 8px;
+          font-size: 0.6rem; color: rgba(201,235,247,0.5);
+        }
+        /* Bar chart mockup */
+        .dash-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .dash-bar-label { width: 80px; font-size: 0.7rem; color: #C9EBF7; text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+        .dash-bar-track { flex: 1; height: 18px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+        .dash-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        .dash-bar-val { width: 50px; font-size: 0.7rem; color: #9ca3af; font-family: var(--font-mono); }
+        /* Mini table */
+        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .dash-table th { text-align: left; padding: 0.4rem 0.5rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.03em; border-bottom: 1px solid rgba(41,181,232,0.2); }
+        .dash-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: #C9EBF7; }
+        .dash-table td.mono { font-family: var(--font-mono); font-size: 0.7rem; }
+        /* Donut mockup */
+        .dash-donut-wrap { display: flex; align-items: center; justify-content: center; gap: 1rem; }
+        .dash-donut {
+          width: 110px; height: 110px; border-radius: 50%;
+          background: conic-gradient(#00C49A 0deg 260deg, #EF4444 260deg 360deg);
+          display: flex; align-items: center; justify-content: center;
+          position: relative;
+        }
+        .dash-donut-hole {
+          width: 65px; height: 65px; border-radius: 50%;
+          background: #0d3a66;
+          display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .dash-donut-pct { font-size: 1.1rem; font-weight: 700; color: #00C49A; }
+        .dash-donut-sub { font-size: 0.55rem; color: #9ca3af; }
+        .dash-donut-legend { font-size: 0.7rem; }
+        .dash-donut-legend div { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
+        .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        /* WoW bars */
+        .dash-wow-bars { display: flex; align-items: flex-end; gap: 3px; height: 80px; padding-top: 10px; }
+        .dash-wow-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 6px; transition: height 0.3s; }
+        .dash-wow-label { font-size: 0.6rem; color: #9ca3af; text-align: center; margin-top: 0.25rem; }
+        .dash-alert-badge {
+          display: inline-block; background: rgba(239,68,68,0.15); color: #EF4444;
+          padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.65rem; font-weight: 600;
+          margin-top: 0.5rem;
+        }
+        @media (max-width: 768px) {
+          .dash-kpi-row { grid-template-columns: repeat(3, 1fr); }
+          .dash-row.two, .dash-row.equal { grid-template-columns: 1fr; }
+          .dash-bar-label { width: 60px; }
+        }
+      </style>
+
+      <div class="dash-preview">
+        <!-- Header -->
+        <div class="dash-header">
+          <h3>Cortex AI Cost Dashboard</h3>
+          <p>Real-time FinOps View &middot; Snowflake Cortex Token &amp; Credit Tracking</p>
+        </div>
+
+        <div class="dash-body">
+          <!-- KPI Row -->
+          <div class="dash-kpi-row">
+            <div class="dash-kpi">
+              <div class="dash-kpi-label">AI Queries</div>
+              <div class="dash-kpi-value">2,847</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-label">Total Credits</div>
+              <div class="dash-kpi-value accent">14.3291</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-label">Avg Credits/Call</div>
+              <div class="dash-kpi-value">0.005032</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-label">Unique Users</div>
+              <div class="dash-kpi-value">12</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-label">Est. Cost (@ $3/cr)</div>
+              <div class="dash-kpi-value cost">$42.99</div>
+            </div>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <!-- Charts Row: Hourly Trend + Function Breakdown -->
+          <div class="dash-row two">
+            <div class="dash-panel">
+              <h4>Hourly Credit Consumption</h4>
+              <div class="dash-area-chart">
+                <span class="dash-chart-label">7-day trend</span>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <h4>Credits by Function</h4>
+              <div class="dash-bar">
+                <span class="dash-bar-label">AI_COMPLETE</span>
+                <div class="dash-bar-track"><div class="dash-bar-fill" style="width:85%;background:#29B5E8;"></div></div>
+                <span class="dash-bar-val">9.42</span>
+              </div>
+              <div class="dash-bar">
+                <span class="dash-bar-label">AI_SUMMARIZE_AGG</span>
+                <div class="dash-bar-track"><div class="dash-bar-fill" style="width:35%;background:#29B5E8;"></div></div>
+                <span class="dash-bar-val">2.18</span>
+              </div>
+              <div class="dash-bar">
+                <span class="dash-bar-label">AI_SENTIMENT</span>
+                <div class="dash-bar-track"><div class="dash-bar-fill" style="width:20%;background:#29B5E8;"></div></div>
+                <span class="dash-bar-val">1.34</span>
+              </div>
+              <div class="dash-bar">
+                <span class="dash-bar-label">AI_CLASSIFY</span>
+                <div class="dash-bar-track"><div class="dash-bar-fill" style="width:12%;background:#29B5E8;"></div></div>
+                <span class="dash-bar-val">0.87</span>
+              </div>
+              <div class="dash-bar">
+                <span class="dash-bar-label">AI_TRANSLATE</span>
+                <div class="dash-bar-track"><div class="dash-bar-fill" style="width:7%;background:#29B5E8;"></div></div>
+                <span class="dash-bar-val">0.52</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <!-- Model Comparison Table -->
+          <div class="dash-panel">
+            <h4>Cost by Model (AI_COMPLETE calls)</h4>
+            <table class="dash-table">
+              <thead>
+                <tr><th>Model</th><th>Calls</th><th>Total Credits</th><th>Credits/Call</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">llama3.1-70b</td><td>482</td><td class="mono">5.7840</td><td class="mono">0.012000</td></tr>
+                <tr><td class="mono">mistral-large2</td><td>314</td><td class="mono">2.5120</td><td class="mono">0.008000</td></tr>
+                <tr><td class="mono">llama3.1-8b</td><td>891</td><td class="mono">1.1238</td><td class="mono">0.001261</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <!-- Shadow Waste Row -->
+          <div class="dash-row equal">
+            <div class="dash-panel">
+              <h4>Attribution Coverage</h4>
+              <div class="dash-donut-wrap">
+                <div class="dash-donut">
+                  <div class="dash-donut-hole">
+                    <span class="dash-donut-pct">72.4%</span>
+                    <span class="dash-donut-sub">tagged</span>
+                  </div>
+                </div>
+                <div class="dash-donut-legend">
+                  <div><span class="dash-dot" style="background:#00C49A;"></span> Tagged &mdash; 10.38 cr</div>
+                  <div><span class="dash-dot" style="background:#EF4444;"></span> Untagged &mdash; 3.95 cr</div>
+                  <div style="margin-top:0.4rem; color:#F59E0B; font-size:0.65rem;">Target: &gt;90% tagged</div>
+                </div>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <h4>Week-over-Week Anomaly</h4>
+              <div class="dash-wow-bars">
+                <div class="dash-wow-bar" style="height:30%;background:#29B5E8;" title="Mon: +12%"></div>
+                <div class="dash-wow-bar" style="height:25%;background:#29B5E8;" title="Tue: +8%"></div>
+                <div class="dash-wow-bar" style="height:40%;background:#29B5E8;" title="Wed: +22%"></div>
+                <div class="dash-wow-bar" style="height:35%;background:#29B5E8;" title="Thu: +15%"></div>
+                <div class="dash-wow-bar" style="height:90%;background:#EF4444;" title="Fri: +187%"></div>
+                <div class="dash-wow-bar" style="height:55%;background:#F59E0B;" title="Sat: +68%"></div>
+                <div class="dash-wow-bar" style="height:20%;background:#29B5E8;" title="Sun: +5%"></div>
+              </div>
+              <div class="dash-wow-label">Mon &nbsp; Tue &nbsp; Wed &nbsp; Thu &nbsp; Fri &nbsp;&nbsp; Sat &nbsp; Sun</div>
+              <span class="dash-alert-badge">Peak: +187% Fri - review schedule changes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Sample Data</h5>
+        <p>The values above are illustrative. Your deployed dashboard will pull live data from <code>CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code>, <code>CORTEX_AISQL_USAGE_HISTORY</code>, and <code>METERING_DAILY_HISTORY</code>. If your account has no Cortex usage yet, the dashboard will show informational messages instead of empty charts.</p>
+      </div>
+    </section>
+
+    <!-- ─── AI Credits Transition Awareness ──────────────────────────────── -->
+    <section class="section">
+      <div class="callout warn">
+        <h5>AI Credits Transition - Update Your Dashboard Queries</h5>
+        <p>Four AI services now have their own <code>SERVICE_TYPE</code> in <code>METERING_DAILY_HISTORY</code>: <code>CORTEX_AGENTS</code>, <code>CORTEX_CODE_CLI</code>, <code>CORTEX_CODE_SNOWSIGHT</code>, and <code>SNOWFLAKE_INTELLIGENCE</code>. The dashboard code below includes a dedicated section to track these new billing types. See <a href="07-ai-credits-transition.html" style="color: var(--sf-blue);">Module 07: Spend Controls</a> for the full breakdown.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section D: Deploy Steps ────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">Deploy to Streamlit in Snowflake</h2>
+      </div>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Open Streamlit Apps</h4>
+          <p>In Snowsight: Projects → Streamlit → <strong>+ Streamlit App</strong></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Configure the App</h4>
+          <ul style="margin-top: var(--space-sm);">
+            <li><strong>App name:</strong> CORTEX_AI_COST_DASHBOARD</li>
+            <li><strong>App location:</strong> Database: cortex_lab | Schema: ai_workshop</li>
+            <li><strong>Warehouse:</strong> cortex_wh</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Paste the Code</h4>
+          <p>Copy the complete Streamlit app code below and paste it into the editor.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Run and Share</h4>
+          <p>Click <strong>Run</strong> to start the app. Use the share link to give access to your team.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section E: Complete Code ───────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">E</div>
+        <h2 class="section-title">Complete Streamlit App Code</h2>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python (Streamlit)</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content">
+          <pre>import streamlit as st
+import pandas as pd
+import altair as alt
+from snowflake.snowpark.context import get_active_session
+
+session = get_active_session()
+
+st.set_page_config(
+    page_title="Cortex AI Cost Dashboard",
+    page_icon="❄️",
+    layout="wide"
+)
+
+# ─── Custom Styling ──────────────────────────────────────────────────────
+st.markdown("""
+&lt;style&gt;
+    .main-header {
+        background: linear-gradient(135deg, #0B2B4E 0%, #1a4a7a 100%);
+        padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 1.5rem;
+    }
+    .main-header h1 { color: #29B5E8; margin: 0; font-size: 1.8rem; }
+    .main-header p  { color: #C9EBF7; margin: 0.3rem 0 0; font-size: 0.9rem; }
+    .cost-alert {
+        background: rgba(239, 68, 68, 0.1); border-left: 4px solid #EF4444;
+        padding: 1rem; border-radius: 8px; margin: 1rem 0;
+    }
+&lt;/style&gt;
+""", unsafe_allow_html=True)
+
+# ─── Header ──────────────────────────────────────────────────────────────
+st.markdown("""
+&lt;div class="main-header"&gt;
+    &lt;h1&gt;❄️ Cortex AI Cost Dashboard&lt;/h1&gt;
+    &lt;p&gt;Real-time FinOps View · Snowflake Cortex Token &amp; Credit Tracking&lt;/p&gt;
+&lt;/div&gt;
+""", unsafe_allow_html=True)
+
+# ─── Sidebar Filters ────────────────────────────────────────────────────
+st.sidebar.header("🔧 Filters")
+days = st.sidebar.selectbox("Time Range", [1, 7, 14, 30], index=1,
+                            format_func=lambda x: f"Last {x} days")
+user_filter = st.sidebar.text_input("Filter by User (optional)",
+                                    placeholder="Enter username")
+func_filter = st.sidebar.selectbox("Cortex Function",
+    ["All", "AI_COMPLETE", "AI_SENTIMENT", "AI_SUMMARIZE_AGG",
+     "AI_CLASSIFY", "AI_TRANSLATE", "AI_EMBED"])
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("**Note:** Account usage views have\n~45 min latency.")
+
+# ─── Dynamic WHERE Clauses ───────────────────────────────────────────────
+user_clause = f"AND u.NAME ILIKE '%{user_filter}%'" if user_filter else ""
+func_clause = (f"AND c.FUNCTION_NAME = '{func_filter}'"
+               if func_filter != "All" else "")
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ROW 1: KPI Metrics
+# ═══════════════════════════════════════════════════════════════════════════
+try:
+    kpi_df = session.sql(f"""
+        SELECT COUNT(*)                                 AS total_queries,
+               COALESCE(ROUND(SUM(c.CREDITS), 4), 0)   AS total_credits,
+               COALESCE(ROUND(AVG(c.CREDITS), 6), 0)   AS avg_credits,
+               COUNT(DISTINCT u.NAME)                   AS unique_users,
+               COALESCE(ROUND(SUM(c.CREDITS)*3, 2), 0) AS est_dollar_cost
+        FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
+        LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
+            ON c.USER_ID = u.USER_ID
+        WHERE c.START_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP)
+          {user_clause} {func_clause}
+    """).to_pandas()
+
+    k1, k2, k3, k4, k5 = st.columns(5)
+    k1.metric("AI Queries",    f"{int(kpi_df['TOTAL_QUERIES'][0]):,}")
+    k2.metric("Total Credits", f"{kpi_df['TOTAL_CREDITS'][0]:,.4f}")
+    k3.metric("Avg Credits/Call", f"{kpi_df['AVG_CREDITS'][0]:,.6f}")
+    k4.metric("Unique Users",  f"{int(kpi_df['UNIQUE_USERS'][0]):,}")
+    k5.metric("Est. Cost (@ $3/cr)",
+              f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
+except Exception as e:
+    st.error(f"Error loading KPIs: {e}")
+
+st.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ROW 2: Hourly Credit Consumption + Credits by Function
+# ═══════════════════════════════════════════════════════════════════════════
+left, right = st.columns([3, 2])
+
+with left:
+    st.subheader("📈 Hourly Credit Consumption")
+    try:
+        trend_df = session.sql(f"""
+            SELECT DATE_TRUNC('hour', c.START_TIME) AS hour_bucket,
+                   COUNT(*)                         AS queries,
+                   COALESCE(ROUND(SUM(c.CREDITS), 4), 0) AS credits
+            FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
+            LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
+                ON c.USER_ID = u.USER_ID
+            WHERE c.START_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP)
+              {user_clause}
+            GROUP BY 1 ORDER BY 1
+        """).to_pandas()
+        if not trend_df.empty:
+            chart = alt.Chart(trend_df).mark_area(
+                color='#29B5E8', opacity=0.7, line=True
+            ).encode(
+                x=alt.X('HOUR_BUCKET:T', title='Time'),
+                y=alt.Y('CREDITS:Q', title='Credits Used'),
+                tooltip=['HOUR_BUCKET:T', 'CREDITS:Q', 'QUERIES:Q']
+            ).properties(height=300)
+            st.altair_chart(chart, use_container_width=True)
+        else:
+            st.info("No Cortex queries found in the selected time range.")
+    except Exception as e:
+        st.error(f"Error loading trend data: {e}")
+
+with right:
+    st.subheader("🎯 Credits by Function")
+    try:
+        func_df = session.sql(f"""
+            SELECT c.FUNCTION_NAME AS func_name,
+                   COUNT(*)        AS calls,
+                   COALESCE(ROUND(SUM(c.CREDITS), 4), 0) AS credits
+            FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
+            LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
+                ON c.USER_ID = u.USER_ID
+            WHERE c.START_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP)
+              {user_clause}
+            GROUP BY 1 HAVING SUM(c.CREDITS) &gt; 0
+            ORDER BY credits DESC LIMIT 10
+        """).to_pandas()
+        if not func_df.empty:
+            bar = alt.Chart(func_df).mark_bar(
+                color='#29B5E8', cornerRadiusEnd=4
+            ).encode(
+                x=alt.X('CREDITS:Q', title='Credits'),
+                y=alt.Y('FUNC_NAME:N', sort='-x', title='Function'),
+                tooltip=['FUNC_NAME:N', 'CREDITS:Q', 'CALLS:Q']
+            ).properties(height=300)
+            st.altair_chart(bar, use_container_width=True)
+        else:
+            st.info("No function breakdown available.")
+    except Exception as e:
+        st.error(f"Error loading function data: {e}")
+
+st.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ROW 3: Cost by Model (COMPLETE calls) - Full Width
+# ═══════════════════════════════════════════════════════════════════════════
+st.subheader("🤖 Cost by Model (AI_COMPLETE calls)")
+try:
+    model_df = session.sql(f"""
+        SELECT c.MODEL_NAME                         AS model_name,
+               COUNT(*)                             AS calls,
+               COALESCE(ROUND(SUM(c.CREDITS), 4), 0) AS total_credits,
+               COALESCE(ROUND(AVG(c.CREDITS), 6), 0) AS credits_per_call
+        FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
+        LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
+            ON c.USER_ID = u.USER_ID
+        WHERE c.START_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP)
+          AND c.FUNCTION_NAME IN ('COMPLETE', 'AI_COMPLETE') {user_clause}
+        GROUP BY 1 HAVING SUM(c.CREDITS) &gt; 0
+        ORDER BY total_credits DESC
+    """).to_pandas()
+    if not model_df.empty:
+        st.dataframe(model_df, use_container_width=True, hide_index=True,
+            column_config={
+                "MODEL_NAME": st.column_config.TextColumn("Model"),
+                "CALLS": st.column_config.NumberColumn("Calls", format="%d"),
+                "TOTAL_CREDITS": st.column_config.NumberColumn(
+                    "Total Credits", format="%.4f"),
+                "CREDITS_PER_CALL": st.column_config.NumberColumn(
+                    "Credits/Call", format="%.6f")
+            })
+    else:
+        st.info("No AI_COMPLETE() calls found in the selected time range.")
+except Exception as e:
+    st.error(f"Error loading model data: {e}")
+
+st.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ROW 4: Shadow Waste Detection (Attribution + WoW Anomaly)
+# ═══════════════════════════════════════════════════════════════════════════
+st.subheader("🔍 Shadow Waste Detection")
+sw_left, sw_right = st.columns(2)
+
+with sw_left:
+    st.markdown("##### Attribution Coverage")
+    try:
+        attr_df = session.sql(f"""
+            SELECT CASE WHEN QUERY_TAG IS NOT NULL AND QUERY_TAG != ''
+                        THEN 'Tagged' ELSE 'Untagged'
+                   END                              AS attribution,
+                   COUNT(*)                         AS calls,
+                   COALESCE(SUM(TOKEN_CREDITS), 0)  AS credits
+            FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
+            WHERE USAGE_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
+            GROUP BY attribution
+        """).to_pandas()
+        if not attr_df.empty and float(attr_df['CREDITS'].sum()) &gt; 0:
+            total_cr = float(attr_df['CREDITS'].sum())
+            attr_df['PCT'] = (attr_df['CREDITS'] / total_cr * 100).round(1)
+
+            donut = alt.Chart(attr_df).mark_arc(
+                innerRadius=50, outerRadius=90
+            ).encode(
+                theta=alt.Theta('CREDITS:Q'),
+                color=alt.Color('ATTRIBUTION:N',
+                    scale=alt.Scale(
+                        domain=['Tagged', 'Untagged'],
+                        range=['#00C49A', '#EF4444'])),
+                tooltip=['ATTRIBUTION:N', 'CREDITS:Q', 'CALLS:Q', 'PCT:Q']
+            ).properties(height=220)
+            st.altair_chart(donut, use_container_width=True)
+
+            tagged_row = attr_df[attr_df['ATTRIBUTION'] == 'Tagged']
+            tagged_pct = (float(tagged_row['PCT'].iloc[0])
+                         if not tagged_row.empty else 0)
+            tag_color = ("#00C49A" if tagged_pct &gt;= 90
+                         else "#F59E0B" if tagged_pct &gt;= 50
+                         else "#EF4444")
+            st.markdown(f"""
+            &lt;div style='text-align:center; padding:0.5rem;'&gt;
+                &lt;span style='font-size:1.8rem; font-weight:700;
+                             color:{tag_color};'&gt;{tagged_pct:.1f}%&lt;/span&gt;
+                &lt;span style='color:#6b7280; font-size:0.85rem;'&gt;
+                    tagged (target: &gt;90%)&lt;/span&gt;
+            &lt;/div&gt;
+            """, unsafe_allow_html=True)
+        else:
+            st.info("No CORTEX_AISQL data found. "
+                    "Attribution requires QUERY_TAG usage.")
+    except Exception as e:
+        st.warning(f"Could not load attribution data: {e}")
+
+with sw_right:
+    st.markdown("##### Week-over-Week Anomaly Detection")
+    try:
+        wow_df = session.sql("""
+            WITH daily AS (
+                SELECT USAGE_DATE::DATE AS day,
+                       SUM(CREDITS_BILLED) AS credits
+                FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
+                WHERE SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
+                  AND USAGE_DATE &gt;= DATEADD('day', -60, CURRENT_DATE())
+                GROUP BY day
+            )
+            SELECT day, credits,
+                   LAG(credits, 7) OVER (ORDER BY day)   AS last_week,
+                   ROUND((credits - LAG(credits, 7) OVER (ORDER BY day))
+                         / NULLIF(LAG(credits, 7) OVER (ORDER BY day), 0)
+                         * 100, 1)                        AS wow_pct
+            FROM daily ORDER BY day DESC LIMIT 30
+        """).to_pandas()
+        if not wow_df.empty and wow_df['CREDITS'].sum() &gt; 0:
+            wow_chart = alt.Chart(
+                wow_df.dropna(subset=['WOW_PCT'])
+            ).mark_bar(cornerRadiusEnd=3).encode(
+                x=alt.X('DAY:T', title='Date',
+                         axis=alt.Axis(format='%m/%d')),
+                y=alt.Y('WOW_PCT:Q', title='WoW Change %'),
+                color=alt.when(
+                    alt.datum.WOW_PCT &gt; 200
+                ).then(alt.value('#EF4444')).when(
+                    alt.datum.WOW_PCT &gt; 50
+                ).then(alt.value('#F59E0B')).otherwise(
+                    alt.value('#29B5E8')),
+                tooltip=['DAY:T', 'CREDITS:Q', 'LAST_WEEK:Q', 'WOW_PCT:Q']
+            ).properties(height=220)
+
+            rule = alt.Chart(
+                pd.DataFrame({'y': [50]})
+            ).mark_rule(
+                color='#F59E0B', strokeDash=[4,4], strokeWidth=1.5
+            ).encode(y='y:Q')
+
+            st.altair_chart(wow_chart + rule, use_container_width=True)
+
+            max_wow = wow_df['WOW_PCT'].max()
+            if pd.notna(max_wow) and max_wow &gt; 50:
+                st.markdown(f"""
+                &lt;div class="cost-alert"
+                     style="padding:0.5rem 1rem; margin-top:0;"&gt;
+                    Peak spike: &lt;strong&gt;+{max_wow:.1f}%&lt;/strong&gt; vs prior
+                    week - review recent schedule changes.
+                &lt;/div&gt;
+                """, unsafe_allow_html=True)
+            else:
+                st.caption("No significant anomalies detected "
+                           "(threshold: &gt;50% WoW change).")
+        else:
+            st.info("No AI metering data found for anomaly detection.")
+    except Exception as e:
+        st.warning(f"Could not load anomaly data: {e}")
+
+st.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  DETAILS: Additional Panels (expandable)
+# ═══════════════════════════════════════════════════════════════════════════
+with st.expander("📋 More Details", expanded=False):
+
+    st.subheader("💰 Most Expensive AI Queries")
+    try:
+        top_df = session.sql(f"""
+            SELECT c.QUERY_ID, u.NAME AS user_name,
+                   c.FUNCTION_NAME, c.MODEL_NAME,
+                   ROUND(c.CREDITS, 6) AS credits, c.START_TIME
+            FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
+            LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
+                ON c.USER_ID = u.USER_ID
+            WHERE c.START_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP)
+              AND c.CREDITS &gt; 0 {user_clause} {func_clause}
+            ORDER BY c.CREDITS DESC LIMIT 20
+        """).to_pandas()
+        if not top_df.empty:
+            st.dataframe(top_df, use_container_width=True, hide_index=True)
+        else:
+            st.info("No expensive queries found.")
+    except Exception as e:
+        st.error(f"Error loading top queries: {e}")
+
+    st.divider()
+
+    st.subheader("⚡ AI Credits Transition - New SERVICE_TYPE Billing")
+    st.markdown("""
+    &lt;div class="cost-alert"&gt;
+        &lt;strong&gt;Breaking Change:&lt;/strong&gt; Four AI services now bill under
+        their own &lt;code&gt;SERVICE_TYPE&lt;/code&gt; instead of
+        &lt;code&gt;AI_SERVICES&lt;/code&gt;.
+    &lt;/div&gt;
+    """, unsafe_allow_html=True)
+
+    try:
+        ai_credits_df = session.sql(f"""
+            SELECT SERVICE_TYPE,
+                   MIN(USAGE_DATE)                  AS first_seen,
+                   MAX(USAGE_DATE)                  AS last_seen,
+                   ROUND(SUM(CREDITS_BILLED), 4)    AS total_credits_billed,
+                   ROUND(SUM(CREDITS_BILLED)*3, 2)  AS est_dollar_cost
+            FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
+            WHERE SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI',
+                  'CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
+              AND USAGE_DATE &gt;= DATEADD(day, -{days}, CURRENT_DATE)
+            GROUP BY SERVICE_TYPE ORDER BY total_credits_billed DESC
+        """).to_pandas()
+        if not ai_credits_df.empty:
+            st.dataframe(ai_credits_df, use_container_width=True,
+                         hide_index=True)
+        else:
+            st.info("No new AI Credit service types detected yet.")
+    except Exception as e:
+        st.warning(f"Could not query METERING_DAILY_HISTORY: {e}")
+
+# ─── Footer ─────────────────────────────────────────────────────────────
+st.divider()
+st.markdown("""
+&lt;div style='text-align:center; color:#6b7280; font-size:0.85rem;
+            padding:1rem;'&gt;
+    &lt;strong&gt;FinOps for Snowflake AI&lt;/strong&gt;&lt;br&gt;&lt;br&gt;
+    Pricing based on $3/credit estimate · Validate against your contract
+    rate&lt;br&gt;Account usage views have ~45 min latency
+&lt;/div&gt;
+""", unsafe_allow_html=True)</pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <h5>Living FinOps Tool</h5>
+        <p>This dashboard is now a living FinOps tool. Every time a team member runs a Cortex query, it appears here within ~45 minutes via account_usage latency. Share it with your team and check it weekly.</p>
+      </div>
+    </section>
+
+    <!-- ─── Download ───────────────────────────────────────────────────────── -->
+    <section class="section text-center">
+      <a href="../sql/07-streamlit-app.py" class="download-btn" download style="display: inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Complete Streamlit App
+      </a>
+    </section>
+
+    <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
+    <nav class="nav-footer">
+      <a href="07-ai-credits-transition.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 07: Spend Controls
+      </a>
+      <a href="09-closing-note.html" class="nav-btn next">
+        Module 09: Closing Note
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 08: Streamlit Dashboard</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

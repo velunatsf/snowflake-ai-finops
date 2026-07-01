@@ -1,6 +1,6 @@
 # FinOps for Snowflake AI
 
-**Understand, Track, Govern, and Optimize AI Spend on Snowflake.**
+**Discover, Control, Optimize, Govern AI Spend on Snowflake.**
 
 An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Cortex Code, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a Cortex Code skill file for AI-assisted cost management.
 

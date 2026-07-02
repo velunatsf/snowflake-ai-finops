@@ -50,7 +50,7 @@ snowflake-ai-finops/
 ### 1. Run the Training
 
 ```bash
-git clone https://github.com/<your-org>/snowflake-ai-finops.git
+git clone https://github.com/velunatsf/snowflake-ai-finops.git
 cd snowflake-ai-finops
 open training/index.html
 ```

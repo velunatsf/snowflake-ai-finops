@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ─── SEO ─────────────────────────────────────────────────────────────── -->
+  <title>Snowflake Cortex AI Cost Monitoring and FinOps Toolkit</title>
+  <meta name="description" content="Open-source toolkit and hands-on training to discover, control, optimize, and govern Snowflake Cortex AI spend. Includes a 9-module workshop, governance SQL, shadow-waste detection, and a Streamlit cost dashboard.">
+  <meta name="keywords" content="Snowflake, Cortex AI, FinOps, AI cost monitoring, Cortex cost optimization, Snowflake credits, AI governance, shadow waste, Cortex Search, Document AI, Streamlit dashboard, AI token economy">
+  <meta name="author" content="FinOps for Snowflake AI">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://velunatsf.github.io/snowflake-ai-finops/">
+  <link rel="icon" type="image/png" href="training/icons/CoCo-Training.png">
+
+  <!-- ─── Open Graph / Social ─────────────────────────────────────────────── -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FinOps for Snowflake AI">
+  <meta property="og:title" content="Snowflake Cortex AI Cost Monitoring and FinOps Toolkit">
+  <meta property="og:description" content="Discover, control, optimize, and govern Snowflake Cortex AI spend. Hands-on 9-module training, governance SQL, shadow-waste detection, and a Streamlit cost dashboard.">
+  <meta property="og:url" content="https://velunatsf.github.io/snowflake-ai-finops/">
+  <meta property="og:image" content="https://velunatsf.github.io/snowflake-ai-finops/assets/img/training-home.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Snowflake Cortex AI Cost Monitoring and FinOps Toolkit">
+  <meta name="twitter:description" content="Discover, control, optimize, and govern Snowflake Cortex AI spend with an open-source workshop, governance SQL, and a Streamlit dashboard.">
+  <meta name="twitter:image" content="https://velunatsf.github.io/snowflake-ai-finops/assets/img/training-home.webp">
+
+  <link rel="stylesheet" href="training/css/theme.css">
+
+  <!-- ─── Structured Data (JSON-LD) ──────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Snowflake Cortex AI Cost Monitoring and FinOps Toolkit",
+    "url": "https://velunatsf.github.io/snowflake-ai-finops/",
+    "description": "Open-source toolkit and hands-on training to discover, control, optimize, and govern Snowflake Cortex AI spend.",
+    "keywords": "Snowflake Cortex AI, FinOps, AI cost monitoring, cost optimization, governance SQL, Streamlit dashboard"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "FinOps for Snowflake AI \u2014 Cortex in Practice",
+    "description": "A 9-module, 90-minute hands-on workshop covering the AI token economy, Cortex AI capabilities, cost tracking, spend controls, and building a Streamlit FinOps dashboard.",
+    "provider": {
+      "@type": "Organization",
+      "name": "FinOps for Snowflake AI",
+      "sameAs": "https://github.com/velunatsf/snowflake-ai-finops"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Snowflake Cortex AI<br><span>Cost Monitoring &amp; FinOps Toolkit</span></h1>
+      <p class="hero-subtitle">Discover &middot; Control &middot; Optimize &middot; Govern AI Spend on Snowflake</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">9-Module Interactive Training</div>
+        <div class="hero-meta-item">Governance &amp; Shadow-Waste SQL</div>
+        <div class="hero-meta-item">Streamlit Cost Dashboard</div>
+        <div class="hero-meta-item">Open Source (Apache 2.0)</div>
+      </div>
+      <div class="downloads-bar" style="margin-top: var(--space-xl);">
+        <a href="training/index.html" class="download-btn">Start the Training</a>
+        <a href="#dashboard" class="download-btn">See the Dashboard</a>
+        <a href="#deploy" class="download-btn">Deploy in Snowflake</a>
+        <a href="https://github.com/velunatsf/snowflake-ai-finops" class="download-btn" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ─── Overview ──────────────────────────────────────────────────────── -->
+    <section class="section">
+      <p style="font-size: 1.15rem; max-width: 820px; margin: var(--space-lg) auto 0; text-align: center; color: #334155;">
+        Snowflake AI services are <strong>serverless</strong> &mdash; there is no warehouse to watch, and traditional
+        Resource Monitors do not cover AI token credits. This open-source toolkit gives you the SQL, dashboards,
+        training, and skill files to make Cortex AI spend visible and governable before the monthly bill arrives.
+      </p>
+    </section>
+
+    <!-- ─── Demo Video ────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">1</div>
+        <h2 class="section-title">See It in Action</h2>
+      </div>
+      <div class="panel" style="padding: var(--space-md);">
+        <video src="assets/demo/training-walkthrough.mp4" controls playsinline preload="metadata"
+               poster="assets/img/training-home.webp"
+               style="width: 100%; border-radius: var(--radius-md); display: block;">
+          Your browser does not support the video tag.
+          <a href="assets/demo/training-walkthrough.mp4">Download the demo video</a>.
+        </video>
+        <p style="text-align: center; color: #6b7280; font-size: 0.9rem; margin: var(--space-md) 0 0;">
+          End-to-end walkthrough: interactive modules, the live token-cost calculator, and copy-to-clipboard Snowflake SQL.
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── Interactive Nine-Module Training ──────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">2</div>
+        <h2 class="section-title">Interactive Nine-Module Training</h2>
+      </div>
+      <p>A 90-minute, hands-on workshop. Each module is a self-contained page with copyable SQL, checkpoints, and interactive tools. Click any module to begin.</p>
+      <div class="cols three" style="margin-top: var(--space-lg);">
+        <a class="model-card" href="training/modules/01-ai-token-economy.html">
+          <div class="model-name">01 &middot; AI Token Economy</div>
+          <div class="model-provider">Concept &middot; 10 min &mdash; tokens, pricing, and the two-layer cost model</div>
+        </a>
+        <a class="model-card" href="training/modules/02-cortex-ai-capabilities.html">
+          <div class="model-name">02 &middot; Cortex AI Capabilities</div>
+          <div class="model-provider">Concept &middot; 15 min &mdash; AI_COMPLETE, AI_CLASSIFY, AI_SENTIMENT &amp; more</div>
+        </a>
+        <a class="model-card" href="training/modules/03-environment-setup.html">
+          <div class="model-name">03 &middot; Environment Setup</div>
+          <div class="model-provider">Setup &middot; 10 min &mdash; database, warehouse, resource monitor, role</div>
+        </a>
+        <a class="model-card" href="training/modules/04-cortex-code-setup.html">
+          <div class="model-name">04 &middot; CoCo Setup</div>
+          <div class="model-provider">Setup &middot; 5 min &mdash; Snowflake Cortex Code CLI onboarding</div>
+        </a>
+        <a class="model-card" href="training/modules/05-ai-sql-hands-on.html">
+          <div class="model-name">05 &middot; AI SQL Hands-On</div>
+          <div class="model-provider">Lab &middot; 20 min &mdash; run real Cortex AI SQL exercises</div>
+        </a>
+        <a class="model-card" href="training/modules/06-token-usage-tracking.html">
+          <div class="model-name">06 &middot; Token &amp; Credit Tracking</div>
+          <div class="model-provider">Lab &middot; 12 min &mdash; monitor usage from ACCOUNT_USAGE views</div>
+        </a>
+        <a class="model-card" href="training/modules/07-ai-credits-transition.html">
+          <div class="model-name">07 &middot; Spend Controls</div>
+          <div class="model-provider">Lab &middot; 5 min &mdash; budgets, RBAC, and new AI SERVICE_TYPEs</div>
+        </a>
+        <a class="model-card" href="training/modules/08-streamlit-dashboard.html">
+          <div class="model-name">08 &middot; Streamlit Dashboard</div>
+          <div class="model-provider">Lab &middot; 13 min &mdash; build the FinOps cost dashboard</div>
+        </a>
+        <a class="model-card" href="training/modules/09-closing-note.html">
+          <div class="model-name">09 &middot; Closing Note</div>
+          <div class="model-provider">Wrap-up &middot; 5 min &mdash; the FinOps maturity model</div>
+        </a>
+      </div>
+      <div class="text-center" style="margin-top: var(--space-xl);">
+        <a href="training/index.html" class="nav-btn next" style="display: inline-flex;">Open the Training Hub &rarr;</a>
+      </div>
+    </section>
+
+    <!-- ─── Dashboard ─────────────────────────────────────────────────────── -->
+    <section class="section" id="dashboard">
+      <div class="section-header">
+        <div class="section-letter">3</div>
+        <h2 class="section-title">Streamlit Cost Dashboard</h2>
+      </div>
+      <div class="cols two">
+        <div class="panel" style="padding: var(--space-md);">
+          <img src="assets/img/dashboard.webp" alt="Streamlit AI cost usage dashboard running locally"
+               style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--sf-silver); display: block;">
+          <p style="color: #6b7280; font-size: 0.85rem; margin: var(--space-sm) 0 0;">
+            The dashboard connects to <code>SNOWFLAKE.ACCOUNT_USAGE</code> via a stored procedure. Add your Snowflake
+            connection to populate the KPIs, trends, and per-model breakdowns.
+          </p>
+        </div>
+        <div>
+          <p>A single-pane view of AI credit consumption across every Cortex service, deployable to Streamlit in Snowflake or run locally.</p>
+          <ul class="prerequisite" style="border-style: solid;">
+            <li>KPI tiles: total AI credits, total API calls, and active services</li>
+            <li>Daily credit trend across the selected time range (7d&ndash;90d)</li>
+            <li>Cortex AI SQL and AI Functions broken down by model</li>
+            <li>Cortex Search cost by service to surface idle indexes</li>
+            <li>Full cost-by-category summary with drill-down tables</li>
+          </ul>
+          <div class="token-calculator-thumbs cols two" style="margin-top: var(--space-md);">
+            <img src="assets/img/token-calculator.webp" alt="Interactive token cost calculator"
+                 style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--sf-silver);">
+            <img src="assets/img/copy-sql.webp" alt="Copy-to-clipboard Snowflake SQL block"
+                 style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--sf-silver);">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Copyable SQL ──────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">4</div>
+        <h2 class="section-title">Copyable Snowflake SQL</h2>
+      </div>
+      <p>Grab and run these directly in Snowsight. The full library lives in <code>sql/</code> in the repository.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL &middot; Environment Setup</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content"><pre>USE ROLE ACCOUNTADMIN;
+
+CREATE DATABASE IF NOT EXISTS cortex_lab
+    COMMENT = 'AI for FinOps training environment';
+CREATE SCHEMA IF NOT EXISTS cortex_lab.ai_workshop;
+
+CREATE WAREHOUSE IF NOT EXISTS cortex_wh
+    WAREHOUSE_SIZE = 'SMALL'
+    AUTO_SUSPEND = 60
+    AUTO_RESUME = TRUE
+    INITIALLY_SUSPENDED = TRUE;
+
+-- Resource Monitor caps WAREHOUSE compute (not AI token credits)
+CREATE RESOURCE MONITOR IF NOT EXISTS cortex_lab_monitor
+    WITH CREDIT_QUOTA = 50
+    TRIGGERS
+        ON 75 PERCENT DO NOTIFY
+        ON 90 PERCENT DO SUSPEND_IMMEDIATE;
+ALTER WAREHOUSE cortex_wh SET RESOURCE_MONITOR = cortex_lab_monitor;</pre></div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL &middot; Track AI Spend (last 7 days)</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content"><pre>SELECT FUNCTION_NAME,
+       COUNT(*)                      AS call_count,
+       ROUND(SUM(CREDITS), 4)        AS total_ai_credits,
+       ROUND(SUM(CREDITS) * 3, 2)    AS est_dollars   -- ~$3/credit
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
+WHERE START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY FUNCTION_NAME
+ORDER BY total_ai_credits DESC;</pre></div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL &middot; Shadow Waste: Idle Cortex Search</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content"><pre>WITH costs AS (
+    SELECT SERVICE_NAME,
+           SUM(IFF(CONSUMPTION_TYPE = 'INDEXING', CREDITS, 0)) AS idx_credits,
+           SUM(IFF(CONSUMPTION_TYPE = 'QUERY',    CREDITS, 0)) AS qry_credits
+    FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_SEARCH_DAILY_USAGE_HISTORY
+    WHERE USAGE_DATE >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+    GROUP BY SERVICE_NAME
+)
+SELECT SERVICE_NAME, idx_credits, qry_credits,
+       ROUND(qry_credits / NULLIF(idx_credits, 0) * 100, 1) AS query_pct
+FROM costs
+WHERE idx_credits > 0
+ORDER BY query_pct ASC;   -- lowest query_pct = most wasteful idle index</pre></div>
+      </div>
+    </section>
+
+    <!-- ─── Deploy in Snowflake ───────────────────────────────────────────── -->
+    <section class="section" id="deploy">
+      <div class="section-header">
+        <div class="section-letter">5</div>
+        <h2 class="section-title">Deploy in Snowflake</h2>
+      </div>
+      <div class="cols two">
+        <div class="panel">
+          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Option A &middot; Streamlit in Snowflake</h4>
+          <ol style="padding-left: 1.2em; color: #334155;">
+            <li>In Snowsight, open <strong>Projects &rarr; Streamlit</strong> and click <strong>+ Streamlit App</strong>.</li>
+            <li>Select the <code>cortex_lab.ai_workshop</code> database/schema and the <code>cortex_wh</code> warehouse.</li>
+            <li>Paste the contents of <code>dashboard/streamlit_app.py</code> (or <code>training/sql/07-streamlit-app.py</code>).</li>
+            <li>Create the <code>GET_AI_COST_USAGE</code> stored procedure the app calls, then <strong>Run</strong>.</li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Option B &middot; Run Locally</h4>
+          <div class="code-block" style="margin-top: 0;">
+            <div class="code-header">
+              <span class="code-lang">Bash</span>
+              <button class="copy-btn"><span>Copy</span></button>
+            </div>
+            <div class="code-content"><pre>git clone https://github.com/velunatsf/snowflake-ai-finops.git
+cd snowflake-ai-finops/dashboard
+pip install -r requirements.txt
+
+# Add Snowflake creds to .streamlit/secrets.toml
+streamlit run streamlit_app.py</pre></div>
+          </div>
+          <p style="color: #6b7280; font-size: 0.85rem;">
+            Configure a <code>[connections.snowflake]</code> section in <code>.streamlit/secrets.toml</code> with your
+            account, user, role, warehouse, database, and schema.
+          </p>
+        </div>
+      </div>
+      <div class="callout tip">
+        <h5>First time on Snowflake?</h5>
+        <p>Sign up for a Cortex Code account at
+          <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener">signup.snowflake.com/cortex-code</a>
+          (includes free credits and ACCOUNTADMIN access), then start with
+          <a href="training/modules/03-environment-setup.html">Module 03: Environment Setup</a>.</p>
+      </div>
+    </section>
+
+    <!-- ─── Repository Links ──────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">6</div>
+        <h2 class="section-title">Explore the Repository</h2>
+      </div>
+      <div class="downloads-bar">
+        <a href="https://github.com/velunatsf/snowflake-ai-finops" class="download-btn" target="_blank" rel="noopener">GitHub Repository</a>
+        <a href="https://github.com/velunatsf/snowflake-ai-finops/tree/main/sql" class="download-btn" target="_blank" rel="noopener">Governance SQL Library</a>
+        <a href="https://github.com/velunatsf/snowflake-ai-finops/blob/main/SKILL.md" class="download-btn" target="_blank" rel="noopener">Cortex Code Skill File</a>
+        <a href="https://github.com/velunatsf/snowflake-ai-finops/tree/main/docs" class="download-btn" target="_blank" rel="noopener">Docs &amp; Guides</a>
+        <a href="https://github.com/velunatsf/snowflake-ai-finops/blob/main/CONTRIBUTING.md" class="download-btn" target="_blank" rel="noopener">Contributing</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ─── Footer ────────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p><strong>Snowflake Cortex AI Cost Monitoring &amp; FinOps Toolkit</strong></p>
+    <p>Open source under Apache 2.0 &middot;
+      <a href="https://github.com/velunatsf/snowflake-ai-finops" target="_blank" rel="noopener">github.com/velunatsf/snowflake-ai-finops</a>
+    </p>
+    <p style="opacity: 0.7; margin-top: var(--space-sm);">Not affiliated with or endorsed by Snowflake Inc. Validate all pricing against your own Snowflake contract.</p>
+  </footer>
+
+  <!-- ─── Copy-to-clipboard ─────────────────────────────────────────────────── -->
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var block = btn.closest('.code-block');
+        var pre = block && block.querySelector('pre');
+        if (!pre) return;
+        var text = pre.textContent;
+        var done = function () {
+          var original = btn.innerHTML;
+          btn.innerHTML = '<span>Copied!</span>';
+          btn.classList.add('copied');
+          setTimeout(function () { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+        } else {
+          fallbackCopy(text, done);
+        }
+      });
+    });
+    function fallbackCopy(text, done) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  </script>
+</body>
+</html>

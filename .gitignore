@@ -1,0 +1,10 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Streamlit secrets (Snowflake connection config)
+.streamlit/secrets.toml
+
+# OS
+.DS_Store

@@ -4,6 +4,12 @@
 
 An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Cortex Code, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a Cortex Code skill file for AI-assisted cost management.
 
+### Live Workshop
+
+**[Launch the live site &rarr; velunatsf.github.io/snowflake-ai-finops](https://velunatsf.github.io/snowflake-ai-finops/)**
+
+The published site hosts the interactive nine-module training, a demo walkthrough, dashboard screenshots, copyable Snowflake SQL, and "Deploy in Snowflake" instructions. It is served from this repository via GitHub Pages (see [`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+
 ---
 
 ## Why This Exists

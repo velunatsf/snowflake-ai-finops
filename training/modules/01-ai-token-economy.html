@@ -287,7 +287,7 @@ FinOps for Snowflake AI
             <td><code>AI_TRANSLATE()</code></td>
             <td>Per 1M characters</td>
             <td>0.333</td>
-            <td>24+ languages supported with auto-detect</td>
+            <td>Supported languages with auto-detect</td>
           </tr>
         </tbody>
       </table>
@@ -366,7 +366,7 @@ FinOps for Snowflake AI
 
       <div class="callout warn" style="margin-top: var(--space-md);">
         <h5>Agentic costs stack</h5>
-        <p>Warehouse + AISQL is the two-layer model for SQL functions. <strong>Cortex Agents</strong> and <strong>Snowflake CoWork</strong> add a third layer: orchestration tokens plus every tool they invoke (Search, Analyst, SQL). Budget those domains explicitly in Module 07.</p>
+        <p>Warehouse + AISQL is the two-layer model for SQL functions. <strong>Cortex Agents</strong> and <strong>Snowflake CoWork</strong> add a third layer: orchestration tokens plus every tool they invoke (Search, SQL via <code>system_execute_sql</code>, etc.). Budget those domains explicitly in Module 07. Prefer Dynamic Model Routing (Module 02) for Agents/CoWork/CoCo when available.</p>
       </div>
 
       <h4 style="margin-top: var(--space-xl);">Shadow Waste Savings: Task-Specific Functions vs AI_COMPLETE</h4>
@@ -520,11 +520,10 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
               <label class="calculator-label">Model</label>
               <select class="calculator-input" id="calc-model">
                 <option value="mistral-7b">mistral-7b (Budget)</option>
-                <option value="llama3-8b">llama3-8b (Budget)</option>
-                <option value="mixtral-8x7b">mixtral-8x7b (Standard)</option>
-                <option value="llama3-70b" selected>llama3-70b (Standard)</option>
+                <option value="llama3.1-8b">llama3.1-8b (Budget)</option>
+                <option value="llama3.1-70b" selected>llama3.1-70b (Standard)</option>
                 <option value="snowflake-arctic">snowflake-arctic (Standard)</option>
-                <option value="mistral-large">mistral-large (Premium)</option>
+                <option value="mistral-large2">mistral-large2 (Standard)</option>
                 <option value="claude-4-sonnet">claude-4-sonnet (Premium)</option>
               </select>
             </div>

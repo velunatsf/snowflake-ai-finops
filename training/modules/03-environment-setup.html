@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -200,16 +200,21 @@ GRANT OWNERSHIP ON WAREHOUSE cortex_wh TO ROLE cortex_analyst;</pre>
         <div class="step-number">1</div>
         <div class="step-content">
           <h4>Enable Cortex Capabilities</h4>
-          <p><strong>Why:</strong> The <code>COPILOT_USER</code> and <code>CORTEX_USER</code> database roles are required to use Cortex AI functions and Copilot features. Imported privileges on the SNOWFLAKE database enable access to account usage views for cost tracking.</p>
+          <p><strong>Why:</strong> Callers need the account privilege <code>USE AI FUNCTIONS</code> (granted to PUBLIC by default) plus a database role: <code>SNOWFLAKE.CORTEX_USER</code> or <code>SNOWFLAKE.AI_FUNCTIONS_USER</code>. Copilot uses <code>COPILOT_USER</code>. Imported privileges on the SNOWFLAKE database enable ACCOUNT_USAGE views for cost tracking.</p>
           <div class="code-block">
             <div class="code-header">
               <span class="code-lang">SQL</span>
               <button class="copy-btn"><span>Copy</span></button>
             </div>
             <div class="code-content">
-              <pre>-- Grant Cortex AI capabilities
+              <pre>-- Account privilege (usually already on PUBLIC; grant explicitly for clarity)
+GRANT USE AI FUNCTIONS ON ACCOUNT TO ROLE cortex_analyst;
+
+-- Database roles for AI functions / Copilot
 GRANT DATABASE ROLE SNOWFLAKE.COPILOT_USER TO ROLE cortex_analyst;
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE cortex_analyst;
+-- Alternative for AISQL-only access without full CORTEX_USER:
+-- GRANT DATABASE ROLE SNOWFLAKE.AI_FUNCTIONS_USER TO ROLE cortex_analyst;
 
 -- Grant access to account usage views (for cost tracking)
 GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_analyst;</pre>
@@ -217,7 +222,7 @@ GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_analyst;</pre>
           </div>
           <div class="callout tip">
             <h5>Permission Note</h5>
-            <p>The <code>SNOWFLAKE.CORTEX_USER</code> database role is granted to PUBLIC by default, but explicit grants provide better governance visibility. The <code>IMPORTED PRIVILEGES</code> grant enables querying <code>ACCOUNT_USAGE</code> views in later modules.</p>
+            <p><code>USE AI FUNCTIONS</code> + <code>CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) is the current access model. Explicit grants improve governance visibility. Use <code>IMPORTED PRIVILEGES</code> so later modules can query <code>ACCOUNT_USAGE</code>.</p>
           </div>
         </div>
       </div>

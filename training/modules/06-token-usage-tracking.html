@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link active" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -78,11 +78,11 @@ FinOps for Snowflake AI
         <h2 class="section-title">AI Cost Tracking - ACCOUNT_USAGE Views</h2>
       </div>
 
-      <p>Five views in <code>SNOWFLAKE.ACCOUNT_USAGE</code> cover AI spend. Each has different granularity, latency (~45 min), and key columns.</p>
+      <p>Five core views cover AI spend; add CoCo / Agents / CoWork views for the full agentic stack. Latency varies: many ACCOUNT_USAGE views are ~45 minutes, while <code>CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code> is typically <strong>2–5 minutes</strong>.</p>
 
       <div class="callout warn" style="margin-bottom: var(--space-lg);">
         <h5>Resource Monitors Do NOT Cover AI/Serverless</h5>
-        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. To track and cap AI token credits, use <strong>Snowflake Budgets</strong> and the views below.</p>
+        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. To track and cap AI token credits, use <strong>tag-based AI feature budgets</strong> (Module 07) and the views below.</p>
       </div>
 
       <div style="overflow-x: auto;">
@@ -96,14 +96,24 @@ FinOps for Snowflake AI
           </thead>
           <tbody>
             <tr>
+              <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
+              <td>AISQL functions (COMPLETE, SENTIMENT, CLASSIFY, …)</td>
+              <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code>, <code>IS_COMPLETED</code></td>
+            </tr>
+            <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_AISQL_USAGE_HISTORY</code></td>
-              <td>Analyst, Agents, Intelligence</td>
+              <td>AISQL / related token metering rollups</td>
               <td><code>TOKEN_CREDITS</code>, <code>TOKENS</code>, <code>QUERY_TAG</code></td>
             </tr>
             <tr>
-              <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
-              <td>AI_COMPLETE, AI_SENTIMENT, etc.</td>
-              <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code></td>
+              <td><code style="font-size: 0.8rem;">CORTEX_AGENT_USAGE_HISTORY</code></td>
+              <td>Cortex Agents (preferred over standalone Analyst)</td>
+              <td>Tokens / credits per agent request</td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">SNOWFLAKE_INTELLIGENCE_USAGE_HISTORY</code></td>
+              <td>Snowflake CoWork (domain still “Intelligence”)</td>
+              <td><code>CREDITS_GRANULAR</code>, request / agent IDs</td>
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_SEARCH_DAILY_USAGE_HISTORY</code></td>
@@ -111,14 +121,14 @@ FinOps for Snowflake AI
               <td><code>CREDITS</code>, <code>SERVICE_NAME</code>, <code>CONSUMPTION_TYPE</code></td>
             </tr>
             <tr>
-              <td><code style="font-size: 0.8rem;">DOCUMENT_AI_USAGE_HISTORY</code></td>
-              <td>Document AI extraction</td>
-              <td><code>CREDITS_USED</code>, <code>MODEL_NAME</code></td>
+              <td><code style="font-size: 0.8rem;">METERING_DAILY_HISTORY</code></td>
+              <td>Daily metering by SERVICE_TYPE</td>
+              <td><code>CREDITS_BILLED</code>, <code>SERVICE_TYPE</code></td>
             </tr>
             <tr>
-              <td><code style="font-size: 0.8rem;">METERING_DAILY_HISTORY</code></td>
-              <td>Aggregated daily metering</td>
-              <td><code>CREDITS_BILLED</code>, <code>SERVICE_TYPE</code></td>
+              <td><code style="font-size: 0.8rem;">CORTEX_CODE_*_USAGE_HISTORY</code></td>
+              <td>Snowflake CoCo CLI / Snowsight</td>
+              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code>, <code>USER_NAME</code></td>
             </tr>
           </tbody>
         </table>
@@ -147,7 +157,7 @@ FinOps for Snowflake AI
     ROUND(AVG(CREDITS), 6)                      AS avg_credits_per_call,
     ROUND(MIN(CREDITS), 6)                      AS min_credits,
     ROUND(MAX(CREDITS), 6)                      AS max_credits,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP)
 GROUP BY FUNCTION_NAME
@@ -178,7 +188,7 @@ ORDER BY total_ai_credits DESC;</pre>
     COUNT(*)                                    AS calls,
     ROUND(SUM(CREDITS), 4)                      AS total_ai_credits,
     ROUND(AVG(CREDITS), 6)                      AS credits_per_call,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(hour, -2, CURRENT_TIMESTAMP)
   AND FUNCTION_NAME IN ('COMPLETE', 'AI_COMPLETE')
@@ -209,7 +219,7 @@ ORDER BY total_ai_credits DESC;</pre>
     FUNCTION_NAME,
     COUNT(*)                                    AS ai_calls,
     ROUND(SUM(CREDITS), 4)                      AS ai_credits,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(day, -1, CURRENT_TIMESTAMP)
 GROUP BY 1, 2
@@ -274,8 +284,8 @@ SELECT
     ROUND(sample_credits * 100, 4)              AS projected_500_rows,
     ROUND(sample_credits * 10000, 2)            AS projected_50k_rows,
     ROUND(sample_credits * 100000, 2)           AS projected_500k_rows,
-    -- Dollar estimates at ~$3/credit
-    ROUND(sample_credits * 100000 * 3, 2)       AS projected_500k_dollars
+    -- Dollar estimates at ~$2/AI Credit
+    ROUND(sample_credits * 100000 * 2, 2)       AS projected_500k_dollars
 FROM sample_cost;</pre>
           </div>
         </div>
@@ -570,7 +580,7 @@ ORDER  BY total_credits DESC;</pre>
           <span class="badge high">Shadow Waste #7</span>
         </div>
         <p><strong>When to run:</strong> Weekly - a code change or misconfigured schedule causes a spike. Unnoticed until the monthly bill. Example: WHERE clause change - 1K rows becomes 1M.</p>
-        <p><strong>Fix:</strong> Activate account budget with email notifications, enable low-latency refresh (1hr vs 6.5hr default).</p>
+        <p><strong>Fix:</strong> Activate tag-based AI feature budgets (Module 07) with email notifications; enable low-latency refresh (1hr vs 6.5hr default). Tag users so cost-center attribution works.</p>
         
         <div class="code-block">
           <div class="code-header">
@@ -583,7 +593,7 @@ WITH daily AS (
     SELECT USAGE_DATE::DATE AS day,
            SUM(CREDITS_BILLED) AS credits
     FROM   SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
-    WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT')
+    WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
       AND  USAGE_DATE >= DATEADD('day', -60, CURRENT_DATE())
     GROUP  BY day
 )
@@ -666,7 +676,7 @@ GROUP  BY attribution;</pre>
         Module 05: AI SQL Hands-On
       </a>
       <a href="07-ai-credits-transition.html" class="nav-btn next">
-        Module 07: Spend Controls
+        Module 07: AI Feature Budgets & Spend Controls
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>

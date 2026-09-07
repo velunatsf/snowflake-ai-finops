@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link active" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -140,7 +140,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
             <li>Hourly Trend Chart</li>
             <li>Function Breakdown</li>
             <li>Model Cost Comparison</li>
-            <li>Spend Controls</li>
+            <li>AI Budgets</li>
             <li>Top Expensive Queries</li>
           </ul>
         </div>
@@ -309,7 +309,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
               <div class="dash-kpi-value">12</div>
             </div>
             <div class="dash-kpi">
-              <div class="dash-kpi-label">Est. Cost (@ $3/cr)</div>
+              <div class="dash-kpi-label">Est. Cost (@ $2/AI cr)</div>
               <div class="dash-kpi-value cost">$42.99</div>
             </div>
           </div>
@@ -419,7 +419,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
     <section class="section">
       <div class="callout warn">
         <h5>AI Credits Transition - Update Your Dashboard Queries</h5>
-        <p>Four AI services now have their own <code>SERVICE_TYPE</code> in <code>METERING_DAILY_HISTORY</code>: <code>CORTEX_AGENTS</code>, <code>CORTEX_CODE_CLI</code>, <code>CORTEX_CODE_SNOWSIGHT</code>, and <code>SNOWFLAKE_INTELLIGENCE</code>. The dashboard code below includes a dedicated section to track these new billing types. See <a href="07-ai-credits-transition.html" style="color: var(--sf-blue);">Module 07: Spend Controls</a> for the full breakdown.</p>
+        <p>Four AI services have their own <code>SERVICE_TYPE</code> in <code>METERING_DAILY_HISTORY</code>: <code>CORTEX_AGENTS</code>, <code>CORTEX_CODE_CLI</code>, <code>CORTEX_CODE_SNOWSIGHT</code>, and <code>SNOWFLAKE_INTELLIGENCE</code> (Snowflake CoWork). Always include these with <code>AI_SERVICES</code>. Dollarize AI spend with <strong>AI Credits</strong> (~$2.00 global / $2.20 regional), not Platform Credit rates. See <a href="07-ai-credits-transition.html" style="color: var(--sf-blue);">Module 07: AI Feature Budgets &amp; Spend Controls</a> for tag-based budgets.</p>
       </div>
     </section>
 
@@ -528,7 +528,7 @@ func_filter = st.sidebar.selectbox("Cortex Function",
      "AI_CLASSIFY", "AI_TRANSLATE", "AI_EMBED"])
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Note:** Account usage views have\n~45 min latency.")
+st.sidebar.markdown("**Note:** Account usage views have\n~45 min latency (AI Functions view often 2–5 min).")
 
 # ─── Dynamic WHERE Clauses ───────────────────────────────────────────────
 user_clause = f"AND u.NAME ILIKE '%{user_filter}%'" if user_filter else ""
@@ -544,7 +544,7 @@ try:
                COALESCE(ROUND(SUM(c.CREDITS), 4), 0)   AS total_credits,
                COALESCE(ROUND(AVG(c.CREDITS), 6), 0)   AS avg_credits,
                COUNT(DISTINCT u.NAME)                   AS unique_users,
-               COALESCE(ROUND(SUM(c.CREDITS)*3, 2), 0) AS est_dollar_cost
+               COALESCE(ROUND(SUM(c.CREDITS)*2, 2), 0) AS est_dollar_cost
         FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
         LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
             ON c.USER_ID = u.USER_ID
@@ -557,7 +557,7 @@ try:
     k2.metric("Total Credits", f"{kpi_df['TOTAL_CREDITS'][0]:,.4f}")
     k3.metric("Avg Credits/Call", f"{kpi_df['AVG_CREDITS'][0]:,.6f}")
     k4.metric("Unique Users",  f"{int(kpi_df['UNIQUE_USERS'][0]):,}")
-    k5.metric("Est. Cost (@ $3/cr)",
+    k5.metric("Est. Cost (@ $2/AI cr)",
               f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
 except Exception as e:
     st.error(f"Error loading KPIs: {e}")
@@ -822,7 +822,7 @@ with st.expander("📋 More Details", expanded=False):
                    MIN(USAGE_DATE)                  AS first_seen,
                    MAX(USAGE_DATE)                  AS last_seen,
                    ROUND(SUM(CREDITS_BILLED), 4)    AS total_credits_billed,
-                   ROUND(SUM(CREDITS_BILLED)*3, 2)  AS est_dollar_cost
+                   ROUND(SUM(CREDITS_BILLED)*2, 2)  AS est_dollar_cost
             FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
             WHERE SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI',
                   'CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
@@ -843,8 +843,8 @@ st.markdown("""
 &lt;div style='text-align:center; color:#6b7280; font-size:0.85rem;
             padding:1rem;'&gt;
     &lt;strong&gt;FinOps for Snowflake AI&lt;/strong&gt;&lt;br&gt;&lt;br&gt;
-    Pricing based on $3/credit estimate · Validate against your contract
-    rate&lt;br&gt;Account usage views have ~45 min latency
+    Pricing based on $2/AI Credit estimate · Validate against your contract
+    rate&lt;br&gt;Account usage views have ~45 min latency (AI Functions view often 2–5 min)
 &lt;/div&gt;
 """, unsafe_allow_html=True)</pre>
         </div>
@@ -875,7 +875,7 @@ st.markdown("""
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 07: Spend Controls
+        Module 07: AI Feature Budgets &amp; Spend Controls
       </a>
       <a href="09-closing-note.html" class="nav-btn next">
         Module 09: Closing Note

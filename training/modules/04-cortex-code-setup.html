@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link active" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -60,7 +60,7 @@ FinOps for Snowflake AI
       <ul style="list-style: disc; padding-left: 1.5rem;">
         <li>Snowflake account with <code>cortex_analyst</code> role configured (Module 03)</li>
         <li>Terminal with bash, zsh, or fish (macOS/Linux) or PowerShell (Windows)</li>
-        <li>The <code>SNOWFLAKE.CORTEX_USER</code> database role (granted in Module 03)</li>
+        <li>The <code>USE AI FUNCTIONS</code> privilege and <code>SNOWFLAKE.CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) database role (granted in Module 03)</li>
       </ul>
     </div>
 
@@ -109,7 +109,7 @@ FinOps for Snowflake AI
           <div style="text-align: center; margin: var(--space-md) 0;">
             <img src="../icons/Window-powershell-Cortex-Install.png" alt="PowerShell showing Cortex Code v1.0.73 installation - download, verify checksum, extract, and install successfully" style="max-width: 700px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
           </div>
-          <p style="color: #6b7280; font-size: 0.9rem;">The installer downloads the latest version, verifies the checksum, and installs Cortex Code. The warning about symlinks on Windows is expected and does not affect core functionality.</p>
+          <p style="color: #6b7280; font-size: 0.9rem;">The installer downloads the latest version, verifies the checksum, and installs Snowflake CoCo (formerly Cortex Code). The warning about symlinks on Windows is expected and does not affect core functionality.</p>
         </div>
       </div>
 

@@ -9,7 +9,7 @@
 #   3. Database: cortex_lab | Schema: ai_workshop
 #   4. Paste this code → Run
 #
-# NOTE: account_usage views have ~45 min latency for recent data
+# NOTE: account_usage views have ~45 min latency (AI Functions view often 2–5 min) for recent data
 # ═══════════════════════════════════════════════════════════════════════════
 
 import streamlit as st
@@ -94,7 +94,7 @@ func_filter = st.sidebar.selectbox(
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
 **Note:** Account usage views have  
-~45 min latency for recent data.
+~45 min latency (AI Functions view often 2–5 min) for recent data.
 """)
 
 # ─── Build Dynamic WHERE Clauses ──────────────────────────────────────────────
@@ -113,7 +113,7 @@ try:
             COALESCE(ROUND(SUM(c.CREDITS), 4), 0)      AS total_credits,
             COALESCE(ROUND(AVG(c.CREDITS), 6), 0)      AS avg_credits,
             COUNT(DISTINCT u.NAME)                      AS unique_users,
-            COALESCE(ROUND(SUM(c.CREDITS) * 3, 2), 0)  AS est_dollar_cost
+            COALESCE(ROUND(SUM(c.CREDITS) * 2, 2), 0)  AS est_dollar_cost
         FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
         LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
             ON c.USER_ID = u.USER_ID
@@ -134,7 +134,7 @@ try:
     with k4:
         st.metric("Unique Users", f"{int(kpi_df['UNIQUE_USERS'][0]):,}")
     with k5:
-        st.metric("Est. Cost (@ $3/cr)", f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
+        st.metric("Est. Cost (@ $2/AI cr)", f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
 
 except Exception as e:
     st.error(f"Error loading KPIs: {str(e)}")
@@ -357,7 +357,7 @@ with sw_right:
                 SELECT USAGE_DATE::DATE AS day,
                        SUM(CREDITS_BILLED) AS credits
                 FROM   SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
-                WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT')
+                WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
                   AND  USAGE_DATE >= DATEADD('day', -60, CURRENT_DATE())
                 GROUP  BY day
             )
@@ -488,7 +488,7 @@ with st.expander("📋 More Details", expanded=False):
                 MAX(USAGE_DATE)                         AS last_seen,
                 ROUND(SUM(CREDITS_BILLED), 4)           AS total_credits_billed,
                 ROUND(SUM(CREDITS_USED), 4)             AS total_credits_used,
-                ROUND(SUM(CREDITS_BILLED) * 3, 2)       AS est_dollar_cost
+                ROUND(SUM(CREDITS_BILLED) * 2, 2)       AS est_dollar_cost
             FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
             WHERE SERVICE_TYPE IN (
                 'AI_SERVICES',
@@ -515,7 +515,7 @@ with st.expander("📋 More Details", expanded=False):
             with c2:
                 st.metric("Total AI Credits", f"{total_ai:,.4f}")
             with c3:
-                st.metric("Est. Cost (@ $3/cr)", f"${total_ai_dollar:,.2f}")
+                st.metric("Est. Cost (@ $2/AI cr)", f"${total_ai_dollar:,.2f}")
 
             st.dataframe(
                 ai_credits_df,
@@ -546,7 +546,7 @@ st.markdown("""
 <div style='text-align: center; color: #6b7280; font-size: 0.85rem; padding: 1rem;'>
     <strong>FinOps for Snowflake AI</strong><br>
     <br>
-    Pricing based on $3/credit estimate · Validate against your contract rate<br>
-    Account usage views have ~45 min latency
+    Pricing based on $2/AI Credit estimate · Validate against your contract rate<br>
+    Account usage views have ~45 min latency (AI Functions view often 2–5 min)
 </div>
 """, unsafe_allow_html=True)

@@ -63,15 +63,20 @@ ALTER WAREHOUSE cortex_wh
 -- ─────────────────────────────────────────────────────────────────────────────
 -- STEP 4: Create Role with Cortex Access
 -- ─────────────────────────────────────────────────────────────────────────────
--- WHY: Dedicated role for training participants. Grants Cortex access
--- through the SNOWFLAKE.CORTEX_USER database role.
+-- WHY: Dedicated role for training participants. Requires USE AI FUNCTIONS
+-- plus CORTEX_USER (or AI_FUNCTIONS_USER) per current Cortex access model.
 
 CREATE ROLE IF NOT EXISTS cortex_analyst
     COMMENT = 'Role for Cortex AI training participants';
 
+-- Account privilege for AISQL (often already on PUBLIC)
+GRANT USE AI FUNCTIONS ON ACCOUNT TO ROLE cortex_analyst;
+
 -- Grant Cortex AI capabilities
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER
     TO ROLE cortex_analyst;
+-- Optional AISQL-only alternative:
+-- GRANT DATABASE ROLE SNOWFLAKE.AI_FUNCTIONS_USER TO ROLE cortex_analyst;
 
 -- Grant access to training resources
 GRANT USAGE ON WAREHOUSE cortex_wh

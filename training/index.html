@@ -13,7 +13,7 @@
   <header class="hero">
     <div class="hero-content">
       <h1>Snowflake Cortex AI Cost Monitoring and FinOps Toolkit<br><span style="font-size: 0.55em; font-weight: 400;">Cortex in Practice</span></h1>
-      <p class="hero-subtitle">Discover · Control · Optimize · Govern AI Spend</p>
+      <p class="hero-subtitle">Discover · Control · Optimize · Govern AI Spend<br><span style="font-size: 0.85em; opacity: 0.9;">CoCo · Agents · CoWork · AISQL</span></p>
       <div class="hero-meta">
         <div class="hero-meta-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -103,8 +103,8 @@
           </tr>
           <tr>
             <td><strong>07</strong></td>
-            <td><a href="modules/07-ai-credits-transition.html">Spend Controls</a></td>
-            <td>5 min</td>
+            <td><a href="modules/07-ai-credits-transition.html">AI Feature Budgets &amp; Spend Controls</a></td>
+            <td>10 min</td>
             <td><span class="timing-badge lab">Lab</span></td>
           </tr>
           <tr>
@@ -139,8 +139,8 @@
           Before You Begin
         </h4>
         <ul>
-          <li>Cortex Code account - sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a> (comes with $40 free credit)</li>
-          <li>The Cortex Code account includes a Snowflake trial with ACCOUNTADMIN role access</li>
+          <li>Snowflake CoCo account (formerly Cortex Code) - sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a> (comes with $40 free credit)</li>
+          <li>The CoCo account includes a Snowflake trial with ACCOUNTADMIN role access</li>
           <li>Basic SQL familiarity - you should be comfortable with SELECT, JOIN, and GROUP BY</li>
           <li>Web browser with Snowsight access (Chrome, Firefox, Edge recommended)</li>
           <li>Terminal access (for Snowflake CoCo CLI)</li>
@@ -149,8 +149,8 @@
 
       <div class="callout tip">
         <h5>Trial Account Tip</h5>
-        <p>Cortex Code comes with a free credit allowance for AI usage. Sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a>. The Resource Monitor we set up in Module 03 and the Spend Cap - Cortex Code Credit Guardrails in Module 07 will ensure you stay within safe limits and prevent cost overruns.</p>
-        <p style="margin-top: var(--space-sm);"><strong>For this training</strong>, we will use the same Cortex Code account to run data prep and Cortex AI SQL exercises from the Lab modules.</p>
+        <p>Snowflake CoCo comes with a free credit allowance for AI usage. Sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a>. The Resource Monitor in Module 03 and the AI feature budgets + CoCo credit guardrails in Module 07 keep you within safe limits.</p>
+        <p style="margin-top: var(--space-sm);"><strong>For this training</strong>, we will use the same CoCo account to run data prep, Cortex AI SQL labs, and tag-based AI feature budget setup.</p>
       </div>
     </section>
 
@@ -185,6 +185,14 @@
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
           Token Tracking SQL
+        </a>
+        <a href="sql/07-ai-feature-budgets.sql" class="download-btn" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          AI Feature Budgets SQL
         </a>
         <a href="sql/07-streamlit-app.py" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -228,25 +236,25 @@
           <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Understanding AI Costs</h4>
           <ul style="list-style: none; padding: 0;">
             <li style="padding: var(--space-xs) 0;">Token fundamentals and pricing</li>
-            <li style="padding: var(--space-xs) 0;">Credit consumption by model</li>
-            <li style="padding: var(--space-xs) 0;">Two-layer cost structure</li>
+            <li style="padding: var(--space-xs) 0;">AI Credits vs Platform Credits</li>
+            <li style="padding: var(--space-xs) 0;">Two-layer + agentic cost structure</li>
             <li style="padding: var(--space-xs) 0;">Cost estimation techniques</li>
           </ul>
         </div>
         <div class="panel">
           <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Using Cortex AI</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">AI_COMPLETE, AI_SENTIMENT, AI_SUMMARIZE_AGG</li>
-            <li style="padding: var(--space-xs) 0;">AI_CLASSIFY, AI_TRANSLATE, AI_FILTER</li>
-            <li style="padding: var(--space-xs) 0;">Model selection strategies</li>
+            <li style="padding: var(--space-xs) 0;">AISQL functions + model selection</li>
+            <li style="padding: var(--space-xs) 0;">Cortex Agents (preferred over Analyst)</li>
+            <li style="padding: var(--space-xs) 0;">Snowflake CoWork orchestration</li>
             <li style="padding: var(--space-xs) 0;">Snowflake CoCo CLI workflows</li>
           </ul>
         </div>
         <div class="panel">
           <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Governing AI Spend</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">Real-time cost tracking</li>
-            <li style="padding: var(--space-xs) 0;">Resource Monitor setup</li>
+            <li style="padding: var(--space-xs) 0;">Tag-based AI feature budgets</li>
+            <li style="padding: var(--space-xs) 0;">SERVICE_TYPE metering breakout</li>
             <li style="padding: var(--space-xs) 0;">Usage attribution queries</li>
             <li style="padding: var(--space-xs) 0;">Streamlit FinOps dashboard</li>
           </ul>
@@ -266,7 +274,7 @@
           Central Thesis
         </h3>
         <p style="font-size: 1.1rem; line-height: 1.7;">
-          <strong style="color: var(--sf-blue);">AI is now a cost center.</strong> Snowflake Cortex is both the tool that generates AI spend AND the platform to govern it. This training teaches practitioners to use Cortex AI capabilities, understand how tokens and credits work, and build a real Streamlit FinOps dashboard using Cortex Code - all in one session.
+          <strong style="color: var(--sf-blue);">AI is now a cost center.</strong> Snowflake Cortex is both the tool that generates AI spend AND the platform to govern it. This training covers AISQL, Cortex Agents, Snowflake CoWork, and Snowflake CoCo — how tokens and AI Credits work, how to set tag-based AI feature budgets, and how to build a Streamlit FinOps dashboard — all in one session.
         </p>
         <div style="margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid rgba(255,255,255,0.1);">
           <p style="color: var(--sf-ice); font-size: 0.95rem;">

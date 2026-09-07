@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link active" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -75,7 +75,7 @@ FinOps for Snowflake AI
           </div>
           <div style="text-align: center; padding: 1.25rem 1rem; background: rgba(255,255,255,0.15); border-radius: 10px; font-size: 1rem;">
             <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">07</div>
-            Spend Controls
+            AI Feature Budgets
           </div>
           <div style="text-align: center; padding: 1.25rem 1rem; background: rgba(255,255,255,0.15); border-radius: 10px; font-size: 1rem;">
             <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">08</div>
@@ -95,17 +95,18 @@ FinOps for Snowflake AI
             <li style="padding: var(--space-xs) 0;">✓ Governed database & schema</li>
             <li style="padding: var(--space-xs) 0;">✓ Cost-optimized warehouse</li>
             <li style="padding: var(--space-xs) 0;">✓ Resource Monitor (warehouse compute guard)</li>
-            <li style="padding: var(--space-xs) 0;">✓ Cortex-enabled role</li>
+            <li style="padding: var(--space-xs) 0;">✓ Tag-based AI feature budgets</li>
+            <li style="padding: var(--space-xs) 0;">✓ Agents / CoWork / CoCo cost map</li>
             <li style="padding: var(--space-xs) 0;">✓ Live FinOps dashboard</li>
           </ul>
         </div>
         <div class="panel">
           <h4>Skills Acquired</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">✓ Token → Credit → Dollar mapping</li>
-            <li style="padding: var(--space-xs) 0;">✓ Model cost comparison</li>
+            <li style="padding: var(--space-xs) 0;">✓ Token → AI Credit → Dollar mapping</li>
+            <li style="padding: var(--space-xs) 0;">✓ Model cost comparison &amp; routing</li>
             <li style="padding: var(--space-xs) 0;">✓ Cost projection before scale</li>
-            <li style="padding: var(--space-xs) 0;">✓ Usage tracking queries</li>
+            <li style="padding: var(--space-xs) 0;">✓ Usage tracking + SERVICE_TYPE breakout</li>
             <li style="padding: var(--space-xs) 0;">✓ Snowflake CoCo CLI workflows</li>
           </ul>
         </div>
@@ -126,14 +127,14 @@ FinOps for Snowflake AI
           <p style="color: #6b7280;">Never run AI at scale without first testing on a small sample, measuring the cost, and projecting to your full dataset size.</p>
         </div>
         <div class="panel" style="border-top: 4px solid var(--sf-good);">
-          <h4 style="color: var(--sf-good);">Habit 2: MONITOR</h4>
-          <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: var(--space-md);">"The dashboard is your early warning system."</p>
-          <p style="color: #6b7280;">The dashboard you built today should be checked weekly. Set alert thresholds before problems become emergencies.</p>
+          <h4 style="color: var(--sf-good);">Habit 2: TAG &amp; BUDGET</h4>
+          <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: var(--space-md);">"Cost centers first. AI feature budgets second."</p>
+          <p style="color: #6b7280;">Tag users, then attach AI Functions / Agents / CoWork / CoCo to tag-scoped budgets so spend is attributed before it surprises finance.</p>
         </div>
         <div class="panel" style="border-top: 4px solid var(--sf-warn);">
-          <h4 style="color: var(--sf-warn);">Habit 3: CHOOSE</h4>
-          <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: var(--space-md);">"The cheapest model that meets your quality bar."</p>
-          <p style="color: #6b7280;">Model selection is a cost decision. Upgrade only when the output genuinely requires higher capability.</p>
+          <h4 style="color: var(--sf-warn);">Habit 3: MONITOR &amp; CHOOSE</h4>
+          <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: var(--space-md);">"Dashboard weekly. Cheapest model that meets quality."</p>
+          <p style="color: #6b7280;">Watch SERVICE_TYPE breakouts for Agents/CoWork/CoCo. Prefer specialized AISQL and Dynamic Model Routing before premium models.</p>
         </div>
       </div>
     </section>
@@ -171,7 +172,7 @@ FinOps for Snowflake AI
     <section class="section">
       <div class="callout cost">
         <h5>AI Spend Will Grow - Govern It Now</h5>
-        <p style="font-size: 1.1rem; margin-bottom: 0;">AI token consumption is the fastest-growing line item in cloud data platform bills in 2025. The teams who govern it now will be the ones who can afford to scale it later.</p>
+        <p style="font-size: 1.1rem; margin-bottom: 0;">FinOps for AI is now a top priority for platform teams. Govern AISQL, Agents, CoWork, and CoCo with tag-based budgets and usage views <em>before</em> spend scales — the teams who govern it now will be the ones who can afford to grow it later.</p>
       </div>
     </section>
 
@@ -184,7 +185,7 @@ FinOps for Snowflake AI
 
       <div class="callout warn" style="margin-bottom: var(--space-lg);">
         <h5>Resource Monitors Do NOT Cover AI/Serverless</h5>
-        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. AI token credits are billed separately. Use <strong>Snowflake Budgets</strong> and the ACCOUNT_USAGE views below to track AI spend.</p>
+        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. AI token credits are billed separately. Use <strong>tag-based AI feature budgets</strong> (Module 07) and the ACCOUNT_USAGE views below to track AI spend.</p>
       </div>
 
       <div style="overflow-x: auto;">
@@ -198,24 +199,29 @@ FinOps for Snowflake AI
           </thead>
           <tbody>
             <tr>
+              <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
+              <td>AISQL functions (COMPLETE, SENTIMENT, …)</td>
+              <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code></td>
+            </tr>
+            <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_AISQL_USAGE_HISTORY</code></td>
-              <td>Analyst, Agents, Intelligence</td>
+              <td>AISQL token metering rollups</td>
               <td><code>TOKEN_CREDITS</code>, <code>TOKENS</code>, <code>QUERY_TAG</code></td>
             </tr>
             <tr>
-              <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
-              <td>AI_COMPLETE, SENTIMENT, etc.</td>
-              <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code></td>
+              <td><code style="font-size: 0.8rem;">CORTEX_AGENT_USAGE_HISTORY</code></td>
+              <td>Cortex Agents</td>
+              <td>Tokens / credits per agent request</td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">SNOWFLAKE_INTELLIGENCE_USAGE_HISTORY</code></td>
+              <td>Snowflake CoWork</td>
+              <td><code>CREDITS_GRANULAR</code>, request metadata</td>
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_SEARCH_DAILY_USAGE_HISTORY</code></td>
               <td>Search indexing &amp; queries</td>
               <td><code>CREDITS</code>, <code>SERVICE_NAME</code>, <code>CONSUMPTION_TYPE</code></td>
-            </tr>
-            <tr>
-              <td><code style="font-size: 0.8rem;">DOCUMENT_AI_USAGE_HISTORY</code></td>
-              <td>Document AI extraction</td>
-              <td><code>CREDITS_USED</code>, <code>MODEL_NAME</code></td>
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">METERING_DAILY_HISTORY</code></td>
@@ -225,18 +231,18 @@ FinOps for Snowflake AI
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_CODE_CLI_USAGE_HISTORY</code></td>
               <td>Snowflake CoCo CLI</td>
-              <td><code>CREDITS</code>, <code>MODEL_NAME</code>, <code>USER_ID</code></td>
+              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code>, <code>USER_NAME</code></td>
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></td>
-              <td>Cortex Code Snowsight</td>
-              <td><code>CREDITS</code>, <code>MODEL_NAME</code>, <code>USER_ID</code></td>
+              <td>Snowflake CoCo Snowsight</td>
+              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code>, <code>USER_NAME</code></td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p style="color: #6b7280; font-size: 0.85rem; margin-top: var(--space-md);">All views have ~45 min latency. Budget refresh: 6.5 hr default, 1 hr low-latency. See Module 06 for full queries.</p>
+      <p style="color: #6b7280; font-size: 0.85rem; margin-top: var(--space-md);">Latency varies by view (~2–5 min for AI Functions usage history; ~45 min for many ACCOUNT_USAGE views). Budget refresh: 6.5 hr default, 1 hr low-latency. See Module 06 for queries and Module 07 for tag-based AI feature budgets.</p>
     </section>
 
     <!-- ─── Section F: Resources ───────────────────────────────────────────── -->
@@ -250,6 +256,14 @@ FinOps for Snowflake AI
         <div class="panel">
           <h4>Snowflake Documentation</h4>
           <ul style="list-style: none; padding: 0;">
+            <li style="padding: var(--space-sm) 0;">
+              <a href="https://docs.snowflake.com/en/user-guide/budgets/budget-shared-resources" target="_blank" rel="noopener">Budgets for AI features (shared resources)</a>
+              <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">Tag users and budget AI Functions, Agents, CoWork, and CoCo</p>
+            </li>
+            <li style="padding: var(--space-sm) 0;">
+              <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing (AI Credits)</a>
+              <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">AI Credits vs Platform Credits and routing prices</p>
+            </li>
             <li style="padding: var(--space-sm) 0;">
               <a href="https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf" target="_blank" rel="noopener">Credit Consumption Table (PDF)</a>
               <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">Official pricing for all Snowflake services including Cortex</p>

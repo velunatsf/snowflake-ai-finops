@@ -22,7 +22,7 @@ FinOps for Snowflake AI
         <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
         <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
         <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
+        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
         <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
         <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
       </div>
@@ -49,7 +49,7 @@ FinOps for Snowflake AI
         <h4>Learning Objectives</h4>
         <ul>
           <li>Understand what a token is and how it maps to cost</li>
-          <li>Know the two cost layers in Snowflake AI workloads</li>
+          <li>Know the two cost layers (warehouse + AI Credits) and agentic additive spend</li>
           <li>Estimate query cost before running at scale</li>
         </ul>
       </div>
@@ -153,7 +153,7 @@ FinOps for Snowflake AI
             <li>Some functions run serverless</li>
           </ul>
           <div style="margin-top: var(--space-md); padding: var(--space-md); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm);">
-            <strong>Example:</strong> 1M tokens on claude-4-sonnet = 1.5-7.5 credits
+            <strong>Example:</strong> AI Credits are billed flat (~$2.00 global / $2.20 regional per AI Credit) — separate from Platform Credits for warehouses
           </div>
         </div>
       </div>
@@ -180,7 +180,7 @@ FinOps for Snowflake AI
           </tr>
           <tr>
             <td><strong>Warehouse + Serverless</strong></td>
-            <td>Cortex Search, Cortex Analyst</td>
+            <td>Cortex Search, Cortex Agents / CoWork</td>
             <td>Both warehouse compute AND token credits</td>
           </tr>
           <tr>
@@ -359,8 +359,14 @@ FinOps for Snowflake AI
       </table>
 
       <div class="callout tip">
-        <h5>Cost Conversion</h5>
-        <p>At typical contract rates of <strong>$2.50–$4.00 per credit</strong>, use $3/credit as a reasonable estimate. Always validate against your specific contract terms.</p>
+        <h5>Cost Conversion — AI Credits vs Platform Credits</h5>
+        <p><strong>AI Credits</strong> (AISQL, Agents, CoWork, CoCo, Search, and related AI features) use a flat AI Credit price: typically <strong>$2.00</strong> with global routing or <strong>$2.20</strong> with regional routing — independent of Snowflake edition. See <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
+        <p style="margin-top: var(--space-sm);"><strong>Platform Credits</strong> still apply to warehouses, storage, and non-AI services (often ~$2.50–$4.00/credit by edition/region). Use <strong>$2.00/AI Credit</strong> for AI $ estimates unless you pin regional routing. Always validate against your contract and the Consumption Table.</p>
+      </div>
+
+      <div class="callout warn" style="margin-top: var(--space-md);">
+        <h5>Agentic costs stack</h5>
+        <p>Warehouse + AISQL is the two-layer model for SQL functions. <strong>Cortex Agents</strong> and <strong>Snowflake CoWork</strong> add a third layer: orchestration tokens plus every tool they invoke (Search, Analyst, SQL). Budget those domains explicitly in Module 07.</p>
       </div>
 
       <h4 style="margin-top: var(--space-xl);">Shadow Waste Savings: Task-Specific Functions vs AI_COMPLETE</h4>
@@ -539,7 +545,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
               <span class="calculator-result-value" id="result-monthly">25.41</span>
             </div>
             <div class="calculator-result" style="border-top: 1px solid var(--sf-blue); padding-top: var(--space-md); margin-top: var(--space-sm);">
-              <span class="calculator-result-label">Est. $/month (@ $3/credit)</span>
+              <span class="calculator-result-label">Est. $/month (@ $2/AI Credit)</span>
               <span class="calculator-result-value" style="color: var(--sf-good); font-size: 1.2rem;" id="result-dollars">$76.23</span>
             </div>
           </div>

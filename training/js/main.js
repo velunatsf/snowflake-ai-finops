@@ -212,7 +212,7 @@
       const creditsPerCall = inputCredits + outputCredits;
       const dailyCredits = creditsPerCall * callsPerDay;
       const monthlyCredits = dailyCredits * 30;
-      const monthlyDollars = monthlyCredits * 3; // $3 per credit estimate
+      const monthlyDollars = monthlyCredits * 2; // ~$2.00 per AI Credit (global routing)
 
       // Update results
       if (resultPerCall) resultPerCall.textContent = creditsPerCall.toFixed(6);

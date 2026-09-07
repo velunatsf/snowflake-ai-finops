@@ -47,7 +47,7 @@ SELECT
     ROUND(AVG(CREDITS), 6)                      AS avg_credits_per_call,
     ROUND(MIN(CREDITS), 6)                      AS min_credits,
     ROUND(MAX(CREDITS), 6)                      AS max_credits,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars        -- ~$3/credit
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars        -- ~$2/AI Credit (global)
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP)
 GROUP BY FUNCTION_NAME
@@ -68,7 +68,7 @@ SELECT
     COUNT(*)                                    AS calls,
     ROUND(SUM(CREDITS), 4)                      AS total_ai_credits,
     ROUND(AVG(CREDITS), 6)                      AS credits_per_call,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars        -- ~$3/credit
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars        -- ~$2/AI Credit (global)
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(hour, -2, CURRENT_TIMESTAMP)
   AND FUNCTION_NAME IN ('COMPLETE', 'AI_COMPLETE')
@@ -110,7 +110,7 @@ SELECT
     FUNCTION_NAME,
     COUNT(*)                                    AS ai_calls,
     ROUND(SUM(CREDITS), 4)                      AS ai_credits,
-    ROUND(SUM(CREDITS) * 3, 2)                  AS est_dollars        -- ~$3/credit
+    ROUND(SUM(CREDITS) * 2, 2)                  AS est_dollars        -- ~$2/AI Credit (global)
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
 WHERE START_TIME >= DATEADD(day, -1, CURRENT_TIMESTAMP)
 GROUP BY 1, 2
@@ -160,8 +160,8 @@ SELECT
     ROUND(sample_credits * 100, 4)              AS projected_500_rows,
     ROUND(sample_credits * 10000, 2)            AS projected_50k_rows,
     ROUND(sample_credits * 100000, 2)           AS projected_500k_rows,
-    -- Dollar estimates at ~$3/credit
-    ROUND(sample_credits * 100000 * 3, 2)       AS projected_500k_dollars
+    -- Dollar estimates at ~$2/AI Credit (global)
+    ROUND(sample_credits * 100000 * 2, 2)       AS projected_500k_dollars
 FROM sample_cost;
 
 
@@ -181,7 +181,7 @@ SELECT
     ROUND(AVG(c.CREDITS), 6)                    AS avg_credits_per_call,
     MIN(c.START_TIME)                           AS first_call,
     MAX(c.START_TIME)                           AS last_call,
-    ROUND(SUM(c.CREDITS) * 3, 2)                AS est_dollars
+    ROUND(SUM(c.CREDITS) * 2, 2)                AS est_dollars
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
 LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
     ON c.USER_ID = u.USER_ID
@@ -204,7 +204,7 @@ SELECT
     c.FUNCTION_NAME,
     c.MODEL_NAME,
     ROUND(c.CREDITS, 6)                         AS ai_credits,
-    ROUND(c.CREDITS * 3, 4)                     AS est_dollars,
+    ROUND(c.CREDITS * 2, 4)                     AS est_dollars,
     c.START_TIME
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
 LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
@@ -264,6 +264,7 @@ SELECT
     SUM(CREDITS_USED)         AS total_credits_used
 FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
 WHERE SERVICE_TYPE IN (
+    'AI_SERVICES',
     'CORTEX_AGENTS',
     'CORTEX_CODE_CLI',
     'CORTEX_CODE_SNOWSIGHT',
@@ -421,7 +422,7 @@ WITH daily AS (
     SELECT USAGE_DATE::DATE AS day,
            SUM(CREDITS_BILLED) AS credits
     FROM   SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
-    WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT')
+    WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
       AND  USAGE_DATE >= DATEADD('day', -60, CURRENT_DATE())
     GROUP  BY day
 )

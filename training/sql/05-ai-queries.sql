@@ -142,12 +142,12 @@ LIMIT 3;
 -- ★ Record credits used: _______________
 
 
--- Model B: Standard Tier (llama3-70b)
+-- Model B: Standard Tier (llama3.1-70b)
 SELECT 
-    'llama3-70b' AS model_used,
+    'llama3.1-70b' AS model_used,
     customer_id,
     AI_COMPLETE(
-        'llama3-70b',
+        'llama3.1-70b',
         CONCAT('Summarize in one sentence: ', feedback_text)
     ) AS summary_standard
 FROM cortex_lab.ai_workshop.customer_feedback
@@ -176,7 +176,7 @@ LIMIT 3;
 -- Model              | Quality (subjective) | Credits Used | Cost Index
 -- ──────────────────────────────────────────────────────────────────────────
 -- mistral-7b         | [observe]            | [from tracking] | 1×
--- llama3-70b         | [observe]            | [from tracking] | ?×
+-- llama3.1-70b         | [observe]            | [from tracking] | ?×
 -- claude-4-sonnet   | [observe]            | [from tracking] | ?×
 -- ─────────────────────────────────────────────────────────────────────────────
 

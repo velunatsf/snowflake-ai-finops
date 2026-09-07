@@ -48,9 +48,9 @@ FinOps for Snowflake AI
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Know all Cortex AI functions available in Snowflake</li>
-          <li>Map Agents, CoWork, and CoCo relative to AISQL and Analyst</li>
-          <li>Understand when to use each function and cost tier</li>
+          <li>Know Cortex AISQL functions and when each is cost-efficient</li>
+          <li>Map Agents, CoWork, CoCo, and Dynamic Model Routing vs legacy Analyst</li>
+          <li>Choose model tiers (or auto routing) without overpaying for simple work</li>
         </ul>
       </div>
     </header>
@@ -103,40 +103,101 @@ FinOps for Snowflake AI
     <section class="section">
       <div class="section-header">
         <div class="section-letter">A2</div>
-        <h2 class="section-title">Agents, CoWork &amp; CoCo — The Agentic Stack</h2>
+        <h2 class="section-title">Shift Toward Agents &amp; CoWork</h2>
       </div>
 
       <p>Beyond AISQL functions, Snowflake’s AI surface has shifted toward agents and personal work orchestration. FinOps must budget these domains separately from warehouse compute.</p>
 
-      <div class="cols two">
-        <div class="panel" style="border-top: 4px solid var(--sf-blue);">
-          <h4>Cortex Agents <span class="badge" style="background: var(--sf-blue); color: #fff;">Preferred path</span></h4>
-          <p style="font-size: 0.95rem; color: #6b7280;">Snowflake recommends transitioning from standalone <strong>Cortex Analyst</strong> to <strong>Cortex Agents</strong>. Agents include Analyst capabilities with higher answer quality and natural-language analytics. SQL generation is streamlined via optimized execution blocks (e.g. <code>system_execute_sql</code>) instead of a separate text-to-SQL step.</p>
-          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Agent costs are additive — orchestration tokens + tool calls (Analyst, Search, SQL). Metering: <code>CORTEX_AGENTS</code> SERVICE_TYPE / agent usage history.</p>
-        </div>
-        <div class="panel" style="border-top: 4px solid var(--sf-good);">
-          <h4>Snowflake CoWork <span class="badge" style="background: var(--sf-good); color: #fff;">Formerly Intelligence</span></h4>
-          <p style="font-size: 0.95rem; color: #6b7280;">An AI personal work agent that orchestrates sub-agents and connects to business tools (Slack, Jira). Can generate PPT/PDF deliverables and is available on iOS. Product name is <strong>CoWork</strong>; billing/domain identifiers often still use <code>SNOWFLAKE_INTELLIGENCE</code>.</p>
-          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Track CoWork in AI feature budgets and METERING as <code>SNOWFLAKE_INTELLIGENCE</code>.</p>
-        </div>
+      <h3 style="margin-top: var(--space-lg);">Transition from Cortex Analyst → Cortex Agents</h3>
+      <div class="panel" style="border-top: 4px solid var(--sf-blue); margin-top: var(--space-md);">
+        <p>Snowflake recommends transitioning from standalone <strong>Cortex Analyst</strong> to <strong>Cortex Agents</strong>. Agents support Analyst capabilities with higher answer quality and expanded natural-language analytics.</p>
+        <ul style="list-style: disc; padding-left: 1.5rem; margin-top: var(--space-md); color: #6b7280;">
+          <li><strong>Streamlined SQL generation (Apr 2026):</strong> Agents that use Analyst semantic views as tools now generate SQL <em>directly</em>, instead of calling Cortex Analyst as a separate step. Lower latency and better accuracy.</li>
+          <li><strong>Response / tool blocks:</strong> <code>cortex_analyst_text_to_sql</code> is replaced by <code>system_execute_sql</code>. The tool-use block includes generated <code>sql</code>; the result includes <code>query_id</code>, <code>result_set</code>, and final <code>sql</code>.</li>
+          <li><strong>Config:</strong> Agent definitions and semantic views usually need no change. Apps or monitors that parse tool-type strings <strong>must</strong> update.</li>
+          <li><strong>Observability:</strong> In <code>CORTEX_AGENT_USAGE_HISTORY</code>, granular tokens/credits no longer split out <code>cortex_analyst</code> — usage is reported under <code>cortex_agents</code>.</li>
+        </ul>
+        <p style="font-size: 0.9rem; margin-top: var(--space-md);"><strong>FinOps note:</strong> Agent costs are additive (orchestration + tools + warehouse for executed SQL). Meter <code>CORTEX_AGENTS</code> SERVICE_TYPE and agent usage history — do not assume Analyst API metering covers Agent SQL.</p>
       </div>
 
       <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>Snowflake CoWork <span class="badge" style="background: var(--sf-good); color: #fff;">Formerly Intelligence</span></h4>
+          <p style="font-size: 0.95rem; color: #6b7280;">AI personal work agent and central orchestrator across sub-agents. Connects to business tools (Slack, Jira), learns preferences, generates PPT/PDF deliverables, and is available on iOS.</p>
+          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Product name is CoWork; budget domain / SERVICE_TYPE often remains <code>SNOWFLAKE_INTELLIGENCE</code>. Include in AI feature budgets (Module 07).</p>
+        </div>
         <div class="panel" style="border-top: 4px solid var(--sf-warn);">
           <h4>Snowflake CoCo <span class="badge" style="background: var(--sf-warn); color: #fff;">Formerly Cortex Code</span></h4>
-          <p style="font-size: 0.95rem; color: #6b7280;">AI coding agent for local and cloud development. Runs from Desktop, CLI, Snowsight, Slack, and mobile. Complex multi-step workflows from a single prompt — each step consumes tokens.</p>
-          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Separate SERVICE_TYPEs for CLI vs Snowsight; per-user credit limits + AI feature budgets apply.</p>
-        </div>
-        <div class="panel" style="border-top: 4px solid var(--sf-navy);">
-          <h4>Dynamic Model Routing</h4>
-          <p style="font-size: 0.95rem; color: #6b7280;">Cortex AI Gateway can automatically route prompts to the most cost-effective model that meets quality needs. Pair this with manual Budget/Standard/Premium selection for high-volume AISQL jobs.</p>
-          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>Upcoming models:</strong> open models such as DeepSeek-V4-Flash and GLM-5.3 expand routing options — always validate rates in the Consumption Table before projecting spend.</p>
+          <p style="font-size: 0.95rem; color: #6b7280;">AI coding agent for development. Official rename from Cortex Code to <strong>Snowflake CoCo</strong>. Handles complex workflows from Desktop, CLI, Snowsight, Slack, or mobile via a single prompt — each step consumes tokens.</p>
+          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Separate SERVICE_TYPEs for CLI vs Snowsight; use per-user CoCo credit limits + tag-based AI feature budgets.</p>
         </div>
       </div>
 
       <div class="callout cost" style="margin-top: var(--space-lg);">
         <h5>Prefer Agents over standalone Analyst</h5>
-        <p>For new NL-to-SQL and analytics workloads, build on <strong>Cortex Agents</strong> (and CoWork where orchestration across tools is needed). Keep Analyst API only when you have a hard dependency on the legacy path. Your budgets and dashboards must include Agents + CoWork, not only AISQL functions.</p>
+        <p>For new NL-to-SQL and analytics workloads, build on <strong>Cortex Agents</strong> (and CoWork when you need cross-tool orchestration). Keep the standalone Analyst API only for hard legacy dependencies. Budgets and dashboards must include Agents + CoWork + CoCo, not only AISQL functions.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section A3: Dynamic Model Routing ──────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A3</div>
+        <h2 class="section-title">Dynamic Model Routing &amp; Expanded Models</h2>
+      </div>
+
+      <p><strong>Dynamic Model Routing</strong> (Cortex AI Gateway; private preview) automatically selects the most affordable model that can complete each step of agent work. It is wired into CoCo, CoWork, and third-party agents that use the gateway.</p>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel">
+          <h4>How routing works</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li><strong>Advisor pattern:</strong> a smaller model tries first; escalates to a larger model as a tool if needed.</li>
+            <li><strong>Classifier:</strong> routes straightforward / repetitive work to cheaper models based on task patterns.</li>
+            <li><strong>Governance:</strong> only admin-approved models; respects data residency; routing decisions are logged.</li>
+            <li><strong>Optional:</strong> you can still pin a single model or a restricted set — auto is not required.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>FinOps impact</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>No separate fee for the routing decision — you pay tokens for the model that ran.</li>
+            <li>Snowflake cites up to ~3× token efficiency vs frontier-only paths on some internal workloads.</li>
+            <li>For high-volume <code>AI_COMPLETE</code> SQL jobs, still pick Budget/Standard models deliberately (Section B).</li>
+            <li>For Agents / CoWork / CoCo, prefer <strong>auto</strong> within an approved pool when available.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <h4>New / expanding open models</h4>
+        <table class="comparison-table" style="margin-top: var(--space-md);">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Status</th>
+              <th>FinOps note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DeepSeek-V4-Flash 0731</code></td>
+              <td>Private preview</td>
+              <td>Expands low-cost routing options — confirm rates in the Consumption Table before projecting</td>
+            </tr>
+            <tr>
+              <td><code>GLM-5.3</code></td>
+              <td>Private preview coming soon</td>
+              <td>Availability may change; treat as optional capacity in the approved model pool</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="color: #6b7280; font-size: 0.9rem; margin-top: var(--space-md);">Also available across Cortex: models from Anthropic, OpenAI, Google, Meta, Mistral, and others. Always validate current IDs and rates against official docs.</p>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Related: AI mode for sensitive data classification (Public Preview)</h5>
+        <p>Classification profiles can enable <code>ai_mode: true</code> to use <code>openai-gpt-5-mini</code> for additional semantic categories beyond standard scanning. This is a <strong>governance</strong> feature (Trust Center / data privacy), not an AISQL lab — but it does consume AI capacity. Enable only where semantic enrichment justifies the cost; VARIANT/OBJECT/ARRAY columns and tables with &gt;300 columns are not AI-enriched.</p>
       </div>
     </section>
 
@@ -150,7 +211,7 @@ FinOps for Snowflake AI
       <p>When using <code>AI_COMPLETE()</code>, you choose which model to use. Each model has different capabilities and costs.</p>
 
       <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">Budget Tier - High Volume, Simple Tasks</h4>
-      <div class="cols three" style="margin-top: var(--space-md);">
+      <div class="cols two" style="margin-top: var(--space-md);">
         <div class="model-card">
           <div class="model-card-header">
             <div>
@@ -199,15 +260,24 @@ FinOps for Snowflake AI
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-md);">
+        <h5>Context Window = Capacity, Not Cost</h5>
+        <p>The context window (e.g. 32K tokens) is the <strong>maximum</strong> a model can process per call - you only pay for tokens actually used. If your prompt is 500 tokens and the response is 200 tokens, you pay for 700 tokens, not 32K. Prefer Dynamic Model Routing (Section A3) for Agents/CoWork/CoCo when available.</p>
+      </div>
+
+      <h4 style="margin-top: var(--space-xl); color: var(--sf-blue);">Standard Tier - Balance of Quality and Cost</h4>
+      <div class="cols three" style="margin-top: var(--space-md);">
         <div class="model-card">
           <div class="model-card-header">
             <div>
-              <div class="model-name">llama3.3-70b</div>
+              <div class="model-name">llama3.1-70b</div>
               <div class="model-provider">Meta</div>
             </div>
-            <span class="badge budget">Budget</span>
+            <span class="badge standard">Standard</span>
           </div>
-          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Strong reasoning at budget price, instruction following</p>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Complex reasoning, nuanced analysis, better instruction following</p>
           <div class="model-stats">
             <div class="model-stat">
               <span class="model-stat-label">Input Rate</span>
@@ -223,24 +293,15 @@ FinOps for Snowflake AI
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="callout tip" style="margin-top: var(--space-md);">
-        <h5>Context Window = Capacity, Not Cost</h5>
-        <p>The context window (e.g. 32K tokens) is the <strong>maximum</strong> a model can process per call - you only pay for tokens actually used. If your prompt is 500 tokens and the response is 200 tokens, you pay for 700 tokens, not 32K.</p>
-      </div>
-
-      <h4 style="margin-top: var(--space-xl); color: var(--sf-blue);">Standard Tier - Balance of Quality and Cost</h4>
-      <div class="cols three" style="margin-top: var(--space-md);">
         <div class="model-card">
           <div class="model-card-header">
             <div>
-              <div class="model-name">llama3.1-70b</div>
+              <div class="model-name">llama3.3-70b</div>
               <div class="model-provider">Meta</div>
             </div>
             <span class="badge standard">Standard</span>
           </div>
-          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Complex reasoning, nuanced analysis, better instruction following</p>
+          <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0;">Strong reasoning and instruction following — confirm current rates in Consumption Table</p>
           <div class="model-stats">
             <div class="model-stat">
               <span class="model-stat-label">Input Rate</span>
@@ -280,6 +341,9 @@ FinOps for Snowflake AI
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="cols two" style="margin-top: var(--space-md);">
         <div class="model-card">
           <div class="model-card-header">
             <div>
@@ -303,6 +367,10 @@ FinOps for Snowflake AI
               <span class="model-stat-value">128K tokens</span>
             </div>
           </div>
+        </div>
+        <div class="panel" style="border: 1px dashed #cbd5e1;">
+          <h4 style="margin-bottom: var(--space-sm);">Open models (preview)</h4>
+          <p style="font-size: 0.9rem; color: #6b7280;">DeepSeek-V4-Flash 0731 and GLM-5.3 expand the routing pool under Cortex AI Gateway. Prefer Dynamic Model Routing when approved — do not hard-code preview IDs into production labs until GA rates are published.</p>
         </div>
       </div>
 
@@ -478,7 +546,7 @@ FinOps for Snowflake AI
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
           <div>
             <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_TRANSLATE(text, source_lang, target_lang)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Translates text between 24+ languages with auto-detect support</p>
+            <p style="color: #6b7280; margin-bottom: 0;">Translates text between supported languages with auto-detect</p>
           </div>
           <span class="badge medium">Moderate Cost</span>
         </div>
@@ -574,40 +642,40 @@ FinOps for Snowflake AI
       </div>
     </section>
 
-    <!-- ─── Section D: Cortex Code Specific ────────────────────────────────── -->
+    <!-- ─── Section D: Snowflake CoCo ───────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
         <div class="section-letter">D</div>
-        <h2 class="section-title">Cortex Code</h2>
+        <h2 class="section-title">Snowflake CoCo <span class="badge" style="background: var(--sf-warn); color: #fff; font-size: 0.7rem;">Formerly Cortex Code</span></h2>
       </div>
 
-      <p>Cortex Code is Snowflake's AI-powered coding assistant - available in both Snowsight (web UI) and as a CLI for local development. It adds capabilities beyond the SQL functions covered above.</p>
+      <p><strong>Snowflake CoCo</strong> is Snowflake's AI coding agent — available in Snowsight, Desktop, CLI, Slack, and mobile. It adds capabilities beyond the SQL functions covered above and participates in Dynamic Model Routing via Cortex AI Gateway when enabled.</p>
 
       <div class="cols two">
         <div class="panel">
-          <h4>What Cortex Code Adds</h4>
+          <h4>What CoCo Adds</h4>
           <ul style="list-style: disc; padding-left: 1.5rem;">
-            <li>Natural language → SQL generation</li>
+            <li>Natural language → SQL and multi-file coding workflows</li>
             <li>Code explanation and documentation</li>
-            <li>Agentic workflows and multi-step reasoning</li>
-            <li>CLI-driven interaction for developers</li>
+            <li>Agentic multi-step reasoning from a single prompt</li>
+            <li>CLI / Desktop / Snowsight / Slack surfaces</li>
             <li>Integration with MCP servers and external tools</li>
           </ul>
         </div>
         <div class="panel">
-          <h4>Cost Tracking for Cortex Code</h4>
+          <h4>Cost Tracking for CoCo</h4>
           <ul style="list-style: disc; padding-left: 1.5rem;">
             <li><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></li>
             <li><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></li>
             <li>Tracks user, timestamp, tokens, credits</li>
-            <li>CREDITS_GRANULAR JSON breakdown by model</li>
+            <li><code>TOKENS_GRANULAR</code> / credits breakdown by model</li>
           </ul>
         </div>
       </div>
 
       <div class="callout tip">
         <h5>Key Insight</h5>
-        <p>Cortex Code is the AI layer that helps you <strong>write</strong> the SQL that calls the other Cortex functions. It accelerates development of your AI pipelines. In Module 07, we'll use Cortex Code to build the Streamlit dashboard that tracks all Cortex AI spend.</p>
+        <p>CoCo is the AI layer that helps you <strong>write</strong> the SQL that calls other Cortex functions — and it burns tokens on every step. In Module 07–08 we use CoCo under AI feature budgets and build the Streamlit dashboard that tracks Cortex AI spend.</p>
       </div>
     </section>
 
@@ -643,6 +711,22 @@ FinOps for Snowflake AI
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
           <strong>Approximately 10-50× difference.</strong> mistral-7b processes ~8.3M input tokens per credit, while claude-4-sonnet processes ~667K input tokens per credit (input) and only ~133K output tokens per credit. For output-heavy workloads, the difference can be even greater.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q4:</strong> Why prefer Cortex Agents over standalone Cortex Analyst for new analytics apps?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Agents include Analyst capabilities with better NL quality, generate SQL directly via <code>system_execute_sql</code> (lower latency), and are the recommended path. Meter under <code>cortex_agents</code> — not a separate Analyst service step.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q5:</strong> What FinOps benefit does Dynamic Model Routing provide?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Cortex AI Gateway auto-selects the cheapest capable model per step (advisor + classifier), within admin-approved models. No routing fee — you only pay tokens for the model that ran. Prefer <strong>auto</strong> for Agents/CoWork/CoCo; still pick Budget models deliberately for high-volume AISQL.
         </div>
       </div>
     </section>

@@ -284,7 +284,7 @@ LIMIT 3;</pre>
           </div>
         </div>
 
-        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Model B: Standard Tier (llama3-70b)</h4>
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Model B: Standard Tier (llama3.1-70b)</h4>
         <div class="code-block">
           <div class="code-header">
             <span class="code-lang">SQL</span>
@@ -292,10 +292,10 @@ LIMIT 3;</pre>
           </div>
           <div class="code-content">
             <pre>SELECT 
-    'llama3-70b' AS model_used,
+    'llama3.1-70b' AS model_used,
     customer_id,
     AI_COMPLETE(
-        'llama3-70b',
+        'llama3.1-70b',
         CONCAT('Summarize in one sentence: ', feedback_text)
     ) AS summary_standard
 FROM cortex_lab.ai_workshop.customer_feedback
@@ -341,7 +341,7 @@ LIMIT 3;</pre>
               <td><span class="cost-index-value" style="font-weight: 600;">1x</span></td>
             </tr>
             <tr class="standard-row">
-              <td><code>llama3-70b</code></td>
+              <td><code>llama3.1-70b</code></td>
               <td><input type="text" placeholder="Your observation..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
               <td><input type="text" class="credits-input" placeholder="0.00XXX" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
               <td><span class="cost-index-value" style="font-weight: 600;">-</span></td>

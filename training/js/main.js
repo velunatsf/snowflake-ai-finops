@@ -168,16 +168,13 @@
     // Model rates (credits per 1M tokens) - from Snowflake pricing
     const modelRates = {
       'mistral-7b': { input: 0.12, output: 0.12 },
-      'llama3-8b': { input: 0.19, output: 0.19 },
-      'mixtral-8x7b': { input: 0.22, output: 0.22 },
-      'llama3-70b': { input: 1.21, output: 1.21 },
+      'llama3.1-8b': { input: 0.19, output: 0.19 },
       'llama3.1-70b': { input: 1.21, output: 1.21 },
       'llama3.1-405b': { input: 3.00, output: 3.00 },
-      'mistral-large': { input: 5.10, output: 5.10 },
-      'claude-3-5-sonnet': { input: 1.50, output: 7.50 },
-      'claude-3-haiku': { input: 0.25, output: 1.25 },
-      'reka-flash': { input: 0.45, output: 0.45 },
-      'snowflake-arctic': { input: 0.84, output: 0.84 }
+      'mistral-large2': { input: 2.20, output: 2.20 },
+      'snowflake-arctic': { input: 0.84, output: 0.84 },
+      'claude-4-sonnet': { input: 1.50, output: 7.50 },
+      'claude-sonnet-4-6': { input: 1.95, output: 1.95 }
     };
 
     const promptSlider = document.getElementById('calc-prompt-tokens');

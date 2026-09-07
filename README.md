@@ -1,6 +1,8 @@
-# FinOps for Snowflake AI
+# Snowflake Cortex AI Cost Monitoring and FinOps Toolkit
 
-**Discover, Control, Optimize, Govern AI Spend on Snowflake.**
+**Live workshop:** [https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)
+
+Discover, Control, Optimize, Govern AI Spend on Snowflake.
 
 An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Cortex Code, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a Cortex Code skill file for AI-assisted cost management.
 
@@ -49,13 +51,17 @@ snowflake-ai-finops/
 
 ### 1. Run the Training
 
+Open the live workshop: **[https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)**
+
+Or run it locally from this repository:
+
 ```bash
 git clone https://github.com/velunatsf/snowflake-ai-finops.git
 cd snowflake-ai-finops
 open training/index.html
 ```
 
-No build step, no server — modules are static HTML with copy-to-clipboard SQL blocks.
+No build step, no server — modules are static HTML with copy-to-clipboard SQL blocks. The GitHub Pages workflow publishes `training/` to the live workshop URL above.
 
 ### 2. Set Up Your Environment
 

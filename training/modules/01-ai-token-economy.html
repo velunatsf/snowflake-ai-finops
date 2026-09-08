@@ -51,6 +51,7 @@ FinOps for Snowflake AI
           <li>Understand what a token is and how it maps to cost</li>
           <li>Know the two cost layers (warehouse + AI Credits) and agentic additive spend</li>
           <li>Estimate query cost before running at scale</li>
+          <li>Know how Dynamic Model Routing and AI feature budgets control spend</li>
         </ul>
       </div>
     </header>
@@ -553,7 +554,117 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
 
       <div class="callout tip">
         <h5>Use This Estimator First</h5>
-        <p>Run this estimator before building any AI pipeline. The difference between <code>mistral-7b</code> and <code>claude-4-sonnet</code> can be <strong>10–50× in credit cost</strong> for the same prompt. Choose the cheapest model that meets your quality requirements.</p>
+        <p>Run this estimator before building any AI pipeline. The difference between <code>mistral-7b</code> and <code>claude-4-sonnet</code> can be <strong>10–50× in credit cost</strong> for the same prompt. Choose the cheapest model that meets your quality requirements — or let Dynamic Model Routing do that automatically for Agents, CoWork, and CoCo (next section).</p>
+      </div>
+    </section>
+
+    <!-- ─── Section E: Dynamic Model Routing ───────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">E</div>
+        <h2 class="section-title">Dynamic Model Routing</h2>
+      </div>
+
+      <p>Manual model choice (Budget vs Standard vs Premium) is one FinOps lever. <strong>Dynamic Model Routing</strong> in Cortex AI Gateway automates that choice for agentic workloads — CoCo, CoWork, and third-party agents — by picking the cheapest capable model per step.</p>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel" style="border-top: 4px solid var(--sf-blue);">
+          <h4>How it saves tokens</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li><strong>Advisor pattern:</strong> a smaller model tries first; escalates to a larger model only if needed</li>
+            <li><strong>Classifier:</strong> routes simple / repetitive work to cheaper models</li>
+            <li><strong>Governance:</strong> only admin-approved models; respects data residency; decisions are logged</li>
+            <li><strong>Optional:</strong> you can still pin a model; auto is not required</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>FinOps takeaway</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>No separate routing fee — you pay tokens for the model that ran</li>
+            <li>Prefer <strong>auto</strong> within an approved pool for Agents / CoWork / CoCo</li>
+            <li>For high-volume AISQL (<code>AI_COMPLETE</code>), still pick Budget/Standard models deliberately</li>
+            <li>DeepSeek-V4-Flash and GLM-5.3 expand the routing pool (preview) — confirm rates before projecting</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Where to go deeper</h5>
+        <p>Full product map, <code>system_execute_sql</code>, and routing details are in <a href="02-cortex-ai-capabilities.html">Module 02: Cortex AI Capabilities</a>. Use this Module 01 estimator to feel the cost gap between models — routing exists to close that gap automatically when you enable it.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section F: Budgets & Spend Controls ────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">F</div>
+        <h2 class="section-title">Budgets &amp; Spend Controls</h2>
+      </div>
+
+      <p>Estimating tokens is step one. <strong>Governing</strong> AI Credits needs controls that Resource Monitors cannot provide — they only cap warehouse compute, not AI token spend.</p>
+
+      <div style="overflow-x: auto; margin-top: var(--space-lg);">
+        <table class="comparison-table" style="min-width: 700px;">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Control</th>
+              <th style="width: 28%;">What it does</th>
+              <th style="width: 25%;">Scope</th>
+              <th style="width: 25%;">FinOps role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>AI feature budgets</strong></td>
+              <td>Monthly credit limits for AI Functions, Agents, CoWork, CoCo — attributed by <em>tagged users</em></td>
+              <td>Cost center / team</td>
+              <td>Alerts + custom actions before overshoot</td>
+            </tr>
+            <tr>
+              <td><strong>CoCo per-user credit limits</strong></td>
+              <td>Hard block on CLI / Snowsight in a rolling 24h window</td>
+              <td>Account default + per-user override</td>
+              <td>Stops runaway developer spend</td>
+            </tr>
+            <tr>
+              <td><strong>Model access (RBAC)</strong></td>
+              <td>Grant only approved model roles; allowlist is legacy/deprecated</td>
+              <td>Role / account</td>
+              <td>Blocks premium models at the source</td>
+            </tr>
+            <tr>
+              <td><strong>Usage history views</strong></td>
+              <td>Attribute spend by function, model, user, SERVICE_TYPE</td>
+              <td>Account</td>
+              <td>Detect waste after the fact (Module 06)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel">
+          <h4>Tag → budget workflow (preview)</h4>
+          <ol style="padding-left: 1.25rem; color: #6b7280; line-height: 1.7;">
+            <li>Tag users (e.g. <code>cost_center = 'DataScience'</code>)</li>
+            <li>Create a Snowflake Budget and set a monthly limit</li>
+            <li>Scope by user tags</li>
+            <li>Add shared resources: <code>AI FUNCTION</code>, <code>CORTEX CODE</code>, <code>CORTEX AGENT</code>, <code>SNOWFLAKE INTELLIGENCE</code> (CoWork)</li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h4>Remember</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>Product name <strong>CoCo</strong> / <strong>CoWork</strong>; SQL domains often still say <code>CORTEX CODE</code> / <code>SNOWFLAKE INTELLIGENCE</code></li>
+            <li>Budgets warn; CoCo limits (and per-user quotas where enabled) hard-block</li>
+            <li>Dollarize AI spend with <strong>AI Credits</strong> (~$2.00 global / $2.20 regional), not warehouse Platform Credits</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout cost" style="margin-top: var(--space-lg);">
+        <h5>Hands-on later</h5>
+        <p>You will create a tag-based AI feature budget and set CoCo guardrails in <a href="07-ai-credits-transition.html">Module 07: AI Feature Budgets &amp; Spend Controls</a>. Module 06 teaches the ACCOUNT_USAGE queries that prove the controls are working.</p>
       </div>
     </section>
 
@@ -589,6 +700,22 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
           <strong>You pay only for tokens, not warehouse time.</strong> Functions like AI_SENTIMENT(), AI_COMPLETE(), and AI_TRANSLATE() run on Snowflake's managed infrastructure. This is efficient for sporadic use, but can accumulate rapidly at scale since there's no auto-suspend safety net.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q4:</strong> How does Dynamic Model Routing reduce AI spend?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Cortex AI Gateway auto-selects the cheapest capable model per step (advisor + classifier) within admin-approved models. There is no routing fee — only tokens for the model that ran. Prefer auto for Agents/CoWork/CoCo; still choose Budget models deliberately for high-volume AISQL.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q5:</strong> Why aren't Resource Monitors enough for AI FinOps?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Resource Monitors only cap <strong>warehouse</strong> credits. AI token spend needs tag-based <strong>AI feature budgets</strong>, CoCo per-user limits, model RBAC, and usage-history monitoring (Module 07).
         </div>
       </div>
     </section>

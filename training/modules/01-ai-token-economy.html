@@ -740,7 +740,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Query: Cache hit rate from CoCo CLI telemetry</h4>
+          <h4 style="margin: 0;">Query: Cache hit rate from CoCo CLI + CoWork telemetry</h4>
           <span class="badge high">FinOps KPI</span>
         </div>
         <p>Flatten <code>TOKENS_GRANULAR</code> / <code>CREDITS_GRANULAR</code> to see how much of your spend is discounted cache reads vs full input.</p>
@@ -750,8 +750,8 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>-- Prompt-cache telemetry (CoCo CLI) — last 7 days
--- Docs: CORTEX_CODE_CLI_USAGE_HISTORY
+            <pre>-- CoCo CLI — OBJECT keyed by model
+-- https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
 SELECT
     f.key                                              AS model_name,
     SUM(COALESCE(f.value:input::NUMBER, 0))            AS input_tokens,
@@ -772,9 +772,33 @@ WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
 GROUP BY 1
 ORDER BY total_credits DESC;
 
--- Also check: CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY,
--- CORTEX_AGENT_USAGE_HISTORY, SNOWFLAKE_COWORK_USAGE_HISTORY
--- (org account: SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY)</pre>
+-- CoWork — nested ARRAY (request → service → model); org account view
+-- https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+SELECT
+    svc.key                                              AS service_type,
+    mdl.key                                              AS model_name,
+    SUM(COALESCE(mdl.value:input::NUMBER, 0))            AS input_tokens,
+    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0)) AS cache_read_tokens,
+    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(mdl.value:output::NUMBER, 0))           AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(mdl.value:input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                 AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                 AS total_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
+     LATERAL FLATTEN(input => tg.value) req,
+     LATERAL FLATTEN(input => req.value) svc,
+     LATERAL FLATTEN(input => svc.value) mdl
+WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+  AND svc.key <> 'start_time'
+  AND TYPEOF(mdl.value) = 'OBJECT'
+GROUP BY 1, 2
+ORDER BY total_credits DESC;</pre>
           </div>
         </div>
       </div>

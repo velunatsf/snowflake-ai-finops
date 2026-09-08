@@ -460,15 +460,14 @@ GROUP  BY attribution;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19: Prompt Cache (KV Cache) Metrics — CoCo CLI
+-- QUERY 19a: Prompt Cache (KV Cache) Metrics — CoCo CLI
 -- ═══════════════════════════════════════════════════════════════════════════
 -- WHEN TO RUN: Weekly FinOps KPI
 -- WHAT IT SHOWS: input vs cache_read_input vs cache_write_input vs output
 -- WHY IT MATTERS: High cache_read share = repeated context billed at reduced
 --   rate (potential ~90% savings on that context vs full input re-billing)
+-- VIEW SHAPE: TOKENS_GRANULAR / CREDITS_GRANULAR are OBJECTS keyed by model
 -- DOCS: https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
--- ALSO: CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY, CORTEX_AGENT_USAGE_HISTORY,
---   SNOWFLAKE.ACCOUNT_USAGE / ORGANIZATION_USAGE SNOWFLAKE_COWORK_USAGE_HISTORY
 -- ─────────────────────────────────────────────────────────────────────────────
 
 SELECT
@@ -503,6 +502,50 @@ FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
 WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
 GROUP BY 1
 ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_credits) DESC;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- QUERY 19b: Prompt Cache (KV Cache) Metrics — CoWork (org or account)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- WHEN TO RUN: Weekly FinOps KPI for CoWork / Intelligence sessions
+-- VIEW SHAPE: TOKENS_GRANULAR is an ARRAY:
+--   [{ <request_id>: { <service_type>: { <model>: {input, cache_*, output} },
+--                      start_time: ... } }, ...]
+-- Needs nested FLATTEN (unlike CoCo CLI's model-keyed OBJECT).
+-- DOCS (org):  https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+-- DOCS (acct): https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_cowork_usage_history_view
+-- NOTE: Org view is only in the organization account. Swap schema as needed.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Organization Usage (all accounts) — run in the organization account
+SELECT
+    svc.key                                             AS service_type,
+    mdl.key                                             AS model_name,
+    SUM(COALESCE(mdl.value:input::NUMBER, 0))           AS input_tokens,
+    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(mdl.value:output::NUMBER, 0))          AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(mdl.value:input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                AS total_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
+     LATERAL FLATTEN(input => tg.value) req,
+     LATERAL FLATTEN(input => req.value) svc,
+     LATERAL FLATTEN(input => svc.value) mdl
+WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+  AND svc.key <> 'start_time'
+  AND TYPEOF(mdl.value) = 'OBJECT'
+GROUP BY 1, 2
+ORDER BY total_credits DESC;
+
+-- Account Usage equivalent (same nested flatten; START_TIME filter):
+-- FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h, ...
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

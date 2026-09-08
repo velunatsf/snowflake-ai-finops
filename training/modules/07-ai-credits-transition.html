@@ -167,7 +167,7 @@ ALTER USER fin_john SET TAG cost_center = 'FinanceTeam';
         <li>Admin → <strong>Cost management</strong> → <strong>Budgets</strong> → <strong>+ Budget</strong></li>
         <li>Choose database/schema for budget metadata, set monthly credit limit, optional <strong>low latency</strong> refresh, alert threshold + emails</li>
         <li>On <strong>Budget scope</strong>: under <em>Tags on users</em>, select <code>cost_center: DataScience</code> (required for AI shared resources)</li>
-        <li>Under <em>Select resources to monitor</em>, enable: <strong>AI Functions</strong>, <strong>Cortex Code (CoCo)</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong></li>
+        <li>Under <em>Select resources to monitor</em>, enable: <strong>AI Functions</strong>, <strong>CoCo</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong></li>
         <li>Save and review</li>
       </ol>
 
@@ -389,8 +389,8 @@ ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'mistral-7b,llama3.1-8b,llama3.1-70b
         </div>
       </div>
 
-      <!-- Cortex Code Usage History -->
-      <h3 style="margin-top: var(--space-xl);">Cortex Code Usage History <span class="badge" style="background: var(--sf-blue); color: white;">Audit - Attribution After-the-Fact</span></h3>
+      <!-- CoCo Usage History -->
+      <h3 style="margin-top: var(--space-xl);">CoCo Usage History <span class="badge" style="background: var(--sf-blue); color: white;">Audit - Attribution After-the-Fact</span></h3>
 
       <div class="cols two" style="margin-top: var(--space-md);">
         <div class="panel" style="border-left: 4px solid var(--sf-blue);">
@@ -399,13 +399,13 @@ ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'mistral-7b,llama3.1-8b,llama3.1-70b
         </div>
         <div class="panel" style="border-left: 4px solid var(--sf-good);">
           <h4 style="margin-bottom: var(--space-xs);"><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></h4>
-          <p style="color: #6b7280; margin: 0;">Same structure for Snowsight-based Cortex Code usage. CLI and Snowsight tracked in <strong>separate views</strong> - query both for complete attribution.</p>
+          <p style="color: #6b7280; margin: 0;">Same structure for Snowsight-based CoCo usage. CLI and Snowsight tracked in <strong>separate views</strong> - query both for complete attribution.</p>
         </div>
       </div>
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Query: Top Cortex Code Spenders by User & Model</h4>
+          <h4 style="margin: 0;">Query: Top CoCo Spenders by User & Model</h4>
           <span class="badge high">Attribution</span>
         </div>
 

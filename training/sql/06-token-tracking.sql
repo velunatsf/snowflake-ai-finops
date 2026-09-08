@@ -215,9 +215,9 @@ LIMIT 20;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 9: Cortex Code Usage (CLI + Snowsight)
+-- QUERY 9: CoCo Usage (CLI + Snowsight)
 -- ═══════════════════════════════════════════════════════════════════════════
--- WHEN TO RUN: To track Cortex Code (CoCo) assistant usage
+-- WHEN TO RUN: To track CoCo assistant usage
 -- WHAT IT SHOWS: Token and credit breakdown for the AI coding assistant
 -- NOTE: These are separate views from general query_history
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ WHERE event_timestamp >= DATEADD(day, -7, CURRENT_TIMESTAMP)
 GROUP BY 1, 2
 ORDER BY 2 DESC, 3 DESC;
 
--- Cortex Code Snowsight Usage
+-- CoCo Snowsight Usage
 SELECT
     user_name,
     DATE_TRUNC('day', event_timestamp)          AS usage_date,

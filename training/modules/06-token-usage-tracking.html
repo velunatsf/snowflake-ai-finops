@@ -40,7 +40,7 @@ FinOps for Snowflake AI
     <header class="module-header">
       <div class="module-number">
         <span>MODULE 06</span>
-        <span class="timing-badge lab">12 min</span>
+        <span class="timing-badge lab">15 min</span>
       </div>
       <h1 class="module-title">Token & Credit Usage Tracking</h1>
       <p class="module-subtitle">Your real-time FinOps console for AI spend</p>
@@ -650,6 +650,65 @@ GROUP  BY attribution;</pre>
         <div class="callout warn" style="margin-top: var(--space-lg); margin-bottom: 0;">
           <h5>Unattributed Spend Cannot Be Optimized</h5>
           <p>Query tagging is free - one SQL line per session. Use a consistent standard like <code>team=&lt;team&gt;,project=&lt;project&gt;,env=&lt;env&gt;</code> to enable automated cost reporting and chargeback.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Query 13: Prompt Cache / KV Cache Metrics ───────────────────────── -->
+    <section class="section">
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query 13: Prompt Cache (KV Cache) Hit Metrics</h4>
+          <span class="badge high">Weekly KPI</span>
+        </div>
+        <p><strong>When to run:</strong> Weekly — multi-turn CoCo / CoWork / Agent sessions should show high <code>cache_read_input</code>. Low cache-read share means you are re-paying full context as <code>input</code> every turn.</p>
+        <p style="margin-top: var(--space-sm);">Concept review: <a href="01-ai-token-economy.html">Module 01 · Prompt Cache Metrics</a>. Docs: <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener">CORTEX_CODE_CLI_USAGE_HISTORY</a>.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Prompt-cache telemetry — CoCo CLI (last 7 days)
+SELECT
+    f.key                                               AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(f.value:input::NUMBER, 0)
+            + COALESCE(f.value:cache_read_input::NUMBER, 0)
+            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY total_credits DESC;
+
+-- Credits by cache vs fresh input (same window)
+SELECT
+    f.key AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_credits,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_credits,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_credits,
+    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.CREDITS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_credits) DESC;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Target</h5>
+          <p>On long CoCo/CoWork threads, <code>cache_read_pct_of_prompt</code> should climb after turn 1. If it stays near 0%, users may be starting new sessions constantly or changing large prompts every turn — both destroy the ~90% repeated-context savings opportunity.</p>
         </div>
       </div>
     </section>

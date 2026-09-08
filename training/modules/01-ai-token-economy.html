@@ -40,7 +40,7 @@ FinOps for Snowflake AI
     <header class="module-header">
       <div class="module-number">
         <span>MODULE 01</span>
-        <span class="timing-badge concept">10 min</span>
+        <span class="timing-badge concept">20 min</span>
       </div>
       <h1 class="module-title">AI Token Economy</h1>
       <p class="module-subtitle">Understanding the fundamental unit of AI cost in Snowflake</p>
@@ -50,6 +50,7 @@ FinOps for Snowflake AI
         <ul>
           <li>Understand what a token is and how it maps to cost</li>
           <li>Know the two cost layers (warehouse + AI Credits) and agentic additive spend</li>
+          <li>Read prompt-cache metrics (<code>cache_read_input</code> / <code>cache_write_input</code>) to cut repeat-context spend</li>
           <li>Estimate query cost before running at scale</li>
           <li>Know how Dynamic Model Routing and AI feature budgets control spend</li>
         </ul>
@@ -664,7 +665,123 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
 
       <div class="callout cost" style="margin-top: var(--space-lg);">
         <h5>Hands-on later</h5>
-        <p>You will create a tag-based AI feature budget and set CoCo guardrails in <a href="07-ai-credits-transition.html">Module 07: AI Feature Budgets &amp; Spend Controls</a>. Module 06 teaches the ACCOUNT_USAGE queries that prove the controls are working.</p>
+        <p>You will create a tag-based AI feature budget and set CoCo guardrails in <a href="07-ai-credits-transition.html">Module 07: AI Feature Budgets &amp; Spend Controls</a>. Module 06 teaches the ACCOUNT_USAGE queries that prove the controls are working — including prompt-cache telemetry in the next section.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section G: Prompt Cache / KV Cache Metrics ─────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">G</div>
+        <h2 class="section-title">Prompt Cache (KV Cache) Metrics</h2>
+      </div>
+
+      <div class="callout cost" style="margin-bottom: var(--space-lg);">
+        <h5>Why this matters — up to ~90% spend reduction on repeated context</h5>
+        <p>In multi-turn CoCo, CoWork, Agents, and REST API sessions, most of the prompt is often <em>unchanged</em> conversation history, system instructions, or attached docs. Without caching, every turn re-bills that full context as fresh <code>input</code>. With prompt (KV) caching, reused context is billed as <code>cache_read_input</code> at a <strong>reduced rate</strong> — so high cache-hit workloads can cut AI spend dramatically (commonly cited toward ~90% on the repeated-context portion when almost all tokens are cache reads vs full input). Always validate exact rates in the <a href="https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf" target="_blank" rel="noopener">Credit Consumption Table</a> and <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
+      </div>
+
+      <p>Snowflake exposes cache telemetry in <code>TOKENS_GRANULAR</code> and <code>CREDITS_GRANULAR</code> on agentic usage views (for example <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> and CoWork / Agent usage history, including org-level <a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a>).</p>
+
+      <h3 style="margin-top: var(--space-xl);">Four token types to meter</h3>
+      <div style="overflow-x: auto; margin-top: var(--space-md);">
+        <table class="comparison-table" style="min-width: 720px;">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Metric</th>
+              <th style="width: 48%;">Meaning</th>
+              <th style="width: 30%;">FinOps signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cache_read_input</code></td>
+              <td>Cached context tokens retrieved and reused from the prompt cache on later turns — typically billed at a <strong>reduced rate</strong> vs standard input</td>
+              <td>High share = healthy reuse; this is the savings lever</td>
+            </tr>
+            <tr>
+              <td><code>cache_write_input</code></td>
+              <td>Initial context tokens processed and written into the cache on the first turn of a session (or when cache is refreshed)</td>
+              <td>Pay once to seed the cache; expect this on turn 1</td>
+            </tr>
+            <tr>
+              <td><code>input</code></td>
+              <td>New, non-cached input tokens processed for the first time this turn</td>
+              <td>Should stay small relative to cache reads in long sessions</td>
+            </tr>
+            <tr>
+              <td><code>output</code></td>
+              <td>Tokens generated by the model in the response</td>
+              <td>Often the most expensive per-token line — keep answers concise</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>How a session should look</h4>
+          <ol style="padding-left: 1.25rem; color: #6b7280; line-height: 1.7;">
+            <li><strong>Turn 1:</strong> mostly <code>cache_write_input</code> + some <code>input</code> + <code>output</code></li>
+            <li><strong>Turn 2+:</strong> growing <code>cache_read_input</code>, small new <code>input</code>, <code>output</code> as needed</li>
+            <li><strong>Healthy multi-turn:</strong> <code>cache_read_input</code> ≫ <code>input</code> for the same conversation</li>
+          </ol>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-warn);">
+          <h4>Practices that unlock savings</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>Keep system prompts / large docs stable across turns so the cache can hit</li>
+            <li>Prefer continuing a session over starting a new one for the same context</li>
+            <li>For REST / Claude: use explicit cache breakpoints where required; OpenAI-style caching may be implicit above size thresholds</li>
+            <li>Watch TTL — unused cache entries expire (e.g. ephemeral Claude caches have a short TTL)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Query: Cache hit rate from CoCo CLI telemetry</h4>
+          <span class="badge high">FinOps KPI</span>
+        </div>
+        <p>Flatten <code>TOKENS_GRANULAR</code> / <code>CREDITS_GRANULAR</code> to see how much of your spend is discounted cache reads vs full input.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Prompt-cache telemetry (CoCo CLI) — last 7 days
+-- Docs: CORTEX_CODE_CLI_USAGE_HISTORY
+SELECT
+    f.key                                              AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))            AS input_tokens,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0)) AS cache_read_tokens,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(f.value:output::NUMBER, 0))           AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(f.value:input::NUMBER, 0)
+            + COALESCE(f.value:cache_read_input::NUMBER, 0)
+            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                               AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                               AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY total_credits DESC;
+
+-- Also check: CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY,
+-- CORTEX_AGENT_USAGE_HISTORY, SNOWFLAKE_COWORK_USAGE_HISTORY
+-- (org account: SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>FinOps KPI to track weekly</h5>
+        <p><strong>Cache read % of prompt tokens</strong> and <strong>credits on <code>cache_read_input</code> vs <code>input</code></strong> (from <code>CREDITS_GRANULAR</code>). Rising cache-read share with flat or falling total credits = optimization working. Low cache-read % on long CoCo/CoWork sessions = sessions restarted too often, prompts changing every turn, or cache not enabled for that model path.</p>
       </div>
     </section>
 
@@ -716,6 +833,14 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
           Resource Monitors only cap <strong>warehouse</strong> credits. AI token spend needs tag-based <strong>AI feature budgets</strong>, CoCo per-user limits, model RBAC, and usage-history monitoring (Module 07).
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q6:</strong> What does a high <code>cache_read_input</code> share mean for cost?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Most of the conversation context is being <strong>reused from the prompt cache</strong> and billed at a reduced rate instead of as full <code>input</code>. That is the primary lever behind large (up to ~90% on repeated-context) savings in multi-turn CoCo / CoWork / Agent sessions. Track it via <code>TOKENS_GRANULAR</code> / <code>CREDITS_GRANULAR</code>.
         </div>
       </div>
     </section>

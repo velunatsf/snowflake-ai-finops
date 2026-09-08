@@ -460,6 +460,52 @@ GROUP  BY attribution;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- QUERY 19: Prompt Cache (KV Cache) Metrics — CoCo CLI
+-- ═══════════════════════════════════════════════════════════════════════════
+-- WHEN TO RUN: Weekly FinOps KPI
+-- WHAT IT SHOWS: input vs cache_read_input vs cache_write_input vs output
+-- WHY IT MATTERS: High cache_read share = repeated context billed at reduced
+--   rate (potential ~90% savings on that context vs full input re-billing)
+-- DOCS: https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
+-- ALSO: CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY, CORTEX_AGENT_USAGE_HISTORY,
+--   SNOWFLAKE.ACCOUNT_USAGE / ORGANIZATION_USAGE SNOWFLAKE_COWORK_USAGE_HISTORY
+-- ─────────────────────────────────────────────────────────────────────────────
+
+SELECT
+    f.key                                               AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(f.value:input::NUMBER, 0)
+            + COALESCE(f.value:cache_read_input::NUMBER, 0)
+            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY total_credits DESC;
+
+-- Credits split (same window)
+SELECT
+    f.key AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_credits,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_credits,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_credits,
+    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.CREDITS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_credits) DESC;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- SNOWSIGHT NAVIGATION STEPS (for GUI-based monitoring)
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Step 1: Admin → Cost Management → Consumption

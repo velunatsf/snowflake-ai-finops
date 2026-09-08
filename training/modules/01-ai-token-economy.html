@@ -40,7 +40,7 @@ FinOps for Snowflake AI
     <header class="module-header">
       <div class="module-number">
         <span>MODULE 01</span>
-        <span class="timing-badge concept">20 min</span>
+        <span class="timing-badge concept">15 min</span>
       </div>
       <h1 class="module-title">AI Token Economy</h1>
       <p class="module-subtitle">Understanding the fundamental unit of AI cost in Snowflake</p>
@@ -50,9 +50,9 @@ FinOps for Snowflake AI
         <ul>
           <li>Understand what a token is and how it maps to cost</li>
           <li>Know the two cost layers (warehouse + AI Credits) and agentic additive spend</li>
-          <li>Read prompt-cache metrics (<code>cache_read_input</code> / <code>cache_write_input</code>) to cut repeat-context spend</li>
           <li>Estimate query cost before running at scale</li>
           <li>Know how Dynamic Model Routing and AI feature budgets control spend</li>
+          <li>Know when to deepen into KV / prompt cache (Module 01b)</li>
         </ul>
       </div>
     </header>
@@ -155,7 +155,7 @@ FinOps for Snowflake AI
             <li>Some functions run serverless</li>
           </ul>
           <div style="margin-top: var(--space-md); padding: var(--space-md); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm);">
-            <strong>Example:</strong> AI Credits are billed flat (~$2.00 global / $2.20 regional per AI Credit) — separate from Platform Credits for warehouses
+            <strong>Example:</strong> AI Credits are billed flat (~$2.00 global / $2.20 regional per AI Credit) - separate from Platform Credits for warehouses
           </div>
         </div>
       </div>
@@ -361,8 +361,8 @@ FinOps for Snowflake AI
       </table>
 
       <div class="callout tip">
-        <h5>Cost Conversion — AI Credits vs Platform Credits</h5>
-        <p><strong>AI Credits</strong> (AISQL, Agents, CoWork, CoCo, Search, and related AI features) use a flat AI Credit price: typically <strong>$2.00</strong> with global routing or <strong>$2.20</strong> with regional routing — independent of Snowflake edition. See <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
+        <h5>Cost Conversion - AI Credits vs Platform Credits</h5>
+        <p><strong>AI Credits</strong> (AISQL, Agents, CoWork, CoCo, Search, and related AI features) use a flat AI Credit price: typically <strong>$2.00</strong> with global routing or <strong>$2.20</strong> with regional routing - independent of Snowflake edition. See <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
         <p style="margin-top: var(--space-sm);"><strong>Platform Credits</strong> still apply to warehouses, storage, and non-AI services (often ~$2.50–$4.00/credit by edition/region). Use <strong>$2.00/AI Credit</strong> for AI $ estimates unless you pin regional routing. Always validate against your contract and the Consumption Table.</p>
       </div>
 
@@ -555,7 +555,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
 
       <div class="callout tip">
         <h5>Use This Estimator First</h5>
-        <p>Run this estimator before building any AI pipeline. The difference between <code>mistral-7b</code> and <code>claude-4-sonnet</code> can be <strong>10–50× in credit cost</strong> for the same prompt. Choose the cheapest model that meets your quality requirements — or let Dynamic Model Routing do that automatically for Agents, CoWork, and CoCo (next section).</p>
+        <p>Run this estimator before building any AI pipeline. The difference between <code>mistral-7b</code> and <code>claude-4-sonnet</code> can be <strong>10–50× in credit cost</strong> for the same prompt. Choose the cheapest model that meets your quality requirements - or let Dynamic Model Routing do that automatically for Agents, CoWork, and CoCo (next section).</p>
       </div>
     </section>
 
@@ -566,7 +566,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
         <h2 class="section-title">Dynamic Model Routing</h2>
       </div>
 
-      <p>Manual model choice (Budget vs Standard vs Premium) is one FinOps lever. <strong>Dynamic Model Routing</strong> in Cortex AI Gateway automates that choice for agentic workloads — CoCo, CoWork, and third-party agents — by picking the cheapest capable model per step.</p>
+      <p>Manual model choice (Budget vs Standard vs Premium) is one FinOps lever. <strong>Dynamic Model Routing</strong> in Cortex AI Gateway automates that choice for agentic workloads - CoCo, CoWork, and third-party agents - by picking the cheapest capable model per step.</p>
 
       <div class="cols two" style="margin-top: var(--space-lg);">
         <div class="panel" style="border-top: 4px solid var(--sf-blue);">
@@ -581,17 +581,17 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
         <div class="panel" style="border-top: 4px solid var(--sf-good);">
           <h4>FinOps takeaway</h4>
           <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li>No separate routing fee — you pay tokens for the model that ran</li>
+            <li>No separate routing fee - you pay tokens for the model that ran</li>
             <li>Prefer <strong>auto</strong> within an approved pool for Agents / CoWork / CoCo</li>
             <li>For high-volume AISQL (<code>AI_COMPLETE</code>), still pick Budget/Standard models deliberately</li>
-            <li>DeepSeek-V4-Flash and GLM-5.3 expand the routing pool (preview) — confirm rates before projecting</li>
+            <li>DeepSeek-V4-Flash and GLM-5.3 expand the routing pool (preview) - confirm rates before projecting</li>
           </ul>
         </div>
       </div>
 
       <div class="callout tip" style="margin-top: var(--space-lg);">
         <h5>Where to go deeper</h5>
-        <p>Full product map, <code>system_execute_sql</code>, and routing details are in <a href="02-cortex-ai-capabilities.html">Module 02: Cortex AI Capabilities</a>. Use this Module 01 estimator to feel the cost gap between models — routing exists to close that gap automatically when you enable it.</p>
+        <p>Full product map, <code>system_execute_sql</code>, and routing details are in <a href="02-cortex-ai-capabilities.html">Module 02: Cortex AI Capabilities</a>. Use this Module 01 estimator to feel the cost gap between models - routing exists to close that gap automatically when you enable it.</p>
       </div>
     </section>
 
@@ -602,7 +602,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
         <h2 class="section-title">Budgets &amp; Spend Controls</h2>
       </div>
 
-      <p>Estimating tokens is step one. <strong>Governing</strong> AI Credits needs controls that Resource Monitors cannot provide — they only cap warehouse compute, not AI token spend.</p>
+      <p>Estimating tokens is step one. <strong>Governing</strong> AI Credits needs controls that Resource Monitors cannot provide - they only cap warehouse compute, not AI token spend.</p>
 
       <div style="overflow-x: auto; margin-top: var(--space-lg);">
         <table class="comparison-table" style="min-width: 700px;">
@@ -617,7 +617,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
           <tbody>
             <tr>
               <td><strong>AI feature budgets</strong></td>
-              <td>Monthly credit limits for AI Functions, Agents, CoWork, CoCo — attributed by <em>tagged users</em></td>
+              <td>Monthly credit limits for AI Functions, Agents, CoWork, CoCo - attributed by <em>tagged users</em></td>
               <td>Cost center / team</td>
               <td>Alerts + custom actions before overshoot</td>
             </tr>
@@ -665,149 +665,24 @@ DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
 
       <div class="callout cost" style="margin-top: var(--space-lg);">
         <h5>Hands-on later</h5>
-        <p>You will create a tag-based AI feature budget and set CoCo guardrails in <a href="07-ai-credits-transition.html">Module 07: AI Feature Budgets &amp; Spend Controls</a>. Module 06 teaches the ACCOUNT_USAGE queries that prove the controls are working — including prompt-cache telemetry in the next section.</p>
+        <p>You will create a tag-based AI feature budget and set CoCo guardrails in <a href="07-ai-credits-transition.html">Module 07: AI Feature Budgets &amp; Spend Controls</a>. Module 06 teaches the ACCOUNT_USAGE queries that prove the controls are working. Prompt-cache / KV metrics are covered next in <a href="01b-kv-cache-optimization.html">Module 01b</a>.</p>
       </div>
     </section>
 
-    <!-- ─── Section G: Prompt Cache / KV Cache Metrics ─────────────────────── -->
+    <!-- ─── Section G: Next session teaser ───────────────────────────────── -->
     <section class="section">
       <div class="section-header">
         <div class="section-letter">G</div>
-        <h2 class="section-title">Prompt Cache (KV Cache) Metrics</h2>
+        <h2 class="section-title">Next: KV Cache Optimization</h2>
       </div>
 
       <div class="callout cost" style="margin-bottom: var(--space-lg);">
-        <h5>Why this matters — up to ~90% spend reduction on repeated context</h5>
-        <p>In multi-turn CoCo, CoWork, Agents, and REST API sessions, most of the prompt is often <em>unchanged</em> conversation history, system instructions, or attached docs. Without caching, every turn re-bills that full context as fresh <code>input</code>. With prompt (KV) caching, reused context is billed as <code>cache_read_input</code> at a <strong>reduced rate</strong> — so high cache-hit workloads can cut AI spend dramatically (commonly cited toward ~90% on the repeated-context portion when almost all tokens are cache reads vs full input). Always validate exact rates in the <a href="https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf" target="_blank" rel="noopener">Credit Consumption Table</a> and <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
-      </div>
-
-      <p>Snowflake exposes cache telemetry in <code>TOKENS_GRANULAR</code> and <code>CREDITS_GRANULAR</code> on agentic usage views (for example <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> and CoWork / Agent usage history, including org-level <a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a>).</p>
-
-      <h3 style="margin-top: var(--space-xl);">Four token types to meter</h3>
-      <div style="overflow-x: auto; margin-top: var(--space-md);">
-        <table class="comparison-table" style="min-width: 720px;">
-          <thead>
-            <tr>
-              <th style="width: 22%;">Metric</th>
-              <th style="width: 48%;">Meaning</th>
-              <th style="width: 30%;">FinOps signal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>cache_read_input</code></td>
-              <td>Cached context tokens retrieved and reused from the prompt cache on later turns — typically billed at a <strong>reduced rate</strong> vs standard input</td>
-              <td>High share = healthy reuse; this is the savings lever</td>
-            </tr>
-            <tr>
-              <td><code>cache_write_input</code></td>
-              <td>Initial context tokens processed and written into the cache on the first turn of a session (or when cache is refreshed)</td>
-              <td>Pay once to seed the cache; expect this on turn 1</td>
-            </tr>
-            <tr>
-              <td><code>input</code></td>
-              <td>New, non-cached input tokens processed for the first time this turn</td>
-              <td>Should stay small relative to cache reads in long sessions</td>
-            </tr>
-            <tr>
-              <td><code>output</code></td>
-              <td>Tokens generated by the model in the response</td>
-              <td>Often the most expensive per-token line — keep answers concise</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="cols two" style="margin-top: var(--space-lg);">
-        <div class="panel" style="border-top: 4px solid var(--sf-good);">
-          <h4>How a session should look</h4>
-          <ol style="padding-left: 1.25rem; color: #6b7280; line-height: 1.7;">
-            <li><strong>Turn 1:</strong> mostly <code>cache_write_input</code> + some <code>input</code> + <code>output</code></li>
-            <li><strong>Turn 2+:</strong> growing <code>cache_read_input</code>, small new <code>input</code>, <code>output</code> as needed</li>
-            <li><strong>Healthy multi-turn:</strong> <code>cache_read_input</code> ≫ <code>input</code> for the same conversation</li>
-          </ol>
-        </div>
-        <div class="panel" style="border-top: 4px solid var(--sf-warn);">
-          <h4>Practices that unlock savings</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li>Keep system prompts / large docs stable across turns so the cache can hit</li>
-            <li>Prefer continuing a session over starting a new one for the same context</li>
-            <li>For REST / Claude: use explicit cache breakpoints where required; OpenAI-style caching may be implicit above size thresholds</li>
-            <li>Watch TTL — unused cache entries expire (e.g. ephemeral Claude caches have a short TTL)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Query: Cache hit rate from CoCo CLI + CoWork telemetry</h4>
-          <span class="badge high">FinOps KPI</span>
-        </div>
-        <p>Flatten <code>TOKENS_GRANULAR</code> / <code>CREDITS_GRANULAR</code> to see how much of your spend is discounted cache reads vs full input.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">SQL</span>
-            <button class="copy-btn"><span>Copy</span></button>
-          </div>
-          <div class="code-content">
-            <pre>-- CoCo CLI — OBJECT keyed by model
--- https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
-SELECT
-    f.key                                              AS model_name,
-    SUM(COALESCE(f.value:input::NUMBER, 0))            AS input_tokens,
-    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0)) AS cache_read_tokens,
-    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
-    SUM(COALESCE(f.value:output::NUMBER, 0))           AS output_tokens,
-    ROUND(
-      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
-      / NULLIF(
-          SUM(COALESCE(f.value:input::NUMBER, 0)
-            + COALESCE(f.value:cache_read_input::NUMBER, 0)
-            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
-      1)                                               AS cache_read_pct_of_prompt,
-    SUM(h.TOKEN_CREDITS)                               AS total_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
-WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-GROUP BY 1
-ORDER BY total_credits DESC;
-
--- CoWork — nested ARRAY (request → service → model); org account view
--- https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
-SELECT
-    svc.key                                              AS service_type,
-    mdl.key                                              AS model_name,
-    SUM(COALESCE(mdl.value:input::NUMBER, 0))            AS input_tokens,
-    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0)) AS cache_read_tokens,
-    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
-    SUM(COALESCE(mdl.value:output::NUMBER, 0))           AS output_tokens,
-    ROUND(
-      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
-      / NULLIF(
-          SUM(COALESCE(mdl.value:input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
-      1)                                                 AS cache_read_pct_of_prompt,
-    SUM(h.TOKEN_CREDITS)                                 AS total_credits
-FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
-     LATERAL FLATTEN(input => tg.value) req,
-     LATERAL FLATTEN(input => req.value) svc,
-     LATERAL FLATTEN(input => svc.value) mdl
-WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-  AND svc.key <> 'start_time'
-  AND TYPEOF(mdl.value) = 'OBJECT'
-GROUP BY 1, 2
-ORDER BY total_credits DESC;</pre>
-          </div>
-        </div>
-      </div>
-
-      <div class="callout tip" style="margin-top: var(--space-lg);">
-        <h5>FinOps KPI to track weekly</h5>
-        <p><strong>Cache read % of prompt tokens</strong> and <strong>credits on <code>cache_read_input</code> vs <code>input</code></strong> (from <code>CREDITS_GRANULAR</code>). Rising cache-read share with flat or falling total credits = optimization working. Low cache-read % on long CoCo/CoWork sessions = sessions restarted too often, prompts changing every turn, or cache not enabled for that model path.</p>
+        <h5>Separate session (Module 01b) - cost + performance</h5>
+        <p>Prompt / KV cache can cut repeated-context AI spend toward ~90% and keep multi-turn sessions responsive. Meter <code>cache_read_input</code>, <code>cache_write_input</code>, <code>input</code>, and <code>output</code> from CoCo and CoWork usage views.</p>
+        <p style="margin-top: var(--space-md); margin-bottom: 0;"><a href="01b-kv-cache-optimization.html">Continue to Module 01b: KV Cache Optimization</a></p>
       </div>
     </section>
+
 
     <!-- ─── Checkpoint ─────────────────────────────────────────────────────── -->
     <section class="checkpoint">
@@ -848,7 +723,7 @@ ORDER BY total_credits DESC;</pre>
         <p><strong>Q4:</strong> How does Dynamic Model Routing reduce AI spend?</p>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
-          Cortex AI Gateway auto-selects the cheapest capable model per step (advisor + classifier) within admin-approved models. There is no routing fee — only tokens for the model that ran. Prefer auto for Agents/CoWork/CoCo; still choose Budget models deliberately for high-volume AISQL.
+          Cortex AI Gateway auto-selects the cheapest capable model per step (advisor + classifier) within admin-approved models. There is no routing fee - only tokens for the model that ran. Prefer auto for Agents/CoWork/CoCo; still choose Budget models deliberately for high-volume AISQL.
         </div>
       </div>
 
@@ -860,13 +735,6 @@ ORDER BY total_credits DESC;</pre>
         </div>
       </div>
 
-      <div class="checkpoint-question">
-        <p><strong>Q6:</strong> What does a high <code>cache_read_input</code> share mean for cost?</p>
-        <button class="reveal-btn">Reveal Answer</button>
-        <div class="checkpoint-answer">
-          Most of the conversation context is being <strong>reused from the prompt cache</strong> and billed at a reduced rate instead of as full <code>input</code>. That is the primary lever behind large (up to ~90% on repeated-context) savings in multi-turn CoCo / CoWork / Agent sessions. Track it via <code>TOKENS_GRANULAR</code> / <code>CREDITS_GRANULAR</code>.
-        </div>
-      </div>
     </section>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
@@ -878,8 +746,8 @@ ORDER BY total_credits DESC;</pre>
         </svg>
         Home
       </a>
-      <a href="02-cortex-ai-capabilities.html" class="nav-btn next">
-        Module 02: Cortex AI Capabilities
+      <a href="01b-kv-cache-optimization.html" class="nav-btn next">
+        Module 01b: KV Cache Optimization
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>

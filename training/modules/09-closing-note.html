@@ -172,7 +172,7 @@ FinOps for Snowflake AI
     <section class="section">
       <div class="callout cost">
         <h5>AI Spend Will Grow - Govern It Now</h5>
-        <p style="font-size: 1.1rem; margin-bottom: 0;">FinOps for AI is now a top priority for platform teams. Govern AISQL, Agents, CoWork, and CoCo with tag-based budgets and usage views <em>before</em> spend scales — the teams who govern it now will be the ones who can afford to grow it later.</p>
+        <p style="font-size: 1.1rem; margin-bottom: 0;">FinOps for AI is now a top priority for platform teams. Govern AISQL, Agents, CoWork, and CoCo with tag-based budgets and usage views <em>before</em> spend scales  -  the teams who govern it now will be the ones who can afford to grow it later.</p>
       </div>
     </section>
 
@@ -181,11 +181,6 @@ FinOps for Snowflake AI
       <div class="section-header">
         <div class="section-letter">E</div>
         <h2 class="section-title">AI Cost Tracking - Quick Reference (7 Views)</h2>
-      </div>
-
-      <div class="callout warn" style="margin-bottom: var(--space-lg);">
-        <h5>Resource Monitors Do NOT Cover AI/Serverless</h5>
-        <p>Resource Monitors cap <strong>warehouse compute</strong> credits only. AI token credits are billed separately. Use <strong>tag-based AI feature budgets</strong> (Module 07) and the ACCOUNT_USAGE views below to track AI spend.</p>
       </div>
 
       <div style="overflow-x: auto;">
@@ -200,7 +195,7 @@ FinOps for Snowflake AI
           <tbody>
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_AI_FUNCTIONS_USAGE_HISTORY</code></td>
-              <td>AISQL functions (COMPLETE, SENTIMENT, …)</td>
+              <td>AISQL functions (COMPLETE, SENTIMENT, ...)</td>
               <td><code>CREDITS</code>, <code>FUNCTION_NAME</code>, <code>MODEL_NAME</code></td>
             </tr>
             <tr>
@@ -214,9 +209,14 @@ FinOps for Snowflake AI
               <td>Tokens / credits per agent request</td>
             </tr>
             <tr>
-              <td><code style="font-size: 0.8rem;">SNOWFLAKE_INTELLIGENCE_USAGE_HISTORY</code></td>
-              <td>Snowflake CoWork</td>
-              <td><code>CREDITS_GRANULAR</code>, request metadata</td>
+              <td><code style="font-size: 0.8rem;">SNOWFLAKE_COWORK_USAGE_HISTORY</code></td>
+              <td>Snowflake CoWork (org-level view; <code>SERVICE_TYPE</code> may still be <code>SNOWFLAKE_INTELLIGENCE</code>)</td>
+              <td><code>TOKENS_GRANULAR</code> (<code>input</code>, <code>output</code>, <code>cache_read_input</code>, <code>cache_write_input</code>), <code>CREDITS_GRANULAR</code></td>
+            </tr>
+            <tr>
+              <td><code style="font-size: 0.8rem;">SNOWFLAKE_COCO_USAGE_HISTORY</code></td>
+              <td>Unified CoCo (CLI + Desktop + Snowsight); interface-specific views also exist</td>
+              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code> (cache fields), <code>USER_NAME</code></td>
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">CORTEX_SEARCH_DAILY_USAGE_HISTORY</code></td>
@@ -225,18 +225,8 @@ FinOps for Snowflake AI
             </tr>
             <tr>
               <td><code style="font-size: 0.8rem;">METERING_DAILY_HISTORY</code></td>
-              <td>Aggregated daily metering</td>
+              <td>Aggregated daily metering by SERVICE_TYPE</td>
               <td><code>CREDITS_BILLED</code>, <code>SERVICE_TYPE</code></td>
-            </tr>
-            <tr>
-              <td><code style="font-size: 0.8rem;">CORTEX_CODE_CLI_USAGE_HISTORY</code></td>
-              <td>Snowflake CoCo CLI</td>
-              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code>, <code>USER_NAME</code></td>
-            </tr>
-            <tr>
-              <td><code style="font-size: 0.8rem;">CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></td>
-              <td>Snowflake CoCo Snowsight</td>
-              <td><code>TOKEN_CREDITS</code>, <code>TOKENS_GRANULAR</code>, <code>USER_NAME</code></td>
             </tr>
           </tbody>
         </table>

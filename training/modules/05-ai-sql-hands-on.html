@@ -387,6 +387,76 @@ LIMIT 3;</pre>
       </div>
     </section>
 
+    <!-- ─── Exercise 4b: Dynamic Model Routing ─────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 4b</span>
+            <h3 style="margin-top: var(--space-sm);">Explicit Model vs Dynamic Model Routing</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge standard">AI_COMPLETE('auto')</span>
+            <span class="badge" style="background: var(--sf-warn); color: #fff;">Private Preview</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Compare pinning a model explicitly vs letting Cortex AI Gateway route with <code>'auto'</code>. DMR for AISQL requires account enablement - if unavailable, stay with Budget/Standard pins from Exercise 4.</p>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">A) Explicit model pin (llama3.1-70b)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    'llama3.1-70b' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'llama3.1-70b',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_pinned
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">B) Dynamic Model Routing with AI_COMPLETE('auto', ...) - private preview</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    'auto' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'auto',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_routed
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <h5>FinOps note</h5>
+          <p>There is no separate routing fee - you pay tokens for the model that ran. Compare credits in Module 06 after each run. See <a href="02-cortex-ai-capabilities.html">Module 02: Dynamic Model Routing</a> for the full agentic routing story (CoCo, CoWork, Agents).</p>
+        </div>
+
+        <div class="cost-check">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Cost Check: Did 'auto' pick a cheaper model with acceptable quality?
+        </div>
+      </div>
+    </section>
+
     <!-- ─── Exercise 5: Scale Simulation ───────────────────────────────────── -->
     <section class="section">
       <div class="exercise">

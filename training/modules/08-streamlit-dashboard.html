@@ -83,16 +83,18 @@ Snowflake Cortex AI credit consumption. Include:
 2. Area chart: hourly credit consumption trend
 3. Bar chart: credits by Cortex function type
 4. Model cost comparison: credits by model (AI_COMPLETE calls)
-5. Table: top 20 most expensive AI queries with user, function,
+5. CoCo input / output / cache token breakdown from TOKENS_GRANULAR
+   (flatten cache_read_input, cache_write_input, input, output)
+6. Table: top 20 most expensive AI queries with user, function,
    model, credits, timestamp
-6. AI Credits Transition: new SERVICE_TYPE breakout from
+7. AI Credits Transition: new SERVICE_TYPE breakout from
    METERING_DAILY_HISTORY (AI_SERVICES, CORTEX_AGENTS,
    CORTEX_CODE_CLI, CORTEX_CODE_SNOWSIGHT,
    SNOWFLAKE_INTELLIGENCE)
-7. Shadow Waste Detection: attribution coverage donut chart
+8. Shadow Waste Detection: attribution coverage donut chart
    (tagged vs untagged spend) + WoW anomaly bar chart
-8. CoCo Usage: per-user credit spend from CLI and
-   Snowsight using LATERAL FLATTEN on TOKENS_GRANULAR
+9. CoCo Usage: per-user credit spend from unified
+   SNOWFLAKE_COCO_USAGE_HISTORY (TOKENS_GRANULAR)
 
 Data sources:
 - SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY
@@ -101,9 +103,10 @@ Data sources:
   (TOKEN_CREDITS, QUERY_TAG for attribution)
 - SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
   (SERVICE_TYPE for transition + WoW anomaly)
+- SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY
+  (TOKEN_CREDITS, TOKENS_GRANULAR: input, output, cache_read_input, cache_write_input)
 - SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY
-  (TOKEN_CREDITS, TOKENS_GRANULAR for model breakdown)
-- SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY
+  (interface-specific fallback)
 - JOIN to SNOWFLAKE.ACCOUNT_USAGE.USERS for user names
 
 Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
@@ -140,6 +143,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
             <li>Hourly Trend Chart</li>
             <li>Function Breakdown</li>
             <li>Model Cost Comparison</li>
+            <li>Input / Output / Cache Usage</li>
             <li>AI Budgets</li>
             <li>Top Expensive Queries</li>
           </ul>
@@ -369,6 +373,34 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
                 <tr><td class="mono">llama3.1-8b</td><td>891</td><td class="mono">1.1238</td><td class="mono">0.001261</td></tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="dash-divider"></div>
+
+          <!-- CoCo Input / Output / Cache Usage -->
+          <div class="dash-panel">
+            <h4>CoCo Input / Output / Cache Usage <span style="font-size: 0.7rem; color: #9ca3af; font-weight: normal;">(see <a href="01b-kv-cache-optimization.html" style="color: #29B5E8;">Module 01b</a>)</span></h4>
+            <div class="dash-bar">
+              <span class="dash-bar-label">cache_read</span>
+              <div class="dash-bar-track"><div class="dash-bar-fill" style="width:72%;background:#00C49A;"></div></div>
+              <span class="dash-bar-val">842K</span>
+            </div>
+            <div class="dash-bar">
+              <span class="dash-bar-label">input</span>
+              <div class="dash-bar-track"><div class="dash-bar-fill" style="width:18%;background:#29B5E8;"></div></div>
+              <span class="dash-bar-val">210K</span>
+            </div>
+            <div class="dash-bar">
+              <span class="dash-bar-label">cache_write</span>
+              <div class="dash-bar-track"><div class="dash-bar-fill" style="width:12%;background:#F59E0B;"></div></div>
+              <span class="dash-bar-val">138K</span>
+            </div>
+            <div class="dash-bar">
+              <span class="dash-bar-label">output</span>
+              <div class="dash-bar-track"><div class="dash-bar-fill" style="width:28%;background:#EF4444;"></div></div>
+              <span class="dash-bar-val">325K</span>
+            </div>
+            <p style="font-size: 0.65rem; color: #9ca3af; margin: 0.5rem 0 0;">Flattened from <code>SNOWFLAKE_COCO_USAGE_HISTORY.TOKENS_GRANULAR</code> - high cache_read share = healthy multi-turn reuse</p>
           </div>
 
           <div class="dash-divider"></div>
@@ -660,6 +692,56 @@ try:
         st.info("No AI_COMPLETE() calls found in the selected time range.")
 except Exception as e:
     st.error(f"Error loading model data: {e}")
+
+st.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ROW 3b: CoCo Input / Output / Cache Usage (TOKENS_GRANULAR)
+#  Concept: Module 01b - KV Cache Optimization
+# ═══════════════════════════════════════════════════════════════════════════
+st.subheader("📦 CoCo Input / Output / Cache Usage")
+st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 01b for cache FinOps KPIs.")
+
+try:
+    cache_df = session.sql(f"""
+        SELECT
+            f.key AS model_name,
+            SUM(COALESCE(f.value:input::NUMBER, 0))            AS input_tokens,
+            SUM(COALESCE(f.value:output::NUMBER, 0))           AS output_tokens,
+            SUM(COALESCE(f.value:cache_read_input::NUMBER, 0)) AS cache_read_tokens,
+            SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens
+        FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
+             LATERAL FLATTEN(input =&gt; h.TOKENS_GRANULAR) f
+        WHERE h.USAGE_TIME &gt;= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
+        GROUP BY 1
+        ORDER BY cache_read_tokens + input_tokens DESC
+    """).to_pandas()
+
+    if not cache_df.empty:
+        melt_df = cache_df.melt(
+            id_vars=['MODEL_NAME'],
+            value_vars=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                        'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+            var_name='token_type', value_name='tokens'
+        )
+        cache_chart = alt.Chart(melt_df).mark_bar().encode(
+            x=alt.X('MODEL_NAME:N', title='Model'),
+            y=alt.Y('tokens:Q', title='Tokens', stack='zero'),
+            color=alt.Color('token_type:N',
+                scale=alt.Scale(
+                    domain=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                            'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+                    range=['#29B5E8', '#EF4444', '#00C49A', '#F59E0B']
+                ),
+                legend=alt.Legend(title='Token type')
+            ),
+            tooltip=['MODEL_NAME:N', 'token_type:N', 'tokens:Q']
+        ).properties(height=280)
+        st.altair_chart(cache_chart, use_container_width=True)
+    else:
+        st.info("No CoCo TOKENS_GRANULAR data found. Try CORTEX_CODE_CLI_USAGE_HISTORY if unified view is unavailable.")
+except Exception as e:
+    st.warning(f"Could not load cache token breakdown: {e}")
 
 st.divider()
 

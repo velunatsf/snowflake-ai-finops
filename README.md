@@ -86,9 +86,9 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-### 4. Use the Cortex Code Skill
+### 4. Use the CoCo Skill
 
-Copy `SKILL.md` into your Cortex Code skill directory to get AI-assisted FinOps governance. Ask Cortex Code questions like:
+Copy `SKILL.md` into your CoCo skill directory to get AI-assisted FinOps governance. Ask CoCo questions like:
 - "What are my top AI cost drivers this week?"
 - "Find shadow waste in my Cortex Search services"
 - "Generate a cost attribution report by team"

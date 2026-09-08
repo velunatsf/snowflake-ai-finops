@@ -1,10 +1,10 @@
-# Snowflake Cortex AI Cost Monitoring and FinOps Toolkit
+# FinOps For Snowflake AI
 
 **Live workshop:** [https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)
 
 Discover, Control, Optimize, Govern AI Spend on Snowflake.
 
-An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Cortex Code, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a Cortex Code skill file for AI-assisted cost management.
+An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Snowflake CoCo, Snowflake CoWork, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a CoCo skill file for AI-assisted cost management.
 
 ---
 
@@ -24,7 +24,7 @@ This project gives practitioners the SQL, dashboards, skill files, and training 
 
 ```
 snowflake-ai-finops/
-├── SKILL.md                    # Cortex Code skill file (governance + optimization)
+├── SKILL.md                    # CoCo skill file (governance + optimization)
 ├── training/                   # 9-module hands-on training (static HTML)
 │   ├── index.html              # Training hub
 │   ├── modules/                # AI Token Economy → Closing Note

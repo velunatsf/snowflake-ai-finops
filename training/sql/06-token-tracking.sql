@@ -460,7 +460,7 @@ GROUP  BY attribution;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19a: Prompt Cache (KV Cache) Metrics — CoCo CLI
+-- QUERY 19a: Prompt Cache (KV Cache) Metrics - CoCo CLI
 -- ═══════════════════════════════════════════════════════════════════════════
 -- WHEN TO RUN: Weekly FinOps KPI
 -- WHAT IT SHOWS: input vs cache_read_input vs cache_write_input vs output
@@ -505,7 +505,7 @@ ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_cred
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19b: Prompt Cache (KV Cache) Metrics — CoWork (org or account)
+-- QUERY 19b: Prompt Cache (KV Cache) Metrics - CoWork (org or account)
 -- ═══════════════════════════════════════════════════════════════════════════
 -- WHEN TO RUN: Weekly FinOps KPI for CoWork / Intelligence sessions
 -- VIEW SHAPE: TOKENS_GRANULAR is an ARRAY:
@@ -517,7 +517,7 @@ ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_cred
 -- NOTE: Org view is only in the organization account. Swap schema as needed.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- Organization Usage (all accounts) — run in the organization account
+-- Organization Usage (all accounts) - run in the organization account
 SELECT
     svc.key                                             AS service_type,
     mdl.key                                             AS model_name,

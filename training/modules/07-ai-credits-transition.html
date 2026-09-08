@@ -139,7 +139,7 @@ ORDER BY total_credits_billed DESC;</pre>
 
       <div class="callout tip" style="margin-bottom: var(--space-lg);">
         <h5>Enterprise AI budgeting</h5>
-        <p>Custom budgets can track and enforce spending for <strong>AI Functions</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong>, and <strong>Snowflake CoCo</strong> down to team or cost-center level. AI features are <em>shared resources</em> — usage is attributed by <strong>tagged users</strong> who call them. Docs: <a href="https://docs.snowflake.com/en/user-guide/budgets/budget-shared-resources" target="_blank" rel="noopener">Using budgets for AI features</a>.</p>
+        <p>Custom budgets can track and enforce spending for <strong>AI Functions</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong>, and <strong>Snowflake CoCo</strong> down to team or cost-center level. AI features are <em>shared resources</em>  -  usage is attributed by <strong>tagged users</strong> who call them. Docs: <a href="https://docs.snowflake.com/en/user-guide/budgets/budget-shared-resources" target="_blank" rel="noopener">Using budgets for AI features</a>.</p>
       </div>
 
       <h3>Prerequisites: Tag Your Users</h3>
@@ -535,17 +535,12 @@ ORDER BY h.USAGE_TIME DESC;</pre>
         <div class="callout tip" style="margin-top: var(--space-md);">
           <h5>Key Observations</h5>
           <ul style="margin: 0; padding-left: var(--space-md);">
-            <li><strong>TOKENS_GRANULAR</strong> breaks down <code>input</code>, <code>cache_read_input</code>, <code>cache_write_input</code>, and <code>output</code> per model — use cache-read share as a weekly FinOps KPI (Module 01 §G / Module 06 Query 13)</li>
+            <li><strong>TOKENS_GRANULAR</strong> breaks down <code>input</code>, <code>cache_read_input</code>, <code>cache_write_input</code>, and <code>output</code> per model - use cache-read share as a weekly FinOps KPI (<a href="01b-kv-cache-optimization.html">Module 01b</a> / Module 06 Query 13)</li>
             <li><strong>CREDITS_GRANULAR</strong> shows cost split - output tokens cost more per token (premium model pricing)</li>
             <li>Each row = one CLI request with its own REQUEST_ID for traceability</li>
             <li>6 requests over 11 days used only ~0.003 credits total - useful for setting realistic per-user limits</li>
           </ul>
         </div>
-      </div>
-
-      <div class="callout cost" style="margin-top: var(--space-lg);">
-        <h5>Resource Monitors Do NOT Cover AI Token Costs</h5>
-        <p>Resource Monitors only cap <strong>warehouse compute</strong> credits. If that's your current AI cost control strategy, you have a gap. Use per-user credit limits as the hard stop, Budgets for early warning, and the usage history views for attribution.</p>
       </div>
     </section>
 

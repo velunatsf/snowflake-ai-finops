@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 01b: KV Cache Optimization - FinOps for Snowflake AI</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
+FinOps for Snowflake AI
+      </a>
+      <div class="nav-modules">
+        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
+        <a href="01b-kv-cache-optimization.html" class="nav-link active" data-module="01b"><span class="num">01b</span> KV Cache</a>
+        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
+        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
+        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
+        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="progress-bar">
+    <div class="progress-bar-fill" style="width: 16%;"></div>
+    <span class="progress-text">01b of 9+</span>
+  </div>
+
+  <main class="container">
+    <header class="module-header">
+      <div class="module-number">
+        <span>MODULE 01b</span>
+        <span class="timing-badge concept">15 min</span>
+      </div>
+      <h1 class="module-title">KV Cache Optimization</h1>
+      <p class="module-subtitle">Prompt cache metrics that drive both cost and performance in multi-turn AI</p>
+
+      <div class="learning-objectives">
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Explain why prompt / KV cache can cut repeated-context spend toward ~90%</li>
+          <li>Distinguish <code>cache_read_input</code>, <code>cache_write_input</code>, <code>input</code>, and <code>output</code></li>
+          <li>Connect high cache-read share to faster multi-turn latency and lower AI Credits</li>
+          <li>Query CoCo and CoWork usage views for weekly cache KPIs</li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- Section A: Why cache matters -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">A</div>
+        <h2 class="section-title">Why KV / Prompt Cache Matters</h2>
+      </div>
+
+      <div class="callout cost" style="margin-bottom: var(--space-lg);">
+        <h5>Cost + performance lever (not a daily quota)</h5>
+        <p>In multi-turn CoCo, CoWork, Agents, and REST sessions, most of the prompt is often <em>unchanged</em> history, system instructions, or attached docs. Without caching, every turn re-processes and re-bills that context as fresh <code>input</code>. With prompt (KV) caching, reused context is billed as <code>cache_read_input</code> at a <strong>reduced rate</strong>. High cache-hit workloads can cut AI spend dramatically (commonly cited toward ~90% on the repeated-context portion). Validate exact rates in the <a href="https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf" target="_blank" rel="noopener">Credit Consumption Table</a> and <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/pricing" target="_blank" rel="noopener">Snowflake AI pricing</a>.</p>
+      </div>
+
+      <div class="cols two">
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>Cost impact</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>Pay full rate once to <strong>write</strong> context into cache (<code>cache_write_input</code>)</li>
+            <li>Pay reduced rate to <strong>read</strong> it on later turns (<code>cache_read_input</code>)</li>
+            <li>Only new tokens each turn bill as standard <code>input</code></li>
+            <li>FinOps KPI: rising cache-read share with flat/falling total credits</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-blue);">
+          <h4>Performance impact</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>Cached KV state avoids re-prefill of the same long context</li>
+            <li>Later turns stay responsive as the thread grows (less redundant compute)</li>
+            <li>Context ring (e.g. 50k / 256k) is <strong>session window fill</strong>, not a day/month limit</li>
+            <li>Use <code>/compact</code> when the window is full but you need to continue the same thread</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Context usage vs spend limits</h5>
+        <p>A UI reading "context usage 20% (~50.1k / 256k Tokens)" measures how full <em>this conversation's</em> model window is. Daily/monthly CoCo limits and AI feature budgets are separate controls (Module 07).</p>
+      </div>
+    </section>
+
+    <!-- Section B: Four metrics -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Four Token Types to Meter</h2>
+      </div>
+
+      <p>Snowflake exposes cache telemetry in <code>TOKENS_GRANULAR</code> and <code>CREDITS_GRANULAR</code> on agentic usage views:</p>
+      <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280; margin: var(--space-md) 0;">
+        <li><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> (and unified <code>SNOWFLAKE_COCO_USAGE_HISTORY</code>)</li>
+        <li><a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a> (org) / account-usage CoWork view</li>
+        <li><code>CORTEX_AGENT_USAGE_HISTORY</code> for Agents</li>
+      </ul>
+
+      <div style="overflow-x: auto; margin-top: var(--space-md);">
+        <table class="comparison-table" style="min-width: 720px;">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Metric</th>
+              <th style="width: 48%;">Meaning</th>
+              <th style="width: 30%;">FinOps signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cache_read_input</code></td>
+              <td>Cached context tokens retrieved and reused on later turns - typically billed at a <strong>reduced rate</strong> vs standard input</td>
+              <td>High share = healthy reuse; primary savings lever</td>
+            </tr>
+            <tr>
+              <td><code>cache_write_input</code></td>
+              <td>Initial context tokens processed and written into the cache on the first turn (or when cache is refreshed)</td>
+              <td>Pay once to seed the cache; expect on turn 1</td>
+            </tr>
+            <tr>
+              <td><code>input</code></td>
+              <td>New, non-cached input tokens processed for the first time this turn</td>
+              <td>Should stay small vs cache reads in long sessions</td>
+            </tr>
+            <tr>
+              <td><code>output</code></td>
+              <td>Tokens generated by the model in the response</td>
+              <td>Often highest $/token - keep answers concise</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>Healthy session shape</h4>
+          <ol style="padding-left: 1.25rem; color: #6b7280; line-height: 1.7;">
+            <li><strong>Turn 1:</strong> mostly <code>cache_write_input</code> + some <code>input</code> + <code>output</code></li>
+            <li><strong>Turn 2+:</strong> growing <code>cache_read_input</code>, small new <code>input</code>, <code>output</code> as needed</li>
+            <li><strong>Target:</strong> <code>cache_read_input</code> &gt;&gt; <code>input</code> for the same conversation</li>
+          </ol>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-warn);">
+          <h4>Practices that unlock savings</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>Keep system prompts / large docs stable across turns</li>
+            <li>Continue a session instead of restarting for the same context</li>
+            <li>Avoid rewriting the entire prompt each turn (destroys cache hits)</li>
+            <li>Watch TTL - unused cache entries expire</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section C: Queries -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Weekly Cache KPI Queries</h2>
+      </div>
+
+      <p>Full lab queries also live in <a href="06-token-usage-tracking.html">Module 06 Query 13</a> and <code>training/sql/06-token-tracking.sql</code>.</p>
+
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">CoCo CLI + CoWork cache hit rate</h4>
+          <span class="badge high">FinOps KPI</span>
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- CoCo CLI - TOKENS_GRANULAR is OBJECT keyed by model
+-- https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
+SELECT
+    f.key                                               AS model_name,
+    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
+    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(f.value:input::NUMBER, 0)
+            + COALESCE(f.value:cache_read_input::NUMBER, 0)
+            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+GROUP BY 1
+ORDER BY total_credits DESC;
+
+-- CoWork - nested ARRAY (request -> service -> model); org account
+-- https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+SELECT
+    svc.key                                               AS service_type,
+    mdl.key                                               AS model_name,
+    SUM(COALESCE(mdl.value:input::NUMBER, 0))             AS input_tokens,
+    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(mdl.value:output::NUMBER, 0))            AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(mdl.value:input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                  AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                  AS total_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
+     LATERAL FLATTEN(input => tg.value) req,
+     LATERAL FLATTEN(input => req.value) svc,
+     LATERAL FLATTEN(input => svc.value) mdl
+WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+  AND svc.key <> 'start_time'
+  AND TYPEOF(mdl.value) = 'OBJECT'
+GROUP BY 1, 2
+ORDER BY total_credits DESC;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkpoint -->
+    <section class="checkpoint">
+      <h3 style="margin-bottom: var(--space-lg);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Knowledge Check
+      </h3>
+
+      <div class="checkpoint-question">
+        <p><strong>Q1:</strong> What does a high <code>cache_read_input</code> share mean for cost?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Most conversation context is <strong>reused from the prompt cache</strong> and billed at a reduced rate instead of as full <code>input</code>. That is the primary lever behind large (up to ~90% on repeated-context) savings in multi-turn CoCo / CoWork / Agent sessions.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q2:</strong> Is "context usage 20% (50k / 256k)" a monthly spend limit?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <strong>No.</strong> It is the current conversation's model context window fill. Spend limits are AI Credits, CoCo daily limits, and tag-based AI feature budgets.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q3:</strong> Name one practice that destroys cache savings.</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Restarting a new session for the same large context, or rewriting the full system prompt / docs every turn so prior cache entries cannot hit.
+        </div>
+      </div>
+    </section>
+
+    <nav class="nav-footer">
+      <a href="01-ai-token-economy.html" class="nav-btn prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Module 01: AI Token Economy
+      </a>
+      <a href="02-cortex-ai-capabilities.html" class="nav-btn next">
+        Module 02: Cortex AI Capabilities
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>FinOps for Snowflake AI</strong> - Module 01b: KV Cache Optimization</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

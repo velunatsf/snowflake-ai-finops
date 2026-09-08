@@ -186,6 +186,37 @@ LIMIT 3;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- EXERCISE 4b: Explicit Model vs Dynamic Model Routing (Private Preview)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Context:       Pin llama3.1-70b vs AI_COMPLETE('auto', ...) when DMR enabled
+-- Note:           'auto' for AISQL requires account enablement; else pin Budget/Standard
+-- Cost check:     Compare credits in Module 06 after each run
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- A) Explicit model pin
+SELECT
+    'llama3.1-70b' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'llama3.1-70b',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_pinned
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;
+
+-- B) Dynamic Model Routing (private preview when enabled)
+SELECT
+    'auto' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'auto',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_routed
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- EXERCISE 5: Summarization at Scale Simulation
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Context:       Understand cost before running at scale

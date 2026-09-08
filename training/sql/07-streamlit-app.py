@@ -282,6 +282,63 @@ st.divider()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+#  ROW 3b: CoCo Input / Output / Cache Usage (TOKENS_GRANULAR)
+#  Concept: Module 01b - KV Cache Optimization
+# ═══════════════════════════════════════════════════════════════════════════════
+
+st.subheader("📦 CoCo Input / Output / Cache Usage")
+st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 01b for cache FinOps KPIs.")
+
+try:
+    cache_query = f"""
+        SELECT
+            f.key AS model_name,
+            SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
+            SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
+            SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+            SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens
+        FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
+             LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+        WHERE h.USAGE_TIME >= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
+        GROUP BY 1
+        ORDER BY cache_read_tokens + input_tokens DESC
+    """
+    cache_df = session.sql(cache_query).to_pandas()
+
+    if not cache_df.empty:
+        melt_df = cache_df.melt(
+            id_vars=['MODEL_NAME'],
+            value_vars=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                        'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+            var_name='token_type',
+            value_name='tokens'
+        )
+        cache_chart = alt.Chart(melt_df).mark_bar().encode(
+            x=alt.X('MODEL_NAME:N', title='Model'),
+            y=alt.Y('tokens:Q', title='Tokens', stack='zero'),
+            color=alt.Color(
+                'token_type:N',
+                scale=alt.Scale(
+                    domain=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                            'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+                    range=['#29B5E8', '#EF4444', '#00C49A', '#F59E0B']
+                ),
+                legend=alt.Legend(title='Token type')
+            ),
+            tooltip=['MODEL_NAME:N', 'token_type:N', 'tokens:Q']
+        ).properties(height=280)
+        st.altair_chart(cache_chart, use_container_width=True)
+    else:
+        st.info("No CoCo TOKENS_GRANULAR data found. "
+                "Try CORTEX_CODE_CLI_USAGE_HISTORY if unified view is unavailable.")
+
+except Exception as e:
+    st.warning(f"Could not load cache token breakdown: {str(e)}")
+
+st.divider()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 #  ROW 4: Shadow Waste Detection (Attribution + WoW Anomaly)
 # ═══════════════════════════════════════════════════════════════════════════════
 

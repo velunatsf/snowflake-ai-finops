@@ -535,7 +535,7 @@ ORDER BY h.USAGE_TIME DESC;</pre>
         <div class="callout tip" style="margin-top: var(--space-md);">
           <h5>Key Observations</h5>
           <ul style="margin: 0; padding-left: var(--space-md);">
-            <li><strong>TOKENS_GRANULAR</strong> breaks down input vs output tokens per model</li>
+            <li><strong>TOKENS_GRANULAR</strong> breaks down <code>input</code>, <code>cache_read_input</code>, <code>cache_write_input</code>, and <code>output</code> per model — use cache-read share as a weekly FinOps KPI (Module 01 §G / Module 06 Query 13)</li>
             <li><strong>CREDITS_GRANULAR</strong> shows cost split - output tokens cost more per token (premium model pricing)</li>
             <li>Each row = one CLI request with its own REQUEST_ID for traceability</li>
             <li>6 requests over 11 days used only ~0.003 credits total - useful for setting realistic per-user limits</li>

@@ -589,6 +589,54 @@ ORDER BY total_credits DESC;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- QUERY 20: Absolute total Snowflake AI architecture spend
+-- ═══════════════════════════════════════════════════════════════════════════
+-- PURPOSE: One unified audit across CoCo, CoWork, and programmatic Agents
+-- WHY SEPARATE VIEWS EXIST:
+--   1) CoCo = developer assistant user interactions
+--   2) CoWork = business assistant user interactions
+--   3) Agents = backend / API / custom app execution with additive tool costs
+-- DOCS:
+--   CoCo   https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_coco_usage_history
+--   CoWork https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+--   Agents https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history
+-- IMPORTANT: timestamp column names differ by view
+--   CoCo   -> USAGE_TIME
+--   CoWork -> START_TIME
+--   Agents -> START_TIME
+-- ─────────────────────────────────────────────────────────────────────────────
+
+SELECT
+    'Cortex Code / CoCo Developer Assistant'            AS ai_layer,
+    usage_time                                          AS event_time,
+    account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY
+
+UNION ALL
+
+SELECT
+    'Snowflake CoWork Business Assistant'               AS ai_layer,
+    start_time                                          AS event_time,
+    account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY
+
+UNION ALL
+
+SELECT
+    'Programmatic Cortex Agents API / App Layer'        AS ai_layer,
+    start_time                                          AS event_time,
+    NULL                                                AS account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
+ORDER BY event_time DESC;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- SNOWSIGHT NAVIGATION STEPS (for GUI-based monitoring)
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Step 1: Admin → Cost Management → Consumption

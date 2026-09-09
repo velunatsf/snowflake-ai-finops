@@ -278,6 +278,114 @@ ORDER BY total_credits DESC;</pre>
       </div>
     </section>
 
+    <!-- Section D: AI telemetry architecture -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">AI Cost Telemetry Architecture</h2>
+      </div>
+
+      <p>Attendees should understand that Snowflake splits AI telemetry by <strong>product surface</strong> and <strong>execution layer</strong>. That is why CoCo, CoWork, and Cortex Agents each have their own history view.</p>
+
+      <div style="overflow-x: auto; margin-top: var(--space-md);">
+        <table class="comparison-table" style="min-width: 780px;">
+          <thead>
+            <tr>
+              <th style="width: 28%;">View</th>
+              <th style="width: 24%;">What it tracks</th>
+              <th style="width: 48%;">Purpose in FinOps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a></td>
+              <td>Strictly Snowflake CoCo interactions across CLI, Desktop, and Snowsight</td>
+              <td>Unified developer-assistant KPI layer. Use it to answer: which teams, users, and interfaces are driving CoCo token spend?</td>
+            </tr>
+            <tr>
+              <td><a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a></td>
+              <td>Strictly Snowflake CoWork interactions for business-assistant usage</td>
+              <td>User-facing knowledge-work telemetry. Use it to measure adoption and cost of research, chat, and business workflow orchestration. <code>SERVICE_TYPE</code> may still surface as <code>SNOWFLAKE_INTELLIGENCE</code>.</td>
+            </tr>
+            <tr>
+              <td><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history" target="_blank" rel="noopener"><code>CORTEX_AGENT_USAGE_HISTORY</code></a></td>
+              <td>Low-level programmatic execution of Cortex Agents</td>
+              <td>Application / API telemetry. Use it to measure custom agent apps, backend orchestration, and additive sub-tool costs that should not be blurred into CoCo or CoWork user history.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cols two" style="margin-top: var(--space-lg);">
+        <div class="panel" style="border-top: 4px solid var(--sf-blue);">
+          <h4>Why Snowflake separates these views</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li><strong>User actions vs background pipelines:</strong> CoCo and CoWork track direct human interactions with Snowflake products.</li>
+            <li><strong>Programmatic execution:</strong> Cortex Agents track custom agent applications, API flows, and backend orchestration.</li>
+            <li><strong>Cleaner attribution:</strong> separating these surfaces prevents standard chat adoption metrics from being mixed with application execution logs.</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4>Why agent billing needs its own lens</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li><strong>Additive cost model:</strong> one agent request can trigger multiple underlying calls.</li>
+            <li><strong>Multi-step execution:</strong> Cortex Search, Analyst SQL generation, and LLM inference may all contribute cost.</li>
+            <li><strong>FinOps impact:</strong> use <code>CORTEX_AGENT_USAGE_HISTORY</code> when debugging high-cost application workflows, not just user-facing assistant usage.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Absolute total Snowflake AI architecture spend</h4>
+          <span class="badge high">Executive KPI</span>
+        </div>
+        <p>Use a unified audit query when you want one view of total AI architecture spend across developer assistants, business assistants, and programmatic agents.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Comprehensive AI Credit Expenditure Audit
+-- Note the timestamp columns:
+--   CoCo org view   -> USAGE_TIME
+--   CoWork org view -> START_TIME
+--   Agent view      -> START_TIME
+SELECT
+    'Cortex Code / CoCo Developer Assistant'            AS ai_layer,
+    usage_time                                          AS event_time,
+    account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY
+
+UNION ALL
+
+SELECT
+    'Snowflake CoWork Business Assistant'               AS ai_layer,
+    start_time                                          AS event_time,
+    account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY
+
+UNION ALL
+
+SELECT
+    'Programmatic Cortex Agents API / App Layer'        AS ai_layer,
+    start_time                                          AS event_time,
+    NULL                                                AS account_name,
+    user_name,
+    token_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
+ORDER BY event_time DESC;</pre>
+          </div>
+        </div>
+        <p style="margin-top: var(--space-md); margin-bottom: 0; color: #6b7280;">If you need a true organization-wide rollup for Agents too, run an org-account variant for Agent usage when available in your environment, or union account-level extracts from each Snowflake account into a central reporting table.</p>
+      </div>
+    </section>
+
     <!-- Checkpoint -->
     <section class="checkpoint">
       <h3 style="margin-bottom: var(--space-lg);">
@@ -317,6 +425,14 @@ ORDER BY total_credits DESC;</pre>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
           <a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a> (all interfaces; slice by <code>INTERFACE</code> if needed). Use <code>CORTEX_CODE_CLI_USAGE_HISTORY</code> only for CLI-only drill-down - do not double-count with the unified view.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q5:</strong> Why does Snowflake keep CoCo, CoWork, and Agents in separate telemetry views?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Because they represent different architectural layers. CoCo and CoWork measure direct user interaction with Snowflake products, while <code>CORTEX_AGENT_USAGE_HISTORY</code> measures programmatic agent execution and additive backend tool usage. Keeping them separate preserves clean attribution and better FinOps analysis.
         </div>
       </div>
     </section>

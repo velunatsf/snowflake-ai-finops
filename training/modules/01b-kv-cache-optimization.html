@@ -46,7 +46,8 @@ FinOps for Snowflake AI
           <li>Explain why prompt / KV cache can cut repeated-context spend toward ~90%</li>
           <li>Distinguish <code>cache_read_input</code>, <code>cache_write_input</code>, <code>input</code>, and <code>output</code></li>
           <li>Connect high cache-read share to faster multi-turn latency and lower AI Credits</li>
-          <li>Query CoCo and CoWork usage views for weekly cache KPIs</li>
+          <li>Query CoCo, CoWork, and Agents usage views for weekly cache KPIs</li>
+          <li>Choose the right CoCo view: unified <code>SNOWFLAKE_COCO_USAGE_HISTORY</code> vs interface-specific</li>
         </ul>
       </div>
     </header>
@@ -99,10 +100,17 @@ FinOps for Snowflake AI
 
       <p>Snowflake exposes cache telemetry in <code>TOKENS_GRANULAR</code> and <code>CREDITS_GRANULAR</code> on agentic usage views:</p>
       <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280; margin: var(--space-md) 0;">
-        <li><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> (and unified <code>SNOWFLAKE_COCO_USAGE_HISTORY</code>)</li>
-        <li><a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a> (org) / account-usage CoWork view</li>
-        <li><code>CORTEX_AGENT_USAGE_HISTORY</code> for Agents</li>
+        <li><a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a> - unified CoCo (CLI + Desktop + Snowsight); preferred for account-wide CoCo KPIs</li>
+        <li><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> - CoCo CLI only (see also <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_desktop_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_DESKTOP_USAGE_HISTORY</code></a>, <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_snowsight_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></a>)</li>
+        <li><a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a> (org) / <a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_cowork_usage_history_view" target="_blank" rel="noopener">account-usage CoWork view</a></li>
+        <li><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history" target="_blank" rel="noopener"><code>CORTEX_AGENT_USAGE_HISTORY</code></a> - Cortex Agents (excludes CoWork-originated requests)</li>
       </ul>
+
+      <div class="callout tip" style="margin-top: var(--space-md);">
+        <h5>Which CoCo view for the weekly cache KPI?</h5>
+        <p><strong>Default:</strong> use <a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a>. It covers all CoCo interfaces and includes <code>INTERFACE</code> (<code>cli</code> / <code>desktop</code> / <code>snowsight</code>) so you can roll up or slice without double-counting.</p>
+        <p style="margin-top: var(--space-sm); margin-bottom: 0;"><strong>Drill-down only:</strong> use <a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history" target="_blank" rel="noopener"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></a> when you need CLI-only attribution. Do not sum CLI + Desktop + Snowsight interface views with the unified CoCo view - they overlap.</p>
+      </div>
 
       <div style="overflow-x: auto; margin-top: var(--space-md);">
         <table class="comparison-table" style="min-width: 720px;">
@@ -170,7 +178,7 @@ FinOps for Snowflake AI
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">CoCo CLI + CoWork cache hit rate</h4>
+          <h4 style="margin: 0;">CoCo (unified) + CoWork + Agents cache hit rate</h4>
           <span class="badge high">FinOps KPI</span>
         </div>
         <div class="code-block">
@@ -179,9 +187,11 @@ FinOps for Snowflake AI
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>-- CoCo CLI - TOKENS_GRANULAR is OBJECT keyed by model
--- https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
+            <pre>-- 1) CoCo ALL interfaces (preferred account-wide CoCo KPI)
+-- Docs: https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history
+-- TOKENS_GRANULAR is OBJECT keyed by model. Optional: GROUP BY INTERFACE.
 SELECT
+    h.INTERFACE,
     f.key                                               AS model_name,
     SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
     SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
@@ -195,14 +205,19 @@ SELECT
             + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
       1)                                                AS cache_read_pct_of_prompt,
     SUM(h.TOKEN_CREDITS)                                AS total_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
+FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
      LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
 WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-GROUP BY 1
+GROUP BY 1, 2
 ORDER BY total_credits DESC;
 
--- CoWork - nested ARRAY (request -> service -> model); org account
--- https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+-- CLI-only drill-down (do NOT also add into the unified CoCo rollup above)
+-- Docs: https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
+-- FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h, ...
+
+-- 2) CoWork - nested ARRAY (request -> service -> model); org account
+-- Docs: https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
+-- Account: https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_cowork_usage_history_view
 SELECT
     svc.key                                               AS service_type,
     mdl.key                                               AS model_name,
@@ -227,6 +242,36 @@ WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
   AND svc.key <> 'start_time'
   AND TYPEOF(mdl.value) = 'OBJECT'
 GROUP BY 1, 2
+ORDER BY total_credits DESC;
+
+-- 3) Cortex Agents - same nested ARRAY shape as CoWork
+-- Docs: https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history
+-- Note: CoWork-originated agent traffic is in SNOWFLAKE_COWORK_USAGE_HISTORY, not here.
+SELECT
+    h.AGENT_NAME,
+    svc.key                                               AS service_type,
+    mdl.key                                               AS model_name,
+    SUM(COALESCE(mdl.value:input::NUMBER, 0))             AS input_tokens,
+    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
+    SUM(COALESCE(mdl.value:output::NUMBER, 0))            AS output_tokens,
+    ROUND(
+      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
+      / NULLIF(
+          SUM(COALESCE(mdl.value:input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
+            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
+      1)                                                  AS cache_read_pct_of_prompt,
+    SUM(h.TOKEN_CREDITS)                                  AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY h,
+     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
+     LATERAL FLATTEN(input => tg.value) req,
+     LATERAL FLATTEN(input => req.value) svc,
+     LATERAL FLATTEN(input => svc.value) mdl
+WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+  AND svc.key <> 'start_time'
+  AND TYPEOF(mdl.value) = 'OBJECT'
+GROUP BY 1, 2, 3
 ORDER BY total_credits DESC;</pre>
           </div>
         </div>
@@ -264,6 +309,14 @@ ORDER BY total_credits DESC;</pre>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
           Restarting a new session for the same large context, or rewriting the full system prompt / docs every turn so prior cache entries cannot hit.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q4:</strong> For an account-wide CoCo cache KPI, which view should you use?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          <a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a> (all interfaces; slice by <code>INTERFACE</code> if needed). Use <code>CORTEX_CODE_CLI_USAGE_HISTORY</code> only for CLI-only drill-down - do not double-count with the unified view.
         </div>
       </div>
     </section>

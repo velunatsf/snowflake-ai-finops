@@ -1,8 +1,10 @@
 # FinOps For Snowflake AI
 
-**Live workshop:** [https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)
+**Training (no clone required):** [https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)
 
-Discover, Control, Optimize, Govern AI Spend on Snowflake.
+Measure · Govern · Control AI Spend on Snowflake.
+
+Open the link above in any browser to run the full hands-on training. You do not need to clone this repository or open `index.html` locally.
 
 An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Snowflake CoCo, Snowflake CoWork, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a CoCo skill file for AI-assisted cost management.
 
@@ -49,19 +51,13 @@ snowflake-ai-finops/
 
 ## Quick Start
 
-### 1. Run the Training
+### 1. Start the Training
 
-Open the live workshop: **[https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)**
+Go to **[https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)**.
 
-Or run it locally from this repository:
+That hosted site is the training. No clone, no local server, no opening files from disk. Modules are static HTML with copy-to-clipboard SQL blocks, published from `training/` via GitHub Pages.
 
-```bash
-git clone https://github.com/velunatsf/snowflake-ai-finops.git
-cd snowflake-ai-finops
-open training/index.html
-```
-
-No build step, no server — modules are static HTML with copy-to-clipboard SQL blocks. The GitHub Pages workflow publishes `training/` to the live workshop URL above.
+Clone this repository only if you want to contribute content, run the SQL labs from your own checkout, or deploy the dashboard yourself.
 
 ### 2. Set Up Your Environment
 
@@ -210,8 +206,15 @@ This project is based on personal learning and community contribution. It does n
 
 ---
 
+## Contributors
+
+Initially prepared for the **Snowflake FinOps community** by:
+
+- [Velu Natarajan](https://www.linkedin.com/in/velunatarajan/)
+- [Krishnakumar Mohanram](https://www.linkedin.com/in/krishnakumar-mohanram/)
+
 ## Acknowledgments
 
 - Snowflake Documentation and Credit Consumption Table
 - FinOps Foundation
-- Community contributors and LinkedIn practitioners sharing AI cost insights
+- Snowflake FinOps community practitioners sharing AI cost insights

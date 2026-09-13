@@ -22,7 +22,7 @@ This project gives practitioners the SQL, dashboards, skill files, and training 
 
 ---
 
-## What's Included
+## What's Included in this training
 
 ```
 snowflake-ai-finops/

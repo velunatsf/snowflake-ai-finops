@@ -110,7 +110,7 @@ Static HTML — open `training/index.html` in any browser. No build step require
 
 Two deployment options:
 
-1. **Streamlit in Snowflake** — Use `training/sql/07-streamlit-app.py` (queries ACCOUNT_USAGE directly via Snowpark session)
+1. **Streamlit in Snowflake** — Use `training/sql/09-finops-dashboard.py` (queries ACCOUNT_USAGE directly via Snowpark session)
 2. **Local Streamlit** — Use `dashboard/streamlit_app.py` (calls a stored procedure via Snowflake connector)
 
 ### Cortex Agent Example (`examples/cortex-agent/`)

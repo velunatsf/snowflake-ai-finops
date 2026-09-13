@@ -15,15 +15,16 @@
 
   // ─── Constants ────────────────────────────────────────────────────────────
   const MODULES = [
-    { id: '01', title: 'AI Token Economy', file: '01-ai-token-economy.html' },
-    { id: '02', title: 'Cortex AI Capabilities', file: '02-cortex-ai-capabilities.html' },
-    { id: '03', title: 'Environment Setup', file: '03-environment-setup.html' },
-    { id: '04', title: 'CoCo Setup', file: '04-cortex-code-setup.html' },
-    { id: '05', title: 'AI SQL Hands-On', file: '05-ai-sql-hands-on.html' },
-    { id: '06', title: 'Token Usage Tracking', file: '06-token-usage-tracking.html' },
-    { id: '07', title: 'What\'s New', file: '07-ai-credits-transition.html' },
-    { id: '08', title: 'Streamlit Dashboard', file: '08-streamlit-dashboard.html' },
-    { id: '09', title: 'Closing Note', file: '09-closing-note.html' }
+    { id: '01', title: 'AI Cost Foundations', file: '01-ai-cost-foundations.html' },
+    { id: '02', title: 'The Snowflake AI Toolbox', file: '02-snowflake-ai-toolbox.html' },
+    { id: '03', title: 'Lab Environment Setup', file: '03-lab-environment-setup.html' },
+    { id: '04', title: 'CoCo CLI Setup', file: '04-coco-cli-setup.html' },
+    { id: '05', title: 'AISQL Cost Lab', file: '05-aisql-cost-lab.html' },
+    { id: '06', title: 'Usage Tracking & AI Telemetry', file: '06-usage-tracking-telemetry.html' },
+    { id: '07', title: 'KV Cache Optimization', file: '07-kv-cache-optimization.html' },
+    { id: '08', title: 'Budgets & Spend Controls', file: '08-budgets-spend-controls.html' },
+    { id: '09', title: 'FinOps Dashboard', file: '09-finops-dashboard.html' },
+    { id: '10', title: 'Wrap-Up & Next Steps', file: '10-wrap-up-next-steps.html' }
   ];
 
   const STORAGE_KEY = 'aifinops_progress';
@@ -168,16 +169,13 @@
     // Model rates (credits per 1M tokens) - from Snowflake pricing
     const modelRates = {
       'mistral-7b': { input: 0.12, output: 0.12 },
-      'llama3-8b': { input: 0.19, output: 0.19 },
-      'mixtral-8x7b': { input: 0.22, output: 0.22 },
-      'llama3-70b': { input: 1.21, output: 1.21 },
+      'llama3.1-8b': { input: 0.19, output: 0.19 },
       'llama3.1-70b': { input: 1.21, output: 1.21 },
       'llama3.1-405b': { input: 3.00, output: 3.00 },
-      'mistral-large': { input: 5.10, output: 5.10 },
-      'claude-3-5-sonnet': { input: 1.50, output: 7.50 },
-      'claude-3-haiku': { input: 0.25, output: 1.25 },
-      'reka-flash': { input: 0.45, output: 0.45 },
-      'snowflake-arctic': { input: 0.84, output: 0.84 }
+      'mistral-large2': { input: 2.20, output: 2.20 },
+      'snowflake-arctic': { input: 0.84, output: 0.84 },
+      'claude-4-sonnet': { input: 1.50, output: 7.50 },
+      'claude-sonnet-4-6': { input: 1.95, output: 1.95 }
     };
 
     const promptSlider = document.getElementById('calc-prompt-tokens');
@@ -212,7 +210,7 @@
       const creditsPerCall = inputCredits + outputCredits;
       const dailyCredits = creditsPerCall * callsPerDay;
       const monthlyCredits = dailyCredits * 30;
-      const monthlyDollars = monthlyCredits * 3; // $3 per credit estimate
+      const monthlyDollars = monthlyCredits * 2; // ~$2.00 per AI Credit (global routing)
 
       // Update results
       if (resultPerCall) resultPerCall.textContent = creditsPerCall.toFixed(6);

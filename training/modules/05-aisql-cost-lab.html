@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 05: AI SQL Hands-On - AI for FinOps</title>
+  <title>Module 05: AISQL Cost Lab - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,24 +15,26 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link active" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> Spend Controls</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link active" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 55.6%;"></div>
-    <span class="progress-text">5 of 9</span>
+    <div class="progress-bar-fill" style="width: 50%;"></div>
+    <span class="progress-text">05 of 10</span>
   </div>
 
   <main class="container">
@@ -42,23 +44,223 @@ FinOps for Snowflake AI
         <span>MODULE 05</span>
         <span class="timing-badge lab">20 min</span>
       </div>
-      <h1 class="module-title">AI SQL - Hands-On Exercises</h1>
-      <p class="module-subtitle">Run Cortex AI functions and compare costs across models</p>
-      
+      <h1 class="module-title">AISQL Cost Lab</h1>
+      <p class="module-subtitle">Run the functions, compare the models, watch the credits move</p>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>This is the module where the theory becomes a number on your own account. You will run seven exercises against the sample data you loaded in Module 03, and after each one you will check what it cost. The point is not the SQL syntax, it is building the instinct to ask what a query costs before you scale it to a million rows.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Run five Cortex AI functions against real data</li>
-          <li>Compare cost across functions and models</li>
-          <li>Apply the cost-check habit after each exercise</li>
+          <li>Run the core Cortex AI functions against real data</li>
+          <li>Measure the cost gap between a specialized function and a general LLM prompt</li>
+          <li>Compare Budget, Standard, and Premium models on the same prompt</li>
+          <li>Contrast an explicitly pinned model against <code>AI_COMPLETE('auto')</code> dynamic routing</li>
+          <li>Project a small sample to production scale before committing to it</li>
         </ul>
       </div>
     </header>
 
     <div class="callout cost">
       <h5>The FinOps Habit</h5>
-      <p>After <strong>EVERY</strong> exercise in this module, switch to Module 06 and run the token tracking query. Record your running credit total. This is how FinOps practitioners build cost intuition.</p>
+      <p>After <strong>every</strong> exercise below, jump to <a href="06-usage-tracking-telemetry.html">Module 06</a> and run the daily AI credit query, then write down your running credit total. All tracking queries live in Module 06 rather than being repeated here, so keep it open in a second tab. Building this reflex is the actual skill this lab teaches.</p>
     </div>
+
+    <!-- ─── Section C: Function Deep Dive ──────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">REF</div>
+        <h2 class="section-title">Function Reference Card</h2>
+      </div>
+
+      <p>Keep this section open while you work through the exercises. It gives the signature, cost basis, and best-use note for every function you are about to run. The full rate tables and model cards live in <a href="02-snowflake-ai-toolbox.html">Module 02, Section D</a>.</p>
+
+      <!-- AI_SENTIMENT -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SENTIMENT(text [, categories])</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Returns an OBJECT with sentiment categories (positive, negative, neutral, mixed, unknown)</p>
+          </div>
+          <span class="badge low">Lowest Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Customer feedback, support tickets, reviews, social media</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.095 credits per 1M characters</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">No model selection - Snowflake-optimized. Optional categories array for aspect-level sentiment.</p>
+          </div>
+        </div>
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>FinOps Tip</h5>
+          <p style="margin-bottom: 0;">AI_SENTIMENT is the most cost-efficient Cortex function for sentiment analysis. Always use it instead of prompting AI_COMPLETE() for sentiment.</p>
+        </div>
+      </div>
+
+      <!-- AI_COMPLETE -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_COMPLETE(model, prompt)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">General-purpose LLM generation with model selection</p>
+          </div>
+          <span class="badge high">Variable Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Classification, extraction, generation, complex reasoning</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Varies widely by model (see Module 02, Section E)</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">First parameter is model name as string</p>
+          </div>
+        </div>
+        <div class="callout warn" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>Cost Warning</h5>
+          <p style="margin-bottom: 0;">Most expensive function category. Always specify the cheapest model that meets your quality requirements. The cost difference between mistral-7b and claude-4-sonnet can be 50x or more.</p>
+        </div>
+      </div>
+
+      <!-- AI_SUMMARIZE_AGG -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SUMMARIZE_AGG(expr)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Aggregate function - summarizes a column of text data across multiple rows</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Summarizing columns of reviews, call transcripts, logs, meeting notes</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Uses underlying model rates (typically llama-based)</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">Handles datasets larger than max context window. For single-row summarization, use AI_COMPLETE with a summarize prompt.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_TRANSLATE -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_TRANSLATE(text, source_lang, target_lang)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Translates text between supported languages with auto-detect</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Multilingual content, localization, international data</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.333 credits per 1M characters</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Languages</strong>
+            <p style="margin: var(--space-xs) 0 0;">en, es, fr, de, it, pt, ja, ko, zh, and 80+ more</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_CLASSIFY -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_CLASSIFY(text, categories)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Zero-shot classification into provided categories (single or multi-label)</p>
+          </div>
+          <span class="badge low">Lower Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Ticket routing, content tagging, intent detection</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">Lower than equivalent AI_COMPLETE() prompt</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
+            <p style="margin: var(--space-xs) 0 0;">Pass categories as an array. Access result via <code>:labels[0]::VARCHAR</code></p>
+          </div>
+        </div>
+        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
+          <h5>FinOps Tip</h5>
+          <p style="margin-bottom: 0;">More cost-efficient than AI_COMPLETE() for classification tasks. Use it instead of prompting an LLM with "Classify this text as one of the following..."</p>
+        </div>
+      </div>
+
+      <!-- AI_EXTRACT -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EXTRACT(text, fields)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Extracts structured fields from unstructured text</p>
+          </div>
+          <span class="badge medium">Moderate Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Document extraction, form parsing, data capture from text</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Pattern</strong>
+            <p style="margin: var(--space-xs) 0 0;">Provide text + array of field names to extract</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI_EMBED -->
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EMBED(model, input)</code></h4>
+            <p style="color: #6b7280; margin-bottom: 0;">Generate vector embeddings for text or images - unified replacement for EMBED_TEXT_768/1024</p>
+          </div>
+          <span class="badge low">Lower Cost</span>
+        </div>
+        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
+            <p style="margin: var(--space-xs) 0 0;">Semantic search, similarity matching, clustering</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
+            <p style="margin: var(--space-xs) 0 0;">0.13 credits per 1M tokens</p>
+          </div>
+          <div>
+            <strong style="font-size: 0.85rem; color: #6b7280;">Models</strong>
+            <p style="margin: var(--space-xs) 0 0;">snowflake-arctic-embed-l-v2.0, nv-embed-qa-4, multilingual-e5-large, voyage-multimodal-3 (images)</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ─── Exercise 1: Sentiment ──────────────────────────────────────────── -->
     <section class="section">
@@ -236,7 +438,7 @@ LIMIT 10;</pre>
 
         <div class="callout warn">
           <h5>Model Choice Matters</h5>
-          <p>Notice we use <code>mistral-7b</code> - the budget tier model. For a simple 3-word extraction task, a premium model would cost 10–20× more with no quality gain.</p>
+          <p>Notice we use <code>mistral-7b</code> - the budget tier model. For a simple 3-word extraction task, a premium model would cost 10 to 20x more with no quality gain.</p>
         </div>
 
         <div class="cost-check">
@@ -248,6 +450,61 @@ LIMIT 10;</pre>
           Cost Check: Compare AI_COMPLETE() cost vs AI_CLASSIFY()
         </div>
       </div>
+    </section>
+
+    <!-- ─── Expected Savings ──────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">ROI</div>
+        <h2 class="section-title">What Right-Sizing Should Save You</h2>
+      </div>
+
+      <p>Before you run the model comparison, here is the result you are trying to reproduce. The most common form of wasted AI spend is reaching for <code>AI_COMPLETE()</code> when a dedicated function already does the job, or pinning a premium model to a task a budget model handles fine.</p>
+
+      <table class="cost-table" style="margin-top: var(--space-lg);">
+        <thead>
+          <tr>
+            <th>Instead of</th>
+            <th>Use</th>
+            <th>Expected Savings</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_COMPLETE('Classify sentiment...')</code></td>
+            <td><code>AI_SENTIMENT(text)</code></td>
+            <td><span class="badge" style="background: var(--sf-good); color: #fff;">40 to 70%</span></td>
+            <td>Purpose-built model, no prompt tokens, lower per-call cost</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Classify into: A, B, C...')</code></td>
+            <td><code>AI_CLASSIFY(text, [...])</code></td>
+            <td><span class="badge" style="background: var(--sf-good); color: #fff;">50 to 75%</span></td>
+            <td>Zero-shot classification without prompt engineering overhead</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Translate to French...')</code></td>
+            <td><code>AI_TRANSLATE(text, 'fr')</code></td>
+            <td><span class="badge" style="background: var(--sf-good); color: #fff;">40 to 60%</span></td>
+            <td>Optimized translation model, 90+ languages, no prompt tokens</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE('Summarize this...')</code> on a premium model</td>
+            <td><code>AI_COMPLETE()</code> on <code>mistral-7b</code></td>
+            <td><span class="badge" style="background: var(--sf-good); color: #fff;">30 to 60%</span></td>
+            <td>A budget model is usually sufficient for summarization</td>
+          </tr>
+          <tr>
+            <td><code>AI_COMPLETE()</code> on <code>claude-4-sonnet</code></td>
+            <td><code>AI_COMPLETE()</code> on <code>mistral-7b</code></td>
+            <td><span class="badge" style="background: var(--sf-good); color: #fff;">10x to 50x</span></td>
+            <td>Right-sizing: the cheapest model that still meets your quality bar</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: var(--space-lg);">Treat these as expectations to validate, not guarantees. Your prompt shape and data will move the numbers. Exercises 4 and 5 measure the real figure for your own workload, and <a href="06-usage-tracking-telemetry.html">Module 06</a> has the query that finds these patterns automatically across an entire account.</p>
     </section>
 
     <!-- ─── Exercise 4: Model Comparison ───────────────────────────────────── -->
@@ -284,7 +541,7 @@ LIMIT 3;</pre>
           </div>
         </div>
 
-        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Model B: Standard Tier (llama3-70b)</h4>
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">Model B: Standard Tier (llama3.1-70b)</h4>
         <div class="code-block">
           <div class="code-header">
             <span class="code-lang">SQL</span>
@@ -292,10 +549,10 @@ LIMIT 3;</pre>
           </div>
           <div class="code-content">
             <pre>SELECT 
-    'llama3-70b' AS model_used,
+    'llama3.1-70b' AS model_used,
     customer_id,
     AI_COMPLETE(
-        'llama3-70b',
+        'llama3.1-70b',
         CONCAT('Summarize in one sentence: ', feedback_text)
     ) AS summary_standard
 FROM cortex_lab.ai_workshop.customer_feedback
@@ -341,7 +598,7 @@ LIMIT 3;</pre>
               <td><span class="cost-index-value" style="font-weight: 600;">1x</span></td>
             </tr>
             <tr class="standard-row">
-              <td><code>llama3-70b</code></td>
+              <td><code>llama3.1-70b</code></td>
               <td><input type="text" placeholder="Your observation..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
               <td><input type="text" class="credits-input" placeholder="0.00XXX" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;"></td>
               <td><span class="cost-index-value" style="font-weight: 600;">-</span></td>
@@ -382,7 +639,77 @@ LIMIT 3;</pre>
 
         <div class="callout cost">
           <h5>Key Insight</h5>
-          <p>This comparison is the core FinOps lesson. The right model choice for your use case can reduce AI spend by <strong>80–90%</strong> with equivalent output quality. The cheapest model that meets your quality bar is the correct choice.</p>
+          <p>This comparison is the core FinOps lesson. The right model choice for your use case can reduce AI spend by <strong>80 to 90%</strong> with equivalent output quality. The cheapest model that meets your quality bar is the correct choice.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Exercise 4b: Dynamic Model Routing ─────────────────────────────── -->
+    <section class="section">
+      <div class="exercise">
+        <div class="exercise-header">
+          <div>
+            <span class="exercise-number">Exercise 5</span>
+            <h3 style="margin-top: var(--space-sm);">Explicit Model vs Dynamic Model Routing</h3>
+          </div>
+          <div class="exercise-meta">
+            <span class="badge standard">AI_COMPLETE('auto')</span>
+            <span class="badge" style="background: var(--sf-warn); color: #fff;">Private Preview</span>
+          </div>
+        </div>
+
+        <p><strong>Context:</strong> Compare pinning a model explicitly vs letting Cortex AI Gateway route with <code>'auto'</code>. DMR for AISQL requires account enablement - if unavailable, stay with Budget/Standard pins from Exercise 4.</p>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-blue);">A) Explicit model pin (llama3.1-70b)</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    'llama3.1-70b' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'llama3.1-70b',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_pinned
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">B) Dynamic Model Routing with AI_COMPLETE('auto', ...) - private preview</h4>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>SELECT
+    'auto' AS model_used,
+    customer_id,
+    AI_COMPLETE(
+        'auto',
+        CONCAT('Summarize in one sentence: ', feedback_text)
+    ) AS summary_routed
+FROM cortex_lab.ai_workshop.customer_feedback
+LIMIT 3;</pre>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <h5>FinOps note</h5>
+          <p>There is no separate routing fee, you simply pay tokens for whichever model ran. Compare credits in Module 06 after each run. <a href="02-snowflake-ai-toolbox.html">Module 02, Section F</a> has the full routing story for CoCo, CoWork, and Agents.</p>
+        </div>
+
+        <div class="cost-check">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Cost Check: Did 'auto' pick a cheaper model with acceptable quality?
         </div>
       </div>
     </section>
@@ -392,7 +719,7 @@ LIMIT 3;</pre>
       <div class="exercise">
         <div class="exercise-header">
           <div>
-            <span class="exercise-number">Exercise 5</span>
+            <span class="exercise-number">Exercise 6</span>
             <h3 style="margin-top: var(--space-sm);">Summarization at Scale Simulation</h3>
           </div>
           <div class="exercise-meta">
@@ -541,7 +868,7 @@ LIMIT 5;</pre>
 
         <div class="callout cost">
           <h5>The #1 FinOps Habit</h5>
-          <p>Always test on 5–10 rows, measure the cost, then project before running on your full dataset. This projection query is non-negotiable before any production AI pipeline.</p>
+          <p>Always test on 5 to 10 rows, measure the cost, then project before running on your full dataset. This projection query is non-negotiable before any production AI pipeline.</p>
         </div>
       </div>
     </section>
@@ -551,7 +878,7 @@ LIMIT 5;</pre>
       <div class="exercise">
         <div class="exercise-header">
           <div>
-            <span class="exercise-number">Exercise 6</span>
+            <span class="exercise-number">Exercise 7</span>
             <h3 style="margin-top: var(--space-sm);">Boolean Filtering with AI_FILTER</h3>
           </div>
           <div class="exercise-meta">
@@ -622,19 +949,29 @@ LIMIT 10;</pre>
       <div class="panel panel-dark">
         <h3 style="color: var(--sf-blue); margin-bottom: var(--space-lg);">Key Takeaways</h3>
         <ol style="line-height: 2;">
-          <li><strong>AI_SENTIMENT()</strong> is the cheapest function - use it for sentiment, not AI_COMPLETE()</li>
-          <li><strong>AI_CLASSIFY()</strong> is cheaper than AI_COMPLETE() for classification tasks</li>
-          <li><strong>AI_FILTER()</strong> is cheaper than AI_COMPLETE() for boolean yes/no filtering</li>
-          <li><strong>Model choice</strong> can mean 10–50x cost difference for the same task</li>
-          <li><strong>Always test small</strong>, measure cost, then project before scaling</li>
-          <li>The right model is the <strong>cheapest one that meets your quality requirements</strong></li>
+          <li><strong>AI_SENTIMENT()</strong> is the cheapest function in the catalog. Use it for sentiment instead of prompting AI_COMPLETE()</li>
+          <li><strong>AI_CLASSIFY()</strong> beats AI_COMPLETE() on cost for classification, and <strong>AI_FILTER()</strong> beats it for boolean filtering</li>
+          <li><strong>Model choice</strong> can mean a 10x to 50x cost difference on the identical task</li>
+          <li><strong>Always test small</strong>, measure the real cost, then project before scaling</li>
+          <li>The right model is the <strong>cheapest one that clears your quality bar</strong>, and routing can pick it for you</li>
         </ol>
+        <p style="margin-top: var(--space-lg); margin-bottom: 0; color: var(--sf-ice);">You have now generated real AI spend. Module 06 is where you learn to see it, attribute it to a team, and catch the waste patterns before they reach an invoice.</p>
+      </div>
+    </section>
+
+    <!-- ─── Break ──────────────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="callout warn">
+        <h5>Break time (15 min), and there is a reason for it</h5>
+        <p>The spend you just generated does not appear in Snowflake's billing views instantly. Most <code>ACCOUNT_USAGE</code> views lag by roughly <strong>45 minutes</strong>. If you jump straight into Module 06 and query them, you will get empty results and conclude something is broken when it is not.</p>
+        <p>Take the break now. It closes most of the gap for the queries you ran at the start of this module. When you return, Module 06 opens with the views that refresh fastest, so you will have data to work with even if the slower views are still catching up.</p>
+        <p style="margin-bottom: 0;">One thing worth doing before you step away: leave your worksheet open. Coming back to a live session avoids re-running the AI calls, which would cost credits a second time.</p>
       </div>
     </section>
 
     <!-- ─── Download SQL ───────────────────────────────────────────────────── -->
     <section class="section text-center">
-      <a href="../sql/05-ai-queries.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+      <a href="../sql/05-aisql-cost-lab.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -646,15 +983,22 @@ LIMIT 10;</pre>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="04-cortex-code-setup.html" class="nav-btn prev">
+      <a href="04-coco-cli-setup.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 04: CoCo Setup
+        Module 04: CoCo CLI Setup
       </a>
-      <a href="06-token-usage-tracking.html" class="nav-btn next">
-        Module 06: Token Usage Tracking
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="06-usage-tracking-telemetry.html" class="nav-btn next">
+        Module 06: Usage Tracking &amp; AI Telemetry
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -665,7 +1009,7 @@ LIMIT 10;</pre>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 05: AI SQL Hands-On</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 05: AISQL Cost Lab</p>
   </footer>
 
   <script src="../js/main.js"></script>

@@ -1,10 +1,10 @@
-# Snowflake Cortex AI Cost Monitoring and FinOps Toolkit
+# FinOps For Snowflake AI
 
 **Live workshop:** [https://velunatsf.github.io/snowflake-ai-finops/](https://velunatsf.github.io/snowflake-ai-finops/)
 
 Discover, Control, Optimize, Govern AI Spend on Snowflake.
 
-An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Cortex Code, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a Cortex Code skill file for AI-assisted cost management.
+An open-source toolkit for managing the cost of Cortex AI, Cortex Search, Cortex Agents, Snowflake CoCo, Snowflake CoWork, and Document AI workloads running on Snowflake. Includes a training curriculum, governance SQL, a Streamlit dashboard, shadow waste detection queries, and a CoCo skill file for AI-assisted cost management.
 
 ---
 
@@ -24,11 +24,11 @@ This project gives practitioners the SQL, dashboards, skill files, and training 
 
 ```
 snowflake-ai-finops/
-├── SKILL.md                    # Cortex Code skill file (governance + optimization)
-├── training/                   # 9-module hands-on training (static HTML)
+├── SKILL.md                    # CoCo skill file (governance + optimization)
+├── training/                   # 10-module hands-on training (static HTML)
 │   ├── index.html              # Training hub
-│   ├── modules/                # AI Token Economy → Closing Note
-│   └── sql/                    # Runnable SQL & Streamlit app
+│   ├── modules/                # AI Cost Foundations through Wrap-Up & Next Steps
+│   └── sql/                    # Runnable SQL & Streamlit app, one file per module
 ├── dashboard/                  # Standalone Streamlit AI cost dashboard
 │   ├── streamlit_app.py        # Local or Snowflake-deployed
 │   └── requirements.txt
@@ -76,7 +76,7 @@ Run `sql/setup/environment-setup.sql` in Snowsight to create:
 **Option A: Streamlit in Snowflake**
 ```sql
 -- In Snowsight: Projects → Streamlit → + Streamlit App
--- Paste training/sql/07-streamlit-app.py
+-- Paste training/sql/09-finops-dashboard.py
 ```
 
 **Option B: Local Streamlit**
@@ -86,9 +86,9 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-### 4. Use the Cortex Code Skill
+### 4. Use the CoCo Skill
 
-Copy `SKILL.md` into your Cortex Code skill directory to get AI-assisted FinOps governance. Ask Cortex Code questions like:
+Copy `SKILL.md` into your CoCo skill directory to get AI-assisted FinOps governance. Ask CoCo questions like:
 - "What are my top AI cost drivers this week?"
 - "Find shadow waste in my Cortex Search services"
 - "Generate a cost attribution report by team"

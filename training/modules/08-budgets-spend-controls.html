@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 07: Spend Controls - FinOps for Snowflake AI</title>
+  <title>Module 08: Budgets &amp; Spend Controls - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,43 +15,50 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link active" data-module="07"><span class="num">07</span> Spend Controls</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link active" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 77.8%;"></div>
-    <span class="progress-text">7 of 9</span>
+    <div class="progress-bar-fill" style="width: 80%;"></div>
+    <span class="progress-text">08 of 10</span>
   </div>
 
   <main class="container">
     <!-- ─── Module Header ──────────────────────────────────────────────────── -->
     <header class="module-header">
       <div class="module-number">
-        <span>MODULE 07</span>
-        <span class="timing-badge lab">5 min</span>
+        <span>MODULE 08</span>
+        <span class="timing-badge lab">10 min</span>
       </div>
-        <h1 class="module-title">Spend Controls</h1>
-      <p class="module-subtitle">New SERVICE_TYPE billing, per-user credit limits, and Cortex Code cost governance</p>
-      
+        <h1 class="module-title">AI Feature Budgets &amp; Spend Controls</h1>
+      <p class="module-subtitle">Tag-based AI feature budgets, SERVICE_TYPE billing, CoCo guardrails, and model access control</p>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>Modules 01 through 07 taught you to see AI spend and reduce it; this module is where you put hard limits on it so it cannot run away. These controls are the AI-Credit equivalent of the Resource Monitor you built in Module 03, which caps warehouse credits only and never stops a Cortex call.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Detect the 5 SERVICE_TYPE entries that track AI spend in METERING_DAILY_HISTORY</li>
-          <li>Set per-user credit limits and model allowlists to control Cortex Code spend</li>
-          <li>Apply the four-layer governance model: Credit Limits → Budgets → Model Allowlist → Usage History</li>
-          <li>Query CORTEX_CODE_CLI_USAGE_HISTORY for per-user, per-model attribution</li>
+          <li>Create tag-based custom budgets for AI Functions, Agents, CoWork, and CoCo</li>
+          <li>Map the AI SERVICE_TYPE values in METERING_DAILY_HISTORY to the budget domains a budget must cover</li>
+          <li>Set CoCo per-user credit limits and understand allowlist vs model RBAC</li>
+          <li>Apply layered governance: AI Feature Budgets → CoCo Limits → Model Access → Verification</li>
           <li>Use AI_COUNT_TOKENS to estimate cost before execution and TRY_COMPLETE for production safety</li>
         </ul>
       </div>
@@ -76,52 +83,24 @@ FinOps for Snowflake AI
             <li style="padding: var(--space-xs) 0;"><code>CORTEX_AGENTS</code></li>
             <li style="padding: var(--space-xs) 0;"><code>CORTEX_CODE_CLI</code></li>
             <li style="padding: var(--space-xs) 0;"><code>CORTEX_CODE_SNOWSIGHT</code></li>
-            <li style="padding: var(--space-xs) 0;"><code>SNOWFLAKE_INTELLIGENCE</code></li>
+            <li style="padding: var(--space-xs) 0;"><code>SNOWFLAKE_INTELLIGENCE</code> <span style="color:#6b7280;font-size:0.85rem;">(Snowflake CoWork)</span></li>
           </ul>
         </div>
         <div class="panel" style="border-top: 4px solid var(--sf-good);">
           <h4 style="color: var(--sf-good);">Still Under AI_SERVICES</h4>
           <ul style="list-style: none; padding: 0; font-size: 0.9rem;">
             <li style="padding: var(--space-xs) 0;">AI Functions (COMPLETE, SENTIMENT, etc.)</li>
-            <li style="padding: var(--space-xs) 0;">Cortex Analyst</li>
+            <li style="padding: var(--space-xs) 0;">Cortex Analyst (standalone API)</li>
             <li style="padding: var(--space-xs) 0;">Fine Tuning</li>
-            <li style="padding: var(--space-xs) 0;">Search Serving</li>
+            <li style="padding: var(--space-xs) 0;">Search Serving / Batch Search</li>
             <li style="padding: var(--space-xs) 0;">Provisioned Throughput</li>
           </ul>
         </div>
       </div>
 
       <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Query: Detect New AI Credit Service Types</h4>
-          <span class="badge high">Transition Check</span>
-        </div>
-        <p><strong>When to run:</strong> Immediately - check if your account already shows the new service types in <code>METERING_DAILY_HISTORY</code>.</p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">SQL</span>
-            <button class="copy-btn"><span>Copy</span></button>
-          </div>
-          <div class="code-content">
-            <pre>SELECT
-    SERVICE_TYPE,
-    MIN(USAGE_DATE)          AS first_seen,
-    MAX(USAGE_DATE)          AS last_seen,
-    SUM(CREDITS_BILLED)      AS total_credits_billed,
-    SUM(CREDITS_USED)         AS total_credits_used
-FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
-WHERE SERVICE_TYPE IN (
-    'AI_SERVICES',
-    'CORTEX_AGENTS',
-    'CORTEX_CODE_CLI',
-    'CORTEX_CODE_SNOWSIGHT',
-    'SNOWFLAKE_INTELLIGENCE'
-)
-GROUP BY SERVICE_TYPE
-ORDER BY total_credits_billed DESC;</pre>
-          </div>
-        </div>
+        <h4 style="margin-top: 0;">Which service types does your account already show?</h4>
+        <p>The <code>METERING_DAILY_HISTORY</code> query that lists AI <code>SERVICE_TYPE</code> spend lives in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a>, so run it there before you scope the budget in Section B.</p>
       </div>
 
       <div class="callout cost" style="margin-top: var(--space-lg);">
@@ -130,19 +109,144 @@ ORDER BY total_credits_billed DESC;</pre>
       </div>
     </section>
 
-    <!-- ─── Section B: Spend Cap - Cortex Code Credit Guardrails ─────────────── -->
+    <!-- ─── Section B: AI Feature Budgets (GA) ─────────────────────────────── -->
     <section class="section">
       <div class="section-header">
         <div class="section-letter">B</div>
-        <h2 class="section-title">Spend Cap - Cortex Code Credit Guardrails <span class="badge" style="background: var(--sf-blue); color: #fff; font-size: 0.7rem; vertical-align: middle; margin-left: 0.5rem;">New Feature</span></h2>
+        <h2 class="section-title">Custom AI Feature Budgets <span class="badge" style="background: var(--sf-blue); color: #fff; font-size: 0.7rem; vertical-align: middle; margin-left: 0.5rem;">GA</span></h2>
       </div>
 
       <div class="callout tip" style="margin-bottom: var(--space-lg);">
-        <h5>Spend Caps on Budgets</h5>
-        <p>Enable financial control by setting automated spend limits on your cloud expenses. Uses out-of-the-box budgets to enforce automated cost boundaries at the project level for specific services in a non-destructive manner. On budget breach, usage is blocked and financial damage is controlled - <strong>reduce bill shock, and protect your Cortex budget!</strong></p>
+        <h5>Enterprise AI budgeting</h5>
+        <p>Custom budgets can track and enforce spending for <strong>AI Functions</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong>, and <strong>Snowflake CoCo</strong> down to team or cost-center level. AI features are <em>shared resources</em>: usage is attributed by <strong>tagged users</strong> who call them. Docs: <a href="https://docs.snowflake.com/en/user-guide/budgets/budget-shared-resources" target="_blank" rel="noopener">Using budgets for AI features</a>.</p>
       </div>
 
-      <p>How do you govern LLM spend from Cortex Code on a per-user basis? Four tools, each for a different scenario:</p>
+      <h3>Prerequisites: Tag Your Users</h3>
+      <p>Before creating the budget, tag users (or automate tags via SCIM) so Snowflake can attribute spend to a business unit.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content">
+          <pre>-- Create a cost_center tag (once per account/schema as needed)
+CREATE TAG IF NOT EXISTS cost_center;
+
+-- Attribute users to cost centers
+ALTER USER ds_jane SET TAG cost_center = 'DataScience';
+ALTER USER fin_john SET TAG cost_center = 'FinanceTeam';
+-- For this workshop, tag your own training user:
+-- ALTER USER USER_COCO SET TAG cost_center = 'DataScience';</pre>
+        </div>
+      </div>
+
+      <h3 style="margin-top: var(--space-xl);">Tagging the agent instead of the user</h3>
+      <p>Tagging users answers "which team spent this". Tagging the <strong>agent object</strong> answers "which use case spent this", which is the question a product owner asks. The same <code>cost_center</code> tag works for both, and the tag you set here is what surfaces in the <code>AGENT_TAGS</code> column you queried in <a href="06-usage-tracking-telemetry.html">Module 06, Section E</a>.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL</span>
+          <button class="copy-btn"><span>Copy</span></button>
+        </div>
+        <div class="code-content">
+          <pre>-- Tag the agent object itself, so spend rolls up by use case
+ALTER AGENT IF EXISTS my_support_agent
+  SET TAG cost_center = 'CustomerSupport';
+
+-- Remove it again if the use case is retired or reassigned
+-- ALTER AGENT my_support_agent UNSET TAG cost_center;
+
+-- Confirm what is applied (agent tags also inherit from database and schema)
+SELECT AGENT_NAME, AGENT_TAGS
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
+WHERE  START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+  AND  AGENT_NAME = 'MY_SUPPORT_AGENT'
+LIMIT  10;</pre>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-md);">
+        <h5>Budgets can scope to an agent tag, not just a user tag</h5>
+        <p>A budget scoped to tagged <em>users</em> caps what a team spends across everything. A budget scoped to a tag on the <em>agent</em> caps a single use case regardless of who invokes it, which is usually what you want for a customer-facing agent. Attach the tag to the budget with <code>SET_RESOURCE_TAGS</code> rather than the user-tag path above.</p>
+        <p style="margin-bottom: 0;">Applying a tag needs <code>APPLY TAG</code> on the account, or <code>APPLY</code> on the tag plus <code>OWNERSHIP</code> of the agent. Budget evaluation can take up to 8 hours to pick up a tag change.</p>
+      </div>
+
+      <h3 style="margin-top: var(--space-xl);">Snowsight UI path</h3>
+      <ol style="padding-left: 1.25rem; line-height: 1.7;">
+        <li>Admin → <strong>Cost management</strong> → <strong>Budgets</strong> → <strong>+ Budget</strong></li>
+        <li>Choose database/schema for budget metadata, set monthly credit limit, optional <strong>low latency</strong> refresh, alert threshold + emails</li>
+        <li>On <strong>Budget scope</strong>: under <em>Tags on users</em>, select <code>cost_center: DataScience</code> (required for AI shared resources)</li>
+        <li>Under <em>Select resources to monitor</em>, enable: <strong>AI Functions</strong>, <strong>CoCo</strong>, <strong>Cortex Agents</strong>, <strong>Snowflake CoWork</strong></li>
+        <li>Save and review</li>
+      </ol>
+
+      <h3 style="margin-top: var(--space-xl);">Programmatic setup (SQL lab)</h3>
+      <div class="panel" style="margin-top: var(--space-md);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h4 style="margin: 0;">Lab: Create a cost-center AI feature budget</h4>
+          <span class="badge high">Hands-On</span>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- 1) Create budget instance
+CREATE OR REPLACE SNOWFLAKE.CORE.BUDGET my_ai_budget();
+
+CALL my_ai_budget!SET_LIMIT(5000);
+CALL my_ai_budget!SET_EMAIL_NOTIFICATIONS('finops-alerts@yourcompany.com');
+
+-- 2) Scope by user tags (UNION = user matches any listed tag)
+-- Prefer SET_USER_TAGS with a TAG reference (current docs pattern):
+CALL my_ai_budget!SET_USER_TAGS(
+  [
+    [(SELECT SYSTEM$REFERENCE('TAG', 'cost_center', 'SESSION', 'APPLYBUDGET')),
+     'DataScience']
+  ],
+  'UNION'
+);
+
+-- 3) Add shared AI domains
+CALL my_ai_budget!ADD_SHARED_RESOURCE('AI FUNCTION');
+CALL my_ai_budget!ADD_SHARED_RESOURCE('CORTEX CODE');
+CALL my_ai_budget!ADD_SHARED_RESOURCE('CORTEX AGENT');
+CALL my_ai_budget!ADD_SHARED_RESOURCE('SNOWFLAKE INTELLIGENCE');  -- CoWork
+
+-- Optional: verify scope
+-- CALL my_ai_budget!GET_BUDGET_SCOPE();
+-- SELECT SYSTEM$SHOW_BUDGET_SHARED_RESOURCE_CANDIDATES();</pre>
+          </div>
+        </div>
+
+        <div class="callout warn" style="margin-top: var(--space-md);">
+          <h5>Domain name vs product name</h5>
+          <p>Budget domain <code>SNOWFLAKE INTELLIGENCE</code> tracks <strong>Snowflake CoWork</strong>. <code>CORTEX CODE</code> tracks <strong>Snowflake CoCo</strong> (CLI + Snowsight + Desktop). Use product names in conversation; use domain strings in SQL.</p>
+        </div>
+
+        <div class="callout tip" style="margin-top: var(--space-md);">
+          <h5>Budgets vs hard blocks</h5>
+          <p>AI feature budgets notify (and can run custom actions) at thresholds. For hard per-user stops on CoCo, also set the credit-limit parameters below. For broader AI domains, evaluate <strong>per-user quotas</strong> (public preview) with block enforcement.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section C: Spend Cap - CoCo Credit Guardrails ──────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Spend Cap - CoCo Credit Guardrails <span class="badge" style="background: var(--sf-blue); color: #fff; font-size: 0.7rem; vertical-align: middle; margin-left: 0.5rem;">New Feature</span></h2>
+      </div>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Layered with AI feature budgets</h5>
+        <p>AI feature budgets govern team/cost-center spend across AI domains. CoCo per-user credit limits hard-block individual developers on CLI/Snowsight within a rolling 24h window.</p>
+      </div>
+
+      <p>How do you govern LLM spend from Snowflake CoCo on a per-user basis? Four tools, each for a different scenario:</p>
 
       <div style="overflow-x: auto; margin-top: var(--space-lg);">
         <table class="comparison-table" style="min-width: 700px;">
@@ -157,21 +261,21 @@ ORDER BY total_credits_billed DESC;</pre>
           <tbody>
             <tr>
               <td><strong style="color: var(--sf-danger);">Proactive</strong></td>
-              <td>Per-user credit limits</td>
+              <td>Per-user CoCo credit limits</td>
               <td>Hard block - rolling 24h window</td>
               <td>Account-wide default + per-user override</td>
             </tr>
             <tr>
               <td><strong style="color: var(--sf-warn);">Threshold</strong></td>
-              <td>Monthly Budgets</td>
-              <td>Alert before overshoot - no hard block</td>
-              <td>Account-wide</td>
+              <td>AI feature Budgets</td>
+              <td>Alert / custom action by cost center</td>
+              <td>Tagged users + AI domains</td>
             </tr>
             <tr>
               <td><strong style="color: var(--sf-good);">Preventive</strong></td>
-              <td>Model Allowlist</td>
+              <td>Model access (RBAC; allowlist legacy)</td>
               <td>Block expensive models at the source</td>
-              <td>Account-wide</td>
+              <td>Role / account</td>
             </tr>
             <tr>
               <td><strong style="color: var(--sf-blue);">Audit</strong></td>
@@ -201,7 +305,7 @@ ORDER BY total_credits_billed DESC;</pre>
             </tr>
             <tr>
               <td><code style="font-size: 0.85rem;">CORTEX_CODE_SNOWSIGHT_DAILY_EST_CREDIT_LIMIT_PER_USER</code></td>
-              <td>Cortex Code in Snowsight usage</td>
+              <td>Snowflake CoCo in Snowsight usage</td>
             </tr>
           </tbody>
         </table>
@@ -247,47 +351,27 @@ ALTER USER USER_COCO SET CORTEX_CODE_SNOWSIGHT_DAILY_EST_CREDIT_LIMIT_PER_USER =
         </div>
       </div>
 
-      <!-- Monthly Budgets -->
-      <h3 style="margin-top: var(--space-xl);">Monthly Budgets <span class="badge" style="background: var(--sf-warn); color: white;">Threshold - Alerts Before Overshoot</span></h3>
+      <!-- Monthly Budgets (pointer to Section B) -->
+      <h3 style="margin-top: var(--space-xl);">Monthly AI Feature Budgets <span class="badge" style="background: var(--sf-warn); color: white;">See Section B</span></h3>
 
       <div class="panel" style="margin-top: var(--space-md);">
-        <p>Snowflake Budgets track actual billed credits across warehouses, pipelines, and AI together. Set a monthly limit and get notified before you hit it.</p>
+        <p>Use <strong>tag-based AI feature budgets</strong> (Section B) to track AI Functions, Agents, CoWork, and CoCo by cost center. Pair with CoCo per-user limits for hard stops on developer surfaces.</p>
         <div class="callout warn" style="margin-top: var(--space-md);">
-          <h5>Budgets Alert - They Don't Hard-Block</h5>
-          <p>Budgets are an early warning system. <strong>Per-user credit limits</strong> are the only hard stop for Cortex Code spend.</p>
+          <h5>Budgets Alert - They Don't Hard-Block Alone</h5>
+          <p>Budgets are an early warning / custom-action system. <strong>Per-user CoCo credit limits</strong> (and per-user quotas where enabled) provide hard stops.</p>
         </div>
       </div>
 
-      <!-- Model Allowlist -->
-      <h3 style="margin-top: var(--space-xl);">Model Allowlist <span class="badge" style="background: var(--sf-good); color: white;">Preventive - Block Expensive Models</span></h3>
+      <!-- Model Allowlist / RBAC -->
+      <h3 style="margin-top: var(--space-xl);">Model Access Control <span class="badge" style="background: var(--sf-good); color: white;">Preventive</span></h3>
 
       <div class="panel" style="margin-top: var(--space-md);">
-        <p>Restrict which LLM models users can call via Cortex AI functions. By limiting the allowlist to budget/standard models, you prevent expensive premium model usage at the source - before any credits are consumed.</p>
-
-        <div style="overflow-x: auto; margin-top: var(--space-md);">
-          <table class="comparison-table" style="min-width: 500px;">
-            <thead>
-              <tr>
-                <th style="width: 30%;">Setting</th>
-                <th style="width: 70%;">Behavior</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>ALL</code> (default)</td>
-                <td>All available models can be used - no restriction</td>
-              </tr>
-              <tr>
-                <td><code>NONE</code></td>
-                <td>Blocks all Cortex LLM calls entirely</td>
-              </tr>
-              <tr>
-                <td>Comma-separated list</td>
-                <td>Only listed models are permitted</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="callout warn" style="margin-bottom: var(--space-md);">
+          <h5>CORTEX_MODELS_ALLOWLIST is being deprecated</h5>
+          <p>From August 2026 you can only set the allowlist to <code>'None'</code>; later it is removed. Prefer <strong>model RBAC</strong> via application roles such as <code>SNOWFLAKE."CORTEX-MODEL-ROLE-LLAMA3.1-70B"</code>. Keep allowlist examples below for legacy accounts only.</p>
         </div>
+
+        <p>Restrict which LLM models users can call. Legacy allowlist limits models account-wide; go-forward control is granting model-specific application roles to user roles.</p>
 
         <div class="code-block" style="margin-top: var(--space-md);">
           <div class="code-header">
@@ -295,42 +379,48 @@ ALTER USER USER_COCO SET CORTEX_CODE_SNOWSIGHT_DAILY_EST_CREDIT_LIMIT_PER_USER =
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>-- Check current allowlist
+            <pre>-- Preferred: grant model access via RBAC (example)
+GRANT APPLICATION ROLE SNOWFLAKE."CORTEX-MODEL-ROLE-MISTRAL-7B"
+  TO ROLE cortex_analyst;
+GRANT APPLICATION ROLE SNOWFLAKE."CORTEX-MODEL-ROLE-LLAMA3.1-70B"
+  TO ROLE cortex_analyst;
+
+-- Legacy allowlist (transitional only)
 SHOW PARAMETERS LIKE 'CORTEX_MODELS_ALLOWLIST' IN ACCOUNT;
-
--- Restrict to budget and standard models only (block premium)
 ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'mistral-7b,llama3.1-8b,llama3.1-70b,mistral-large2,snowflake-arctic';
-
--- Allow all models (default)
-ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'ALL';</pre>
+-- Migrate toward:
+-- ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'None';</pre>
           </div>
         </div>
 
         <div class="callout tip" style="margin-top: var(--space-md);">
           <h5>Layered Defense</h5>
-          <p>Combine with per-user credit limits for maximum control: the allowlist prevents expensive model selection, while credit limits cap total spend regardless of model choice.</p>
+          <p>Combine AI feature budgets + CoCo credit limits + model RBAC: budgets govern team spend, limits hard-cap individuals, RBAC prevents expensive model selection.</p>
         </div>
       </div>
 
-      <!-- Cortex Code Usage History -->
-      <h3 style="margin-top: var(--space-xl);">Cortex Code Usage History <span class="badge" style="background: var(--sf-blue); color: white;">Audit - Attribution After-the-Fact</span></h3>
+      <!-- CoCo Usage History -->
+      <h3 style="margin-top: var(--space-xl);">Verifying the Controls <span class="badge" style="background: var(--sf-blue); color: white;">Audit - Confirm the Cap Holds</span></h3>
+
+      <p>A control you never checked is a control you do not have. Two views record what CoCo actually spent, and they are where you confirm that a cap changed behavior.</p>
 
       <div class="cols two" style="margin-top: var(--space-md);">
         <div class="panel" style="border-left: 4px solid var(--sf-blue);">
           <h4 style="margin-bottom: var(--space-xs);"><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></h4>
-          <p style="color: #6b7280; margin: 0;">Breaks down Snowflake CoCo CLI spend by <strong>user</strong> and <strong>model</strong>. One row per usage event. Use this to identify who's spending the most and on which models.</p>
+          <p style="color: #6b7280; margin: 0;">Breaks down Snowflake CoCo CLI spend by <strong>user</strong> and <strong>model</strong>, one row per usage event. Check it after setting a cap to confirm the heaviest user stopped at the limit.</p>
         </div>
         <div class="panel" style="border-left: 4px solid var(--sf-good);">
           <h4 style="margin-bottom: var(--space-xs);"><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></h4>
-          <p style="color: #6b7280; margin: 0;">Same structure for Snowsight-based Cortex Code usage. CLI and Snowsight tracked in <strong>separate views</strong> - query both for complete attribution.</p>
+          <p style="color: #6b7280; margin: 0;">Same structure for Snowsight-based CoCo usage. CLI and Snowsight are tracked in <strong>separate views</strong> and capped by separate parameters, so check both before declaring a user contained.</p>
         </div>
       </div>
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Query: Top Cortex Code Spenders by User & Model</h4>
-          <span class="badge high">Attribution</span>
+          <h4 style="margin: 0;">Query: Verify Your Controls Are In Force</h4>
+          <span class="badge high">Control Check</span>
         </div>
+        <p>These checks answer one question: are the limits you just set actually active, and how much of the budget has already been consumed?</p>
 
         <div class="code-block">
           <div class="code-header">
@@ -338,50 +428,29 @@ ALTER ACCOUNT SET CORTEX_MODELS_ALLOWLIST = 'ALL';</pre>
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>-- Snowflake CoCo CLI spend by user and model (last 30 days)
-SELECT
-    h.USER_NAME,
-    f.key                       AS model_name,
-    SUM(h.TOKEN_CREDITS)        AS total_credits,
-    ROUND(total_credits * 3, 4) AS est_cost_usd
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
-WHERE h.USAGE_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
-GROUP BY h.USER_NAME, f.key
-ORDER BY total_credits DESC;
+            <pre>-- 1) Current budget spend against the limit you set
+CALL my_ai_budget!GET_LIMIT();
+CALL my_ai_budget!GET_SPENDING_HISTORY();
 
--- Repeat with CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY
--- for Snowsight usage attribution</pre>
+-- 2) Confirm the CoCo per-user caps are in effect
+SHOW PARAMETERS LIKE 'CORTEX_CODE_%_DAILY_EST_CREDIT_LIMIT_PER_USER' IN ACCOUNT;
+SHOW PARAMETERS LIKE 'CORTEX_CODE_%_DAILY_EST_CREDIT_LIMIT_PER_USER' IN USER USER_COCO;
+
+-- 3) Confirm which models a role can still reach
+SHOW GRANTS TO ROLE cortex_analyst;</pre>
           </div>
         </div>
+
+        <p style="margin-top: var(--space-md);">Per-user and per-model spend reporting is not repeated here: run the CoCo usage history queries in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a> when you need to see who spent what.</p>
       </div>
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Sample Output: CORTEX_CODE_CLI_USAGE_HISTORY</h4>
+          <h4 style="margin: 0;">Sample Data: Sizing a Realistic Per-User Limit</h4>
           <span class="badge" style="background: var(--sf-blue); color: white;">Real Data</span>
         </div>
 
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">SQL</span>
-            <button class="copy-btn"><span>Copy</span></button>
-          </div>
-          <div class="code-content">
-            <pre>-- Snowflake CoCo CLI usage detail with model breakdown
-SELECT
-    h.USER_NAME,
-    h.USAGE_TIME,
-    f.key                           AS model,
-    f.value:input::NUMBER           AS input_tokens,
-    f.value:output::NUMBER          AS output_tokens,
-    h.TOKENS,
-    h.TOKEN_CREDITS                 AS credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_CODE_CLI_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
-ORDER BY h.USAGE_TIME DESC;</pre>
-          </div>
-        </div>
+        <p>This is real <code>CORTEX_CODE_CLI_USAGE_HISTORY</code> output, shown here only so you can pick a credit limit from evidence instead of guesswork. The query that produces it is Query 13 in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a>.</p>
 
         <div style="overflow-x: auto; margin-top: var(--space-md);">
           <table class="comparison-table" style="min-width: 800px; font-size: 0.85rem;">
@@ -456,26 +525,21 @@ ORDER BY h.USAGE_TIME DESC;</pre>
         </div>
 
         <div class="callout tip" style="margin-top: var(--space-md);">
-          <h5>Key Observations</h5>
+          <h5>What This Tells You About Limits</h5>
           <ul style="margin: 0; padding-left: var(--space-md);">
-            <li><strong>TOKENS_GRANULAR</strong> breaks down input vs output tokens per model</li>
-            <li><strong>CREDITS_GRANULAR</strong> shows cost split - output tokens cost more per token (premium model pricing)</li>
-            <li>Each row = one CLI request with its own REQUEST_ID for traceability</li>
-            <li>6 requests over 11 days used only ~0.003 credits total - useful for setting realistic per-user limits</li>
+            <li>Six requests over 11 days used roughly 0.003 credits in total, so a 20-credit daily default is generous headroom for a normal developer and still catches a runaway loop</li>
+            <li>Output tokens cost more per token than input tokens, so a user who generates long responses hits the cap far sooner than the row count suggests</li>
+            <li>Each row is one CLI request with its own REQUEST_ID, which is what makes a per-user cap enforceable rather than merely advisory</li>
+            <li>Cache-read share is a separate optimization lever covered in <a href="07-kv-cache-optimization.html">Module 07: KV Cache Optimization</a>, and it lowers the credits a given workload needs before any cap applies</li>
           </ul>
         </div>
       </div>
-
-      <div class="callout cost" style="margin-top: var(--space-lg);">
-        <h5>Resource Monitors Do NOT Cover AI Token Costs</h5>
-        <p>Resource Monitors only cap <strong>warehouse compute</strong> credits. If that's your current AI cost control strategy, you have a gap. Use per-user credit limits as the hard stop, Budgets for early warning, and the usage history views for attribution.</p>
-      </div>
     </section>
 
-    <!-- ─── Section C: Helper Functions ──────────────────────────────────────── -->
+    <!-- ─── Section D: Helper Functions ──────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">C</div>
+        <div class="section-letter">D</div>
         <h2 class="section-title">Helper Functions for Cost Control</h2>
       </div>
 
@@ -583,15 +647,22 @@ FROM cortex_lab.ai_workshop.customer_feedback;</pre>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="06-token-usage-tracking.html" class="nav-btn prev">
+      <a href="07-kv-cache-optimization.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 06: Token Tracking
+        Module 07: KV Cache Optimization
       </a>
-      <a href="08-streamlit-dashboard.html" class="nav-btn next">
-        Module 08: Streamlit Dashboard
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="09-finops-dashboard.html" class="nav-btn next">
+        Module 09: FinOps Dashboard
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -602,7 +673,7 @@ FROM cortex_lab.ai_workshop.customer_feedback;</pre>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 07: Spend Controls</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 08: Budgets &amp; Spend Controls</p>
   </footer>
 
   <script src="../js/main.js"></script>

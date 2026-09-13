@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- AI for FinOps Training - Module 04: Environment Setup
+-- AI for FinOps Training - Module 03: Lab Environment Setup
 -- FinOps for Snowflake AI · Snowflake AI FinOps Training
 -- ═══════════════════════════════════════════════════════════════════════════
 --
@@ -63,15 +63,20 @@ ALTER WAREHOUSE cortex_wh
 -- ─────────────────────────────────────────────────────────────────────────────
 -- STEP 4: Create Role with Cortex Access
 -- ─────────────────────────────────────────────────────────────────────────────
--- WHY: Dedicated role for training participants. Grants Cortex access
--- through the SNOWFLAKE.CORTEX_USER database role.
+-- WHY: Dedicated role for training participants. Requires USE AI FUNCTIONS
+-- plus CORTEX_USER (or AI_FUNCTIONS_USER) per current Cortex access model.
 
 CREATE ROLE IF NOT EXISTS cortex_analyst
     COMMENT = 'Role for Cortex AI training participants';
 
+-- Account privilege for AISQL (often already on PUBLIC)
+GRANT USE AI FUNCTIONS ON ACCOUNT TO ROLE cortex_analyst;
+
 -- Grant Cortex AI capabilities
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER
     TO ROLE cortex_analyst;
+-- Optional AISQL-only alternative:
+-- GRANT DATABASE ROLE SNOWFLAKE.AI_FUNCTIONS_USER TO ROLE cortex_analyst;
 
 -- Grant access to training resources
 GRANT USAGE ON WAREHOUSE cortex_wh
@@ -145,5 +150,5 @@ LIMIT 5;
 --   - Warehouse: cortex_wh (SMALL, 60s auto-suspend)
 --   - Table: customer_feedback (500 rows)
 --
--- Proceed to Module 05: AI SQL Hands-On Exercises
+-- Proceed to Module 05: AISQL Cost Lab
 -- ═══════════════════════════════════════════════════════════════════════════

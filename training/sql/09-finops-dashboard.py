@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # Snowflake Cortex AI Cost Dashboard
-# FinOps for Snowflake AI - Module 08
+# FinOps for Snowflake AI - Module 09: FinOps Dashboard
 # ═══════════════════════════════════════════════════════════════════════════
 #
 # DEPLOYMENT:
@@ -9,7 +9,7 @@
 #   3. Database: cortex_lab | Schema: ai_workshop
 #   4. Paste this code → Run
 #
-# NOTE: account_usage views have ~45 min latency for recent data
+# NOTE: account_usage views have ~45 min latency (AI Functions view often 2-5 min) for recent data
 # ═══════════════════════════════════════════════════════════════════════════
 
 import streamlit as st
@@ -94,7 +94,7 @@ func_filter = st.sidebar.selectbox(
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
 **Note:** Account usage views have  
-~45 min latency for recent data.
+~45 min latency (AI Functions view often 2-5 min) for recent data.
 """)
 
 # ─── Build Dynamic WHERE Clauses ──────────────────────────────────────────────
@@ -113,7 +113,7 @@ try:
             COALESCE(ROUND(SUM(c.CREDITS), 4), 0)      AS total_credits,
             COALESCE(ROUND(AVG(c.CREDITS), 6), 0)      AS avg_credits,
             COUNT(DISTINCT u.NAME)                      AS unique_users,
-            COALESCE(ROUND(SUM(c.CREDITS) * 3, 2), 0)  AS est_dollar_cost
+            COALESCE(ROUND(SUM(c.CREDITS) * 2, 2), 0)  AS est_dollar_cost
         FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY c
         LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.USERS u
             ON c.USER_ID = u.USER_ID
@@ -134,7 +134,7 @@ try:
     with k4:
         st.metric("Unique Users", f"{int(kpi_df['UNIQUE_USERS'][0]):,}")
     with k5:
-        st.metric("Est. Cost (@ $3/cr)", f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
+        st.metric("Est. Cost (@ $2/AI cr)", f"${kpi_df['EST_DOLLAR_COST'][0]:,.2f}")
 
 except Exception as e:
     st.error(f"Error loading KPIs: {str(e)}")
@@ -282,6 +282,64 @@ st.divider()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+#  ROW 3b: CoCo Input / Output / Cache Usage (TOKENS_GRANULAR)
+#  Concept: Module 07 - KV Cache Optimization
+#  Source query: Module 06 - Usage Tracking & AI Telemetry, Query 13
+# ═══════════════════════════════════════════════════════════════════════════════
+
+st.subheader("📦 CoCo Input / Output / Cache Usage")
+st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 07 for cache FinOps KPIs.")
+
+try:
+    cache_query = f"""
+        SELECT
+            f.key AS model_name,
+            SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
+            SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
+            SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
+            SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens
+        FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
+             LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
+        WHERE h.USAGE_TIME >= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
+        GROUP BY 1
+        ORDER BY cache_read_tokens + input_tokens DESC
+    """
+    cache_df = session.sql(cache_query).to_pandas()
+
+    if not cache_df.empty:
+        melt_df = cache_df.melt(
+            id_vars=['MODEL_NAME'],
+            value_vars=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                        'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+            var_name='token_type',
+            value_name='tokens'
+        )
+        cache_chart = alt.Chart(melt_df).mark_bar().encode(
+            x=alt.X('MODEL_NAME:N', title='Model'),
+            y=alt.Y('tokens:Q', title='Tokens', stack='zero'),
+            color=alt.Color(
+                'token_type:N',
+                scale=alt.Scale(
+                    domain=['INPUT_TOKENS', 'OUTPUT_TOKENS',
+                            'CACHE_READ_TOKENS', 'CACHE_WRITE_TOKENS'],
+                    range=['#29B5E8', '#EF4444', '#00C49A', '#F59E0B']
+                ),
+                legend=alt.Legend(title='Token type')
+            ),
+            tooltip=['MODEL_NAME:N', 'token_type:N', 'tokens:Q']
+        ).properties(height=280)
+        st.altair_chart(cache_chart, use_container_width=True)
+    else:
+        st.info("No CoCo TOKENS_GRANULAR data found. "
+                "Try CORTEX_CODE_CLI_USAGE_HISTORY if unified view is unavailable.")
+
+except Exception as e:
+    st.warning(f"Could not load cache token breakdown: {str(e)}")
+
+st.divider()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 #  ROW 4: Shadow Waste Detection (Attribution + WoW Anomaly)
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -357,7 +415,7 @@ with sw_right:
                 SELECT USAGE_DATE::DATE AS day,
                        SUM(CREDITS_BILLED) AS credits
                 FROM   SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
-                WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT')
+                WHERE  SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI','CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
                   AND  USAGE_DATE >= DATEADD('day', -60, CURRENT_DATE())
                 GROUP  BY day
             )
@@ -488,7 +546,7 @@ with st.expander("📋 More Details", expanded=False):
                 MAX(USAGE_DATE)                         AS last_seen,
                 ROUND(SUM(CREDITS_BILLED), 4)           AS total_credits_billed,
                 ROUND(SUM(CREDITS_USED), 4)             AS total_credits_used,
-                ROUND(SUM(CREDITS_BILLED) * 3, 2)       AS est_dollar_cost
+                ROUND(SUM(CREDITS_BILLED) * 2, 2)       AS est_dollar_cost
             FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
             WHERE SERVICE_TYPE IN (
                 'AI_SERVICES',
@@ -515,7 +573,7 @@ with st.expander("📋 More Details", expanded=False):
             with c2:
                 st.metric("Total AI Credits", f"{total_ai:,.4f}")
             with c3:
-                st.metric("Est. Cost (@ $3/cr)", f"${total_ai_dollar:,.2f}")
+                st.metric("Est. Cost (@ $2/AI cr)", f"${total_ai_dollar:,.2f}")
 
             st.dataframe(
                 ai_credits_df,
@@ -546,7 +604,7 @@ st.markdown("""
 <div style='text-align: center; color: #6b7280; font-size: 0.85rem; padding: 1rem;'>
     <strong>FinOps for Snowflake AI</strong><br>
     <br>
-    Pricing based on $3/credit estimate · Validate against your contract rate<br>
-    Account usage views have ~45 min latency
+    Pricing based on $2/AI Credit estimate · Validate against your contract rate<br>
+    Account usage views have ~45 min latency (AI Functions view often 2-5 min)
 </div>
 """, unsafe_allow_html=True)

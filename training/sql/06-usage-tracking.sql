@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- AI for FinOps Training - Module 06: Token & Credit Usage Tracking
+-- AI for FinOps Training - Module 06: Usage Tracking & AI Telemetry
 -- FinOps for Snowflake AI · Snowflake AI FinOps Training
 -- ═══════════════════════════════════════════════════════════════════════════
 --
@@ -316,7 +316,7 @@ ORDER  BY query_pct ASC;
 -- WHEN TO RUN: Monthly - find where cheaper models would suffice
 -- WHAT IT SHOWS: Cost per 1M tokens by model - high values = oversized
 -- SOURCE: CORTEX_AISQL_USAGE_HISTORY - has TOKENS + TOKEN_CREDITS granularity
--- SAVINGS: Replace AI_COMPLETE misuse with task-specific functions (40–75%)
+-- SAVINGS: Replace AI_COMPLETE misuse with task-specific functions (40 to 75%)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 SELECT MODEL_NAME, FUNCTION_NAME,
@@ -460,132 +460,12 @@ GROUP  BY attribution;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19a: Prompt Cache (KV Cache) Metrics - CoCo (unified, preferred KPI)
+-- PROMPT CACHE (KV CACHE) QUERIES HAVE MOVED
 -- ═══════════════════════════════════════════════════════════════════════════
--- WHEN TO RUN: Weekly FinOps KPI (account-wide CoCo)
--- PREFERRED VIEW: SNOWFLAKE_COCO_USAGE_HISTORY (CLI + Desktop + Snowsight)
---   Slice by INTERFACE if needed. Do NOT also sum interface-specific views.
--- DRILL-DOWN: CORTEX_CODE_CLI_USAGE_HISTORY for CLI-only (same OBJECT shape)
--- VIEW SHAPE: TOKENS_GRANULAR / CREDITS_GRANULAR are OBJECTS keyed by model
--- DOCS: https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history
--- CLI:  https://docs.snowflake.com/en/sql-reference/account-usage/cortex_code_cli_usage_history
--- ─────────────────────────────────────────────────────────────────────────────
-
-SELECT
-    h.INTERFACE,
-    f.key                                               AS model_name,
-    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_tokens,
-    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
-    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
-    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_tokens,
-    ROUND(
-      100.0 * SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))
-      / NULLIF(
-          SUM(COALESCE(f.value:input::NUMBER, 0)
-            + COALESCE(f.value:cache_read_input::NUMBER, 0)
-            + COALESCE(f.value:cache_write_input::NUMBER, 0)), 0),
-      1)                                                AS cache_read_pct_of_prompt,
-    SUM(h.TOKEN_CREDITS)                                AS total_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) f
-WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-GROUP BY 1, 2
-ORDER BY total_credits DESC;
-
--- Credits split (same window)
-SELECT
-    h.INTERFACE,
-    f.key AS model_name,
-    SUM(COALESCE(f.value:input::NUMBER, 0))             AS input_credits,
-    SUM(COALESCE(f.value:cache_read_input::NUMBER, 0))  AS cache_read_credits,
-    SUM(COALESCE(f.value:cache_write_input::NUMBER, 0)) AS cache_write_credits,
-    SUM(COALESCE(f.value:output::NUMBER, 0))            AS output_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.CREDITS_GRANULAR) f
-WHERE h.USAGE_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-GROUP BY 1, 2
-ORDER BY (input_credits + cache_read_credits + cache_write_credits + output_credits) DESC;
-
-
+-- Cache hit rate KPIs for CoCo, CoWork, and Cortex Agents now live in
+-- 07-kv-cache.sql so that every query in this workshop has exactly one home.
+-- See training/modules/07-kv-cache-optimization.html for the explanation.
 -- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19b: Prompt Cache (KV Cache) Metrics - CoWork (org or account)
--- ═══════════════════════════════════════════════════════════════════════════
--- WHEN TO RUN: Weekly FinOps KPI for CoWork / Intelligence sessions
--- VIEW SHAPE: TOKENS_GRANULAR is an ARRAY:
---   [{ <request_id>: { <service_type>: { <model>: {input, cache_*, output} },
---                      start_time: ... } }, ...]
--- Needs nested FLATTEN (unlike CoCo's model-keyed OBJECT).
--- DOCS (org):  https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history
--- DOCS (acct): https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_cowork_usage_history_view
--- NOTE: Org view is only in the organization account. Swap schema as needed.
--- ─────────────────────────────────────────────────────────────────────────────
-
--- Organization Usage (all accounts) - run in the organization account
-SELECT
-    svc.key                                             AS service_type,
-    mdl.key                                             AS model_name,
-    SUM(COALESCE(mdl.value:input::NUMBER, 0))           AS input_tokens,
-    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
-    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
-    SUM(COALESCE(mdl.value:output::NUMBER, 0))          AS output_tokens,
-    ROUND(
-      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
-      / NULLIF(
-          SUM(COALESCE(mdl.value:input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
-      1)                                                AS cache_read_pct_of_prompt,
-    SUM(h.TOKEN_CREDITS)                                AS total_credits
-FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
-     LATERAL FLATTEN(input => tg.value) req,
-     LATERAL FLATTEN(input => req.value) svc,
-     LATERAL FLATTEN(input => svc.value) mdl
-WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-  AND svc.key <> 'start_time'
-  AND TYPEOF(mdl.value) = 'OBJECT'
-GROUP BY 1, 2
-ORDER BY total_credits DESC;
-
--- Account Usage equivalent (same nested flatten; START_TIME filter):
--- FROM SNOWFLAKE.ACCOUNT_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY h, ...
-
-
--- ═══════════════════════════════════════════════════════════════════════════
--- QUERY 19c: Prompt Cache (KV Cache) Metrics - Cortex Agents
--- ═══════════════════════════════════════════════════════════════════════════
--- WHEN TO RUN: Weekly FinOps KPI for Agents (non-CoWork)
--- VIEW SHAPE: same nested ARRAY as CoWork
--- DOCS: https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history
--- NOTE: CoWork-originated agent traffic is in SNOWFLAKE_COWORK_USAGE_HISTORY
--- ─────────────────────────────────────────────────────────────────────────────
-
-SELECT
-    h.AGENT_NAME,
-    svc.key                                               AS service_type,
-    mdl.key                                               AS model_name,
-    SUM(COALESCE(mdl.value:input::NUMBER, 0))             AS input_tokens,
-    SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))  AS cache_read_tokens,
-    SUM(COALESCE(mdl.value:cache_write_input::NUMBER, 0)) AS cache_write_tokens,
-    SUM(COALESCE(mdl.value:output::NUMBER, 0))            AS output_tokens,
-    ROUND(
-      100.0 * SUM(COALESCE(mdl.value:cache_read_input::NUMBER, 0))
-      / NULLIF(
-          SUM(COALESCE(mdl.value:input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_read_input::NUMBER, 0)
-            + COALESCE(mdl.value:cache_write_input::NUMBER, 0)), 0),
-      1)                                                  AS cache_read_pct_of_prompt,
-    SUM(h.TOKEN_CREDITS)                                  AS total_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY h,
-     LATERAL FLATTEN(input => h.TOKENS_GRANULAR) tg,
-     LATERAL FLATTEN(input => tg.value) req,
-     LATERAL FLATTEN(input => req.value) svc,
-     LATERAL FLATTEN(input => svc.value) mdl
-WHERE h.START_TIME >= DATEADD('day', -7, CURRENT_TIMESTAMP())
-  AND svc.key <> 'start_time'
-  AND TYPEOF(mdl.value) = 'OBJECT'
-GROUP BY 1, 2, 3
-ORDER BY total_credits DESC;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -634,6 +514,96 @@ SELECT
     token_credits
 FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
 ORDER BY event_time DESC;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- QUERY 21: True cost per agent (cost per use case)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- WHEN TO RUN: Monthly, and whenever a team asks what their agent costs.
+--
+-- TOKEN_CREDITS alone understates the bill. An agent request can spend in
+-- three places, and this query adds all of them:
+--   TOKEN_CREDITS                    orchestration + LLM tokens
+--   METADATA:ai_functions_credits    AI functions the agent invoked
+--   METADATA:sql_query_credits       warehouse compute for SQL it ran
+--
+-- No tagging required: AGENT_NAME is a first-class column. Use QUERY 22 when
+-- a use case spans several agents.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+SELECT
+    AGENT_DATABASE_NAME || '.' || AGENT_SCHEMA_NAME || '.' || AGENT_NAME  AS use_case,
+    COUNT(DISTINCT REQUEST_ID)                                           AS requests,
+    ROUND(SUM(TOKEN_CREDITS), 3)                                         AS token_credits,
+    ROUND(SUM(COALESCE(METADATA:ai_functions_credits::FLOAT, 0)), 3)     AS ai_function_credits,
+    ROUND(SUM(COALESCE(METADATA:sql_query_credits::FLOAT, 0)), 3)        AS warehouse_credits,
+    ROUND(SUM(TOKEN_CREDITS
+            + COALESCE(METADATA:ai_functions_credits::FLOAT, 0)
+            + COALESCE(METADATA:sql_query_credits::FLOAT, 0)), 3)        AS total_credits,
+    ROUND(SUM(TOKEN_CREDITS
+            + COALESCE(METADATA:ai_functions_credits::FLOAT, 0)
+            + COALESCE(METADATA:sql_query_credits::FLOAT, 0))
+          / NULLIF(COUNT(DISTINCT REQUEST_ID), 0), 4)                    AS credits_per_request
+FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
+WHERE  START_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+GROUP  BY use_case
+ORDER  BY total_credits DESC;
+
+-- Read credits_per_request before total_credits. A big total can just mean a
+-- popular agent; the per-request figure is what tells you it is efficient.
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- QUERY 22: Agent spend rolled up by cost_center object tag
+-- ═══════════════════════════════════════════════════════════════════════════
+-- WHEN TO RUN: Monthly, once you have more agents than you can track by name.
+--
+-- AGENT_TAGS holds Snowflake OBJECT tags, not the session QUERY_TAG used in
+-- QUERY 18. Apply the tag first (see 08-budgets-spend-controls.sql):
+--     ALTER AGENT my_support_agent SET TAG cost_center = 'CustomerSupport';
+--
+-- Each AGENT_TAGS entry carries a `level`, so a tag inherited from the agent's
+-- database shows up next to one set directly on the agent. The COALESCE below
+-- prefers the more specific CORTEX_AGENT level.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+WITH agent_cost AS (
+    SELECT REQUEST_ID,
+           AGENT_TAGS,
+           TOKEN_CREDITS
+             + COALESCE(METADATA:ai_functions_credits::FLOAT, 0)
+             + COALESCE(METADATA:sql_query_credits::FLOAT, 0)  AS total_credits
+    FROM   SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
+    WHERE  START_TIME >= DATEADD('day', -30, CURRENT_TIMESTAMP())
+),
+labelled AS (
+    SELECT c.REQUEST_ID,
+           c.total_credits,
+           COALESCE(
+             MAX(CASE WHEN UPPER(t.value:tag_name::STRING)  = 'COST_CENTER'
+                       AND UPPER(t.value:level::STRING)     = 'CORTEX_AGENT'
+                      THEN t.value:tag_value::STRING END),
+             MAX(CASE WHEN UPPER(t.value:tag_name::STRING)  = 'COST_CENTER'
+                      THEN t.value:tag_value::STRING END)
+           )                                                   AS cost_center
+    FROM   agent_cost c,
+           LATERAL FLATTEN(input => c.AGENT_TAGS, OUTER => TRUE) t
+    GROUP  BY c.REQUEST_ID, c.total_credits
+)
+SELECT COALESCE(cost_center, '(untagged)')  AS cost_center,
+       COUNT(*)                             AS requests,
+       ROUND(SUM(total_credits), 3)         AS total_credits
+FROM   labelled
+GROUP  BY cost_center
+ORDER  BY total_credits DESC;
+
+-- CAVEATS for QUERY 21 and 22:
+--  1. sql_query_credits comes from a separate attribution pipeline and can lag
+--     the rest of the row by up to 8 hours (NULL until then). It also excludes
+--     queries run on Adaptive Warehouses.
+--  2. Requests originating from Snowflake CoWork are NOT in this view; they are
+--     recorded in SNOWFLAKE_COWORK_USAGE_HISTORY.
+--  3. Tag changes can take up to 8 hours to be reflected in budgets.
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

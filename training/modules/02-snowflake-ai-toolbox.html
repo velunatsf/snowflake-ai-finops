@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 02: Cortex AI Capabilities - FinOps for Snowflake AI</title>
+  <title>Module 02: The Snowflake AI Toolbox - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,24 +15,26 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link active" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link active" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 22.2%;"></div>
-    <span class="progress-text">2 of 9</span>
+    <div class="progress-bar-fill" style="width: 20%;"></div>
+    <span class="progress-text">02 of 10</span>
   </div>
 
   <main class="container">
@@ -42,24 +44,31 @@ FinOps for Snowflake AI
         <span>MODULE 02</span>
         <span class="timing-badge concept">15 min</span>
       </div>
-      <h1 class="module-title">Cortex AI Capabilities</h1>
-      <p class="module-subtitle">A complete map of AI functions available in Snowflake Cortex</p>
-      
+      <h1 class="module-title">The Snowflake AI Toolbox</h1>
+      <p class="module-subtitle">Which tool does what, what each one costs, and how to pick a model</p>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>Module 01 gave you the vocabulary. This module gives you the inventory. By the end you will know every place AI spend can originate in Snowflake and roughly what each one costs. This is also the reference module: all the rate tables live in Section D, and every later module points back here instead of reprinting them.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Know Cortex AISQL functions and when each is cost-efficient</li>
-          <li>Map Agents, CoWork, CoCo, and Dynamic Model Routing vs legacy Analyst</li>
-          <li>Choose model tiers (or auto routing) without overpaying for simple work</li>
+          <li>Name the five surfaces that generate AI spend: AISQL, Search, Agents, CoWork, and CoCo</li>
+          <li>Recognize the four billing shapes: per token, per character, warehouse compute, and standing cost</li>
+          <li>Read the model rate tables and pick a tier that fits the job</li>
+          <li>Explain why Cortex Agents replace standalone Cortex Analyst for new work</li>
+          <li>Decide when to pin a model and when to let Dynamic Model Routing choose</li>
         </ul>
       </div>
     </header>
 
-    <!-- ─── Section A: Capability Map ──────────────────────────────────────── -->
+    <!-- ─── Section A: Capability Map ─────────────────────── -->
     <section class="section">
       <div class="section-header">
         <div class="section-letter">A</div>
-        <h2 class="section-title">Cortex AI Capability Map</h2>
+        <h2 class="section-title">The Cortex AI Capability Map</h2>
       </div>
 
       <p>Snowflake Cortex provides three categories of AI capabilities, each with different use cases and cost profiles.</p>
@@ -98,16 +107,16 @@ FinOps for Snowflake AI
       </div>
 
       <div class="callout tip">
-        <h5>Function Selection Strategy</h5>
-        <p>Start with specialized functions (AI_SENTIMENT, AI_CLASSIFY, AI_AGG) before reaching for AI_COMPLETE(). Specialized functions are optimized for their specific task and typically cost less than using a general-purpose LLM for the same job.</p>
+        <h5>The single most useful habit on this page</h5>
+        <p>Reach for the specialized function before you reach for <code>AI_COMPLETE()</code>. <code>AI_SENTIMENT</code>, <code>AI_CLASSIFY</code>, and <code>AI_AGG</code> are purpose-built and typically cost far less than prompting a general LLM to do the same job. You will measure that gap yourself in <a href="05-aisql-cost-lab.html">Module 05: AISQL Cost Lab</a>, which also has the per-function reference cards and syntax.</p>
       </div>
     </section>
 
-    <!-- ─── Section A2: Agentic Stack ──────────────────────────────────────── -->
+    <!-- ─── Section B: Agents and CoWork ───────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">A2</div>
-        <h2 class="section-title">Shift Toward Agents &amp; CoWork</h2>
+        <div class="section-letter">B</div>
+        <h2 class="section-title">Agents, CoWork, and the Shift Away From Analyst</h2>
       </div>
 
       <p>Beyond AISQL functions, Snowflake’s AI surface has shifted toward agents and personal work orchestration. FinOps must budget these domains separately from warehouse compute.</p>
@@ -128,7 +137,7 @@ FinOps for Snowflake AI
         <div class="panel" style="border-top: 4px solid var(--sf-good);">
           <h4>Snowflake CoWork <span class="badge" style="background: var(--sf-good); color: #fff;">Formerly Intelligence</span></h4>
           <p style="font-size: 0.95rem; color: #6b7280;">AI personal work agent and central orchestrator across sub-agents. Connects to business tools (Slack, Jira), learns preferences, generates PPT/PDF deliverables, and is available on iOS.</p>
-          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Product name is CoWork; budget domain / SERVICE_TYPE often remains <code>SNOWFLAKE_INTELLIGENCE</code>. Include in AI feature budgets (Module 07).</p>
+          <p style="font-size: 0.9rem; margin-top: var(--space-sm);"><strong>FinOps note:</strong> Product name is CoWork; budget domain / SERVICE_TYPE often remains <code>SNOWFLAKE_INTELLIGENCE</code>. Include in AI feature budgets (Module 08).</p>
         </div>
         <div class="panel" style="border-top: 4px solid var(--sf-warn);">
           <h4>Snowflake CoCo <span class="badge" style="background: var(--sf-warn); color: #fff;">Formerly Cortex Code</span></h4>
@@ -143,92 +152,309 @@ FinOps for Snowflake AI
       </div>
     </section>
 
-    <!-- ─── Section A3: Dynamic Model Routing ──────────────────────────────── -->
+    <!-- ─── Section C: Snowflake CoCo ─────────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">A3</div>
-        <h2 class="section-title">Dynamic Model Routing &amp; Expanded Models</h2>
+        <div class="section-letter">C</div>
+        <h2 class="section-title">Snowflake CoCo <span class="badge" style="background: var(--sf-warn); color: #fff; font-size: 0.7rem;">Formerly Cortex Code</span></h2>
       </div>
 
-      <p><strong>Dynamic Model Routing</strong> (Cortex AI Gateway; private preview) automatically selects the most affordable model that can complete each step of agent work. It is wired into CoCo, CoWork, and third-party agents that use the gateway.</p>
+      <p><strong>Snowflake CoCo</strong> is Snowflake's AI coding agent - available in Snowsight, Desktop, CLI, Slack, and mobile. It adds capabilities beyond the SQL functions covered above and participates in Dynamic Model Routing via Cortex AI Gateway when enabled.</p>
 
-      <div class="cols two" style="margin-top: var(--space-lg);">
+      <div class="cols two">
         <div class="panel">
-          <h4>How routing works</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li><strong>Advisor pattern:</strong> a smaller model tries first; escalates to a larger model as a tool if needed.</li>
-            <li><strong>Classifier:</strong> routes straightforward / repetitive work to cheaper models based on task patterns.</li>
-            <li><strong>Governance:</strong> only admin-approved models; respects data residency; routing decisions are logged.</li>
-            <li><strong>Optional:</strong> you can still pin a single model or a restricted set - auto is not required.</li>
+          <h4>What CoCo Adds</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem;">
+            <li>Natural language → SQL and multi-file coding workflows</li>
+            <li>Code explanation and documentation</li>
+            <li>Agentic multi-step reasoning from a single prompt</li>
+            <li>CLI / Desktop / Snowsight / Slack surfaces</li>
+            <li>Integration with MCP servers and external tools</li>
           </ul>
         </div>
         <div class="panel">
-          <h4>FinOps impact</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li>No separate fee for the routing decision - you pay tokens for the model that ran.</li>
-            <li>Snowflake cites up to ~3× token efficiency vs frontier-only paths on some internal workloads.</li>
-            <li>For high-volume <code>AI_COMPLETE</code> SQL jobs, still pick Budget/Standard models deliberately (Section B).</li>
-            <li>For Agents / CoWork / CoCo, prefer <strong>auto</strong> within an approved pool when available.</li>
+          <h4>Cost Tracking for CoCo</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem;">
+            <li><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></li>
+            <li><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></li>
+            <li>Tracks user, timestamp, tokens, credits</li>
+            <li><code>TOKENS_GRANULAR</code> / credits breakdown by model</li>
           </ul>
         </div>
       </div>
 
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <h4>New / expanding open models</h4>
-        <table class="comparison-table" style="margin-top: var(--space-md);">
+      <div class="callout tip">
+        <h5>Key Insight</h5>
+        <p>CoCo is the AI layer that helps you <strong>write</strong> the SQL that calls other Cortex functions - and it burns tokens on every step. You install the CLI in Module 04, cap it with AI feature budgets in Module 08, and use it to generate the Streamlit dashboard in Module 09.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section D: What Each Tool Costs ──────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">D</div>
+        <h2 class="section-title">What Each Tool Costs</h2>
+      </div>
+
+      <p>Module 01 showed the token to credit to dollar chain with a single example rate. This section is the reference material behind it. Every rate table for the whole workshop lives here, so later modules point back to this section instead of repeating the numbers.</p>
+
+      <p>The first thing to internalize is that Snowflake does not bill every AI feature the same way. There are four distinct billing shapes.</p>
+
+      <div style="overflow-x: auto; margin-top: var(--space-lg);">
+        <table class="comparison-table" style="min-width: 780px;">
           <thead>
             <tr>
-              <th>Model</th>
-              <th>Status</th>
-              <th>FinOps note</th>
+              <th style="width: 22%;">Billing shape</th>
+              <th style="width: 38%;">Applies to</th>
+              <th style="width: 40%;">What that means for you</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><code>DeepSeek-V4-Flash 0731</code></td>
-              <td>Private preview</td>
-              <td>Expands low-cost routing options - confirm rates in the Consumption Table before projecting</td>
+              <td><strong>Per token, model dependent</strong></td>
+              <td><code>AI_COMPLETE()</code>, <code>AI_CLASSIFY()</code>, <code>AI_SUMMARIZE_AGG()</code>, <code>AI_EMBED()</code></td>
+              <td>Model choice is the dominant cost lever. Same prompt, different model, up to 50x the bill.</td>
             </tr>
             <tr>
-              <td><code>GLM-5.3</code></td>
-              <td>Private preview coming soon</td>
-              <td>Availability may change; treat as optional capacity in the approved model pool</td>
+              <td><strong>Per character, fixed model</strong></td>
+              <td><code>AI_SENTIMENT()</code>, <code>AI_TRANSLATE()</code></td>
+              <td>No model to choose and no prompt overhead. Almost always cheaper than prompting an LLM to do the same job.</td>
+            </tr>
+            <tr>
+              <td><strong>Warehouse compute</strong></td>
+              <td><code>FORECAST()</code>, <code>ANOMALY_DETECTION()</code>, <code>CLASSIFICATION()</code>, <code>CONTRIBUTION_EXPLORER()</code></td>
+              <td>Billed as Platform Credits, not AI Credits. Normal warehouse sizing and auto-suspend rules apply.</td>
+            </tr>
+            <tr>
+              <td><strong>Standing cost</strong></td>
+              <td>Cortex Search services</td>
+              <td>Accrues continuously while the service is resumed, even at zero queries. The only AI cost here that you pay for doing nothing.</td>
             </tr>
           </tbody>
         </table>
-        <p style="color: #6b7280; font-size: 0.9rem; margin-top: var(--space-md);">Also available across Cortex: models from Anthropic, OpenAI, Google, Meta, Mistral, and others. Always validate current IDs and rates against official docs.</p>
       </div>
 
-      <div class="callout tip" style="margin-top: var(--space-lg);">
-        <h5>AISQL: explicit model vs Dynamic Model Routing</h5>
-        <p>DMR is wired into CoCo, CoWork, and Agents via Cortex AI Gateway. For AISQL, <code>AI_COMPLETE('auto', ...)</code> is available in private preview when your account has Dynamic Model Routing enabled. If unavailable, pin Budget or Standard models deliberately.</p>
+      <h4 style="margin-top: var(--space-xl);">Per-token LLM rates (AI_COMPLETE and friends)</h4>
+      <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);">Rates come from Snowflake's Credit Consumption Table. Higher tokens-per-credit means cheaper. Section E has the same models as detailed cards.</p>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Provider</th>
+            <th>Input Tokens/Credit</th>
+            <th>Output Tokens/Credit</th>
+            <th>Cost Tier</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="budget-row">
+            <td><code>mistral-7b</code></td>
+            <td>Mistral AI</td>
+            <td>8,333,333</td>
+            <td>8,333,333</td>
+            <td><span class="badge budget">Budget</span></td>
+            <td>Simple extraction, classification</td>
+          </tr>
+          <tr class="budget-row">
+            <td><code>llama3.1-8b</code></td>
+            <td>Meta</td>
+            <td>5,263,158</td>
+            <td>5,263,158</td>
+            <td><span class="badge budget">Budget</span></td>
+            <td>Fast inference, high volume</td>
+          </tr>
+          <tr class="standard-row">
+            <td><code>llama3.1-70b</code></td>
+            <td>Meta</td>
+            <td>826,446</td>
+            <td>826,446</td>
+            <td><span class="badge standard">Standard</span></td>
+            <td>Complex reasoning, instruction following</td>
+          </tr>
+          <tr class="standard-row">
+            <td><code>mistral-large2</code></td>
+            <td>Mistral AI</td>
+            <td>454,545</td>
+            <td>454,545</td>
+            <td><span class="badge standard">Standard</span></td>
+            <td>High quality, multilingual</td>
+          </tr>
+          <tr class="premium-row">
+            <td><code>llama3.1-405b</code></td>
+            <td>Meta</td>
+            <td>333,333</td>
+            <td>333,333</td>
+            <td><span class="badge premium">Premium</span></td>
+            <td>Maximum open-source capability</td>
+          </tr>
+          <tr class="premium-row">
+            <td><code>claude-4-sonnet</code></td>
+            <td>Anthropic</td>
+            <td>666,667</td>
+            <td>133,333</td>
+            <td><span class="badge premium">Premium</span></td>
+            <td>Highest quality, coding, analysis</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">Per-character functions (fixed internal models)</h4>
+      <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: var(--space-md);">These use Snowflake's own optimized models rather than a general LLM. They read raw text by character count, so there is no tokenizer and no prompt overhead to pay for.</p>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Unit</th>
+            <th>Credits</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_SENTIMENT()</code></td>
+            <td>Per 1M characters</td>
+            <td>0.095</td>
+            <td>Most cost-efficient function in the catalog</td>
+          </tr>
+          <tr>
+            <td><code>AI_TRANSLATE()</code></td>
+            <td>Per 1M characters</td>
+            <td>0.333</td>
+            <td>Supported languages with auto-detect</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">Other per-token functions</h4>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Unit</th>
+            <th>Credits</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AI_CLASSIFY()</code></td>
+            <td>Per 1M tokens</td>
+            <td>Varies by model</td>
+            <td>Cheaper than AI_COMPLETE for the same classification</td>
+          </tr>
+          <tr>
+            <td><code>AI_SUMMARIZE_AGG()</code></td>
+            <td>Per 1M tokens</td>
+            <td>Varies by model</td>
+            <td>Aggregate summarization across rows</td>
+          </tr>
+          <tr>
+            <td><code>AI_EMBED()</code></td>
+            <td>Per 1M tokens</td>
+            <td>0.13</td>
+            <td>Unified embedding function for text and images</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top: var(--space-xl);">ML functions (warehouse compute)</h4>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Billing Basis</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>FORECAST()</code></td>
+            <td>Warehouse compute</td>
+            <td>Time-series forecasting</td>
+          </tr>
+          <tr>
+            <td><code>ANOMALY_DETECTION()</code></td>
+            <td>Warehouse compute</td>
+            <td>Outlier detection</td>
+          </tr>
+          <tr>
+            <td><code>CLASSIFICATION()</code></td>
+            <td>Warehouse compute</td>
+            <td>ML classification</td>
+          </tr>
+          <tr>
+            <td><code>CONTRIBUTION_EXPLORER()</code></td>
+            <td>Warehouse compute</td>
+            <td>Root cause analysis</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout cost" style="margin-top: var(--space-xl);">
+        <h5>Cortex Search: the one AI cost that runs while you sleep</h5>
+        <p>Every other cost in this table is pay-per-call. Cortex Search is different. It has two components, and the first one accrues whether or not anyone queries it.</p>
+
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" style="min-width: 600px;">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Cost Component</th>
+                <th style="width: 25%;">Rate</th>
+                <th style="width: 45%;">Trigger</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Serving compute</strong></td>
+                <td><code>6.3 credits/GB/month</code></td>
+                <td>Continuous while the service is resumed, even with zero queries</td>
+              </tr>
+              <tr>
+                <td><strong>Indexing</strong> (warehouse + AI_EMBED tokens)</td>
+                <td><code>Variable</code></td>
+                <td>On source data change: warehouse refresh plus embedding token cost</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="margin-top: var(--space-sm);">An idle Search service with serving resumed is 100 percent waste on the serving line. Audit weekly: is each service actually being queried? <a href="06-usage-tracking-telemetry.html">Module 06</a> has the detection query that finds idle services from <code>CORTEX_SEARCH_DAILY_USAGE_HISTORY</code>. The fix is here:</p>
+
         <div class="code-block" style="margin-top: var(--space-md);">
           <div class="code-header">
             <span class="code-lang">SQL</span>
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>-- Explicit model pin
-SELECT AI_COMPLETE('llama3.1-70b', 'Summarize in one sentence: ' || feedback_text)
-FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;
+            <pre>-- Suspend serving only (stops the 6.3 credits/GB/month standing cost)
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND SERVING;
 
--- Dynamic Model Routing (private preview when enabled)
-SELECT AI_COMPLETE('auto', 'Summarize in one sentence: ' || feedback_text)
-FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
+-- Suspend indexing only (stops warehouse + embedding costs on data changes)
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND INDEXING;
+
+-- Suspend both
+ALTER CORTEX SEARCH SERVICE my_search_svc SUSPEND;
+
+-- Resume when needed (typically takes a few minutes)
+ALTER CORTEX SEARCH SERVICE my_search_svc RESUME;
+
+-- Permanently remove an abandoned service
+DROP CORTEX SEARCH SERVICE IF EXISTS my_abandoned_svc;</pre>
           </div>
         </div>
       </div>
 
-      <div class="callout tip" style="margin-top: var(--space-lg);">
-        <h5>Related: AI mode for sensitive data classification (Public Preview)</h5>
-        <p>Classification profiles can enable <code>ai_mode: true</code> to use <code>openai-gpt-5-mini</code> for additional semantic categories beyond standard scanning. This is a <strong>governance</strong> feature (Trust Center / data privacy), not an AISQL lab - but it does consume AI capacity. Enable only where semantic enrichment justifies the cost; VARIANT/OBJECT/ARRAY columns and tables with &gt;300 columns are not AI-enriched.</p>
+      <div class="callout warn" style="margin-top: var(--space-lg);">
+        <h5>Agent and CoWork costs stack on top</h5>
+        <p>The rates above price a single function call. Cortex Agents and CoWork add orchestration tokens plus the cost of every tool they invoke, so one user question can bill several times. That additive model is why Agents get their own telemetry view, which you will query in <a href="06-usage-tracking-telemetry.html">Module 06</a>, and their own budget domain in <a href="08-budgets-spend-controls.html">Module 08</a>.</p>
       </div>
     </section>
 
-    <!-- ─── Section B: Model Cards ─────────────────────────────────────────── -->
+    <!-- ─── Section E: Model Cards ───────────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">B</div>
+        <div class="section-letter">E</div>
         <h2 class="section-title">Model Cards</h2>
       </div>
 
@@ -236,6 +462,10 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
 
       <h4 style="margin-top: var(--space-lg); color: var(--sf-good);">Budget Tier - High Volume, Simple Tasks</h4>
       <div class="cols three" style="margin-top: var(--space-md);">
+        <div class="model-card">
+          <div class="model-card-header">
+            <div>
+              <div class="model-name">mistral-7b</div>
               <div class="model-provider">Mistral AI</div>
             </div>
             <span class="badge budget">Budget</span>
@@ -308,7 +538,7 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
 
       <div class="callout tip" style="margin-top: var(--space-md);">
         <h5>Context Window = Capacity, Not Cost</h5>
-        <p>The context window (e.g. 32K tokens) is the <strong>maximum</strong> a model can process per call - you only pay for tokens actually used. If your prompt is 500 tokens and the response is 200 tokens, you pay for 700 tokens, not 32K. Prefer Dynamic Model Routing (Section A3) for Agents/CoWork/CoCo when available.</p>
+        <p>The context window (e.g. 32K tokens) is the <strong>maximum</strong> a model can process per call - you only pay for tokens actually used. If your prompt is 500 tokens and the response is 200 tokens, you pay for 700 tokens, not 32K. Prefer Dynamic Model Routing (Section F) for Agents, CoWork, and CoCo when it is available.</p>
       </div>
 
       <h4 style="margin-top: var(--space-xl); color: var(--sf-blue);">Standard Tier - Balance of Quality and Cost</h4>
@@ -500,231 +730,85 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
       </div>
     </section>
 
-    <!-- ─── Section C: Function Deep Dive ──────────────────────────────────── -->
+    <!-- ─── Section F: Dynamic Model Routing ────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">C</div>
-        <h2 class="section-title">Function Deep Dive</h2>
+        <div class="section-letter">F</div>
+        <h2 class="section-title">Dynamic Model Routing</h2>
       </div>
 
-      <!-- AI_SENTIMENT -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SENTIMENT(text [, categories])</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Returns an OBJECT with sentiment categories (positive, negative, neutral, mixed, unknown)</p>
-          </div>
-          <span class="badge low">Lowest Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Customer feedback, support tickets, reviews, social media</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">0.095 credits per 1M characters</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
-            <p style="margin: var(--space-xs) 0 0;">No model selection - Snowflake-optimized. Optional categories array for aspect-level sentiment.</p>
-          </div>
-        </div>
-        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
-          <h5>FinOps Tip</h5>
-          <p style="margin-bottom: 0;">AI_SENTIMENT is the most cost-efficient Cortex function for sentiment analysis. Always use it instead of prompting AI_COMPLETE() for sentiment.</p>
-        </div>
-      </div>
+      <p><strong>Dynamic Model Routing</strong> (Cortex AI Gateway; private preview) automatically selects the most affordable model that can complete each step of agent work. It is wired into CoCo, CoWork, and third-party agents that use the gateway.</p>
 
-      <!-- AI_COMPLETE -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_COMPLETE(model, prompt)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">General-purpose LLM generation with model selection</p>
-          </div>
-          <span class="badge high">Variable Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Classification, extraction, generation, complex reasoning</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">Varies widely by model (see Model Cards above)</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
-            <p style="margin: var(--space-xs) 0 0;">First parameter is model name as string</p>
-          </div>
-        </div>
-        <div class="callout warn" style="margin-top: var(--space-lg); margin-bottom: 0;">
-          <h5>Cost Warning</h5>
-          <p style="margin-bottom: 0;">Most expensive function category. Always specify the cheapest model that meets your quality requirements. The cost difference between mistral-7b and claude-4-sonnet can be 50× or more.</p>
-        </div>
-      </div>
-
-      <!-- AI_SUMMARIZE_AGG -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_SUMMARIZE_AGG(expr)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Aggregate function - summarizes a column of text data across multiple rows</p>
-          </div>
-          <span class="badge medium">Moderate Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Summarizing columns of reviews, call transcripts, logs, meeting notes</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">Uses underlying model rates (typically llama-based)</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
-            <p style="margin: var(--space-xs) 0 0;">Handles datasets larger than max context window. For single-row summarization, use AI_COMPLETE with a summarize prompt.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI_TRANSLATE -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_TRANSLATE(text, source_lang, target_lang)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Translates text between supported languages with auto-detect</p>
-          </div>
-          <span class="badge medium">Moderate Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Multilingual content, localization, international data</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">0.333 credits per 1M characters</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Languages</strong>
-            <p style="margin: var(--space-xs) 0 0;">en, es, fr, de, it, pt, ja, ko, zh, and 80+ more</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI_CLASSIFY -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_CLASSIFY(text, categories)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Zero-shot classification into provided categories (single or multi-label)</p>
-          </div>
-          <span class="badge low">Lower Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Ticket routing, content tagging, intent detection</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">Lower than equivalent AI_COMPLETE() prompt</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Notes</strong>
-            <p style="margin: var(--space-xs) 0 0;">Pass categories as an array. Access result via <code>:labels[0]::VARCHAR</code></p>
-          </div>
-        </div>
-        <div class="callout tip" style="margin-top: var(--space-lg); margin-bottom: 0;">
-          <h5>FinOps Tip</h5>
-          <p style="margin-bottom: 0;">More cost-efficient than AI_COMPLETE() for classification tasks. Use it instead of prompting an LLM with "Classify this text as one of the following..."</p>
-        </div>
-      </div>
-
-      <!-- AI_EXTRACT -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EXTRACT(text, fields)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Extracts structured fields from unstructured text</p>
-          </div>
-          <span class="badge medium">Moderate Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Document extraction, form parsing, data capture from text</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Pattern</strong>
-            <p style="margin: var(--space-xs) 0 0;">Provide text + array of field names to extract</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI_EMBED -->
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
-          <div>
-            <h4 style="margin-bottom: var(--space-xs);"><code style="font-size: 1.1rem;">AI_EMBED(model, input)</code></h4>
-            <p style="color: #6b7280; margin-bottom: 0;">Generate vector embeddings for text or images - unified replacement for EMBED_TEXT_768/1024</p>
-          </div>
-          <span class="badge low">Lower Cost</span>
-        </div>
-        <div style="margin-top: var(--space-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Best For</strong>
-            <p style="margin: var(--space-xs) 0 0;">Semantic search, similarity matching, clustering</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Cost</strong>
-            <p style="margin: var(--space-xs) 0 0;">0.13 credits per 1M tokens</p>
-          </div>
-          <div>
-            <strong style="font-size: 0.85rem; color: #6b7280;">Models</strong>
-            <p style="margin: var(--space-xs) 0 0;">snowflake-arctic-embed-l-v2.0, nv-embed-qa-4, multilingual-e5-large, voyage-multimodal-3 (images)</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Section D: Snowflake CoCo ───────────────────────────────────────── -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-letter">D</div>
-        <h2 class="section-title">Snowflake CoCo <span class="badge" style="background: var(--sf-warn); color: #fff; font-size: 0.7rem;">Formerly Cortex Code</span></h2>
-      </div>
-
-      <p><strong>Snowflake CoCo</strong> is Snowflake's AI coding agent - available in Snowsight, Desktop, CLI, Slack, and mobile. It adds capabilities beyond the SQL functions covered above and participates in Dynamic Model Routing via Cortex AI Gateway when enabled.</p>
-
-      <div class="cols two">
+      <div class="cols two" style="margin-top: var(--space-lg);">
         <div class="panel">
-          <h4>What CoCo Adds</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem;">
-            <li>Natural language → SQL and multi-file coding workflows</li>
-            <li>Code explanation and documentation</li>
-            <li>Agentic multi-step reasoning from a single prompt</li>
-            <li>CLI / Desktop / Snowsight / Slack surfaces</li>
-            <li>Integration with MCP servers and external tools</li>
+          <h4>How routing works</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li><strong>Advisor pattern:</strong> a smaller model tries first; escalates to a larger model as a tool if needed.</li>
+            <li><strong>Classifier:</strong> routes straightforward / repetitive work to cheaper models based on task patterns.</li>
+            <li><strong>Governance:</strong> only admin-approved models; respects data residency; routing decisions are logged.</li>
+            <li><strong>Optional:</strong> you can still pin a single model or a restricted set - auto is not required.</li>
           </ul>
         </div>
         <div class="panel">
-          <h4>Cost Tracking for CoCo</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem;">
-            <li><code>CORTEX_CODE_SNOWSIGHT_USAGE_HISTORY</code></li>
-            <li><code>CORTEX_CODE_CLI_USAGE_HISTORY</code></li>
-            <li>Tracks user, timestamp, tokens, credits</li>
-            <li><code>TOKENS_GRANULAR</code> / credits breakdown by model</li>
+          <h4>FinOps impact</h4>
+          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
+            <li>No separate fee for the routing decision - you pay tokens for the model that ran.</li>
+            <li>Snowflake cites up to ~3x token efficiency vs frontier-only paths on some internal workloads.</li>
+            <li>For high-volume <code>AI_COMPLETE</code> SQL jobs, still pick Budget or Standard models deliberately (Section D).</li>
+            <li>For Agents / CoWork / CoCo, prefer <strong>auto</strong> within an approved pool when available.</li>
           </ul>
         </div>
       </div>
 
-      <div class="callout tip">
-        <h5>Key Insight</h5>
-        <p>CoCo is the AI layer that helps you <strong>write</strong> the SQL that calls other Cortex functions - and it burns tokens on every step. In Module 07–08 we use CoCo under AI feature budgets and build the Streamlit dashboard that tracks Cortex AI spend.</p>
+      <div class="panel" style="margin-top: var(--space-lg);">
+        <h4>New / expanding open models</h4>
+        <table class="comparison-table" style="margin-top: var(--space-md);">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Status</th>
+              <th>FinOps note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DeepSeek-V4-Flash 0731</code></td>
+              <td>Private preview</td>
+              <td>Expands low-cost routing options - confirm rates in the Consumption Table before projecting</td>
+            </tr>
+            <tr>
+              <td><code>GLM-5.3</code></td>
+              <td>Private preview coming soon</td>
+              <td>Availability may change; treat as optional capacity in the approved model pool</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="color: #6b7280; font-size: 0.9rem; margin-top: var(--space-md);">Also available across Cortex: models from Anthropic, OpenAI, Google, Meta, Mistral, and others. Always validate current IDs and rates against official docs.</p>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>AISQL: explicit model vs Dynamic Model Routing</h5>
+        <p>DMR is wired into CoCo, CoWork, and Agents via Cortex AI Gateway. For AISQL, <code>AI_COMPLETE('auto', ...)</code> is available in private preview when your account has Dynamic Model Routing enabled. If unavailable, pin Budget or Standard models deliberately.</p>
+        <div class="code-block" style="margin-top: var(--space-md);">
+          <div class="code-header">
+            <span class="code-lang">SQL</span>
+            <button class="copy-btn"><span>Copy</span></button>
+          </div>
+          <div class="code-content">
+            <pre>-- Explicit model pin
+SELECT AI_COMPLETE('llama3.1-70b', 'Summarize in one sentence: ' || feedback_text)
+FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;
+
+-- Dynamic Model Routing (private preview when enabled)
+SELECT AI_COMPLETE('auto', 'Summarize in one sentence: ' || feedback_text)
+FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Related: AI mode for sensitive data classification (Public Preview)</h5>
+        <p>Classification profiles can enable <code>ai_mode: true</code> to use <code>openai-gpt-5-mini</code> for additional semantic categories beyond standard scanning. This is a <strong>governance</strong> feature (Trust Center / data privacy), not an AISQL lab - but it does consume AI capacity. Enable only where semantic enrichment justifies the cost; VARIANT/OBJECT/ARRAY columns and tables with &gt;300 columns are not AI-enriched.</p>
       </div>
     </section>
 
@@ -759,7 +843,7 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
         <p><strong>Q3:</strong> What's the cost difference between mistral-7b and claude-4-sonnet for the same workload?</p>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
-          <strong>Approximately 10-50× difference.</strong> mistral-7b processes ~8.3M input tokens per credit, while claude-4-sonnet processes ~667K input tokens per credit (input) and only ~133K output tokens per credit. For output-heavy workloads, the difference can be even greater.
+          <strong>Approximately 10-50x difference.</strong> mistral-7b processes ~8.3M input tokens per credit, while claude-4-sonnet processes ~667K input tokens per credit (input) and only ~133K output tokens per credit. For output-heavy workloads, the difference can be even greater.
         </div>
       </div>
 
@@ -782,15 +866,22 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="01b-kv-cache-optimization.html" class="nav-btn prev">
+      <a href="01-ai-cost-foundations.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 01b: KV Cache Optimization
+        Module 01: AI Cost Foundations
       </a>
-      <a href="03-environment-setup.html" class="nav-btn next">
-        Module 03: Environment Setup
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="03-lab-environment-setup.html" class="nav-btn next">
+        Module 03: Lab Environment Setup
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -801,7 +892,7 @@ FROM cortex_lab.ai_workshop.customer_feedback LIMIT 3;</pre>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 02: Cortex AI Capabilities</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 02: The Snowflake AI Toolbox</p>
   </footer>
 
   <script src="../js/main.js"></script>

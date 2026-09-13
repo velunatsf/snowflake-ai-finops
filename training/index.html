@@ -13,7 +13,7 @@
   <header class="hero">
     <div class="hero-content">
       <h1>FinOps For Snowflake AI</h1>
-      <p class="hero-subtitle">Discover · Control · Optimize · Govern AI Spend<br><span style="font-size: 0.85em; opacity: 0.9;">CoCo · Agents · CoWork · AISQL</span></p>
+      <p class="hero-subtitle">Measure · Govern · Control<br><span style="font-size: 0.85em; opacity: 0.9;">CoCo · Agents · CoWork · AISQL</span></p>
       <div class="hero-meta">
         <div class="hero-meta-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -42,11 +42,28 @@
   </header>
 
   <main class="container">
-    <!-- ─── Disclaimer ────────────────────────────────────────────────────────── -->
-    <div class="callout warn" style="margin-top: var(--space-lg);">
-      <h5>Disclaimer</h5>
-      <p>This training is based on our personal learning and experience. It does not reflect any interest from the company we work for or from Snowflake.com.</p>
-    </div>
+
+    <!-- ─── Why FinOps for AI ────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="panel panel-dark">
+        <h2 style="color: #ffffff; margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--sf-blue)" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Why FinOps for AI
+        </h2>
+        <p style="font-size: 1.1rem; line-height: 1.7;">
+          <strong style="color: var(--sf-blue);">FinOps for AI is not just about dashboards. It maps business value to every token spent.</strong> AI breaks the traditional cloud cost playbook because token consumption is volatile, nonlinear, and growing rapidly. Effective FinOps for AI optimizes the outcome of each token, connects consumption to measurable business value, and asks whether every token earns what it costs. This is the shift from <strong>Token Economics (Tokconomics)</strong> to <strong>Valuemaxxing</strong>.
+        </p>
+        <div style="margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid rgba(255,255,255,0.1);">
+          <p style="color: var(--sf-ice); font-size: 0.95rem;">
+            Measure Tokens · Optimize Outcomes · Maximize Business Value
+          </p>
+        </div>
+      </div>
+    </section>
 
     <!-- ─── Training Agenda ──────────────────────────────────────────────────── -->
     <section class="section">
@@ -55,7 +72,9 @@
         <h2 class="section-title">Training Agenda</h2>
       </div>
 
-      <table class="agenda-table">
+      <p>Ten modules over roughly two hours. Each one builds on the one before it, so run them in order.</p>
+
+      <table class="agenda-table" style="margin-top: var(--space-lg);">
         <thead>
           <tr>
             <th style="width: 50px;">#</th>
@@ -67,72 +86,111 @@
         <tbody>
           <tr>
             <td><strong>01</strong></td>
-            <td><a href="modules/01-ai-token-economy.html">AI Token Economy</a></td>
-            <td>15 min</td>
-            <td><span class="timing-badge concept">Concept</span></td>
-          </tr>
-          <tr>
-            <td><strong>01b</strong></td>
-            <td><a href="modules/01b-kv-cache-optimization.html">KV Cache Optimization</a></td>
+            <td><a href="modules/01-ai-cost-foundations.html">AI Cost Foundations</a></td>
             <td>15 min</td>
             <td><span class="timing-badge concept">Concept</span></td>
           </tr>
           <tr>
             <td><strong>02</strong></td>
-            <td><a href="modules/02-cortex-ai-capabilities.html">Cortex AI Capabilities</a></td>
+            <td><a href="modules/02-snowflake-ai-toolbox.html">The Snowflake AI Toolbox</a></td>
             <td>15 min</td>
             <td><span class="timing-badge concept">Concept</span></td>
           </tr>
           <tr>
             <td><strong>03</strong></td>
-            <td><a href="modules/03-environment-setup.html">Environment Setup</a></td>
+            <td><a href="modules/03-lab-environment-setup.html">Lab Environment Setup</a></td>
             <td>10 min</td>
             <td><span class="timing-badge setup">Setup</span></td>
           </tr>
           <tr>
             <td><strong>04</strong></td>
-            <td><a href="modules/04-cortex-code-setup.html">CoCo Setup</a></td>
+            <td><a href="modules/04-coco-cli-setup.html">CoCo CLI Setup</a></td>
             <td>5 min</td>
             <td><span class="timing-badge setup">Setup</span></td>
           </tr>
           <tr>
             <td><strong>05</strong></td>
-            <td><a href="modules/05-ai-sql-hands-on.html">AI SQL - Hands-On Exercises</a></td>
+            <td><a href="modules/05-aisql-cost-lab.html">AISQL Cost Lab</a></td>
             <td>20 min</td>
             <td><span class="timing-badge lab">Lab</span></td>
           </tr>
           <tr>
             <td><strong>06</strong></td>
-            <td><a href="modules/06-token-usage-tracking.html">Token & Credit Usage Tracking</a></td>
-            <td>15 min</td>
+            <td><a href="modules/06-usage-tracking-telemetry.html">Usage Tracking &amp; AI Telemetry</a></td>
+            <td>20 min</td>
             <td><span class="timing-badge lab">Lab</span></td>
           </tr>
           <tr>
             <td><strong>07</strong></td>
-            <td><a href="modules/07-ai-credits-transition.html">AI Feature Budgets &amp; Spend Controls</a></td>
+            <td><a href="modules/07-kv-cache-optimization.html">KV Cache Optimization</a></td>
             <td>10 min</td>
-            <td><span class="timing-badge lab">Lab</span></td>
+            <td><span class="timing-badge concept">Concept</span></td>
           </tr>
           <tr>
             <td><strong>08</strong></td>
-            <td><a href="modules/08-streamlit-dashboard.html">Streamlit FinOps Dashboard</a></td>
+            <td><a href="modules/08-budgets-spend-controls.html">Budgets &amp; Spend Controls</a></td>
             <td>10 min</td>
             <td><span class="timing-badge lab">Lab</span></td>
           </tr>
           <tr>
             <td><strong>09</strong></td>
-            <td><a href="modules/09-closing-note.html">Closing Note</a></td>
+            <td><a href="modules/09-finops-dashboard.html">FinOps Dashboard</a></td>
+            <td>10 min</td>
+            <td><span class="timing-badge lab">Lab</span></td>
+          </tr>
+          <tr>
+            <td><strong>10</strong></td>
+            <td><a href="modules/10-wrap-up-next-steps.html">Wrap-Up &amp; Next Steps</a></td>
             <td>5 min</td>
             <td><span class="timing-badge wrapup">Wrap-up</span></td>
           </tr>
         </tbody>
       </table>
+
+    </section>
+
+    <!-- ─── What You'll Learn ────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-letter">2</div>
+        <h2 class="section-title">What You'll Learn</h2>
+      </div>
+
+      <div class="cols three">
+        <div class="panel" style="border-top: 4px solid var(--sf-good);">
+          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Understand AI cost</h4>
+          <ul>
+            <li>Explain token economics</li>
+            <li>Distinguish billable token types</li>
+            <li>Compare AI and platform credits</li>
+            <li>Map Snowflake AI tools to use cases</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 4px solid var(--sf-warn);">
+          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Measure value per token</h4>
+          <ul>
+            <li>Build a governed AI lab</li>
+            <li>Measure AI usage and spend</li>
+            <li>Attribute consumption by workload</li>
+            <li>Right-size models and use dynamic routing</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 4px solid #d946ef;">
+          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Optimize and govern</h4>
+          <ul>
+            <li>Improve prompt cache efficiency</li>
+            <li>Set AI feature budgets</li>
+            <li>Apply CoCo usage guardrails</li>
+            <li>Connect AI cost to business outcomes</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <!-- ─── Prerequisites ────────────────────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">2</div>
+        <div class="section-letter">3</div>
         <h2 class="section-title">Prerequisites</h2>
       </div>
 
@@ -155,7 +213,7 @@
 
       <div class="callout tip">
         <h5>Trial Account Tip</h5>
-        <p>Snowflake CoCo comes with a free credit allowance for AI usage. Sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a>. The Resource Monitor in Module 03 and the AI feature budgets + CoCo credit guardrails in Module 07 keep you within safe limits.</p>
+        <p>Snowflake CoCo comes with a free credit allowance for AI usage. Sign up at <a href="https://signup.snowflake.com/cortex-code" target="_blank" rel="noopener" style="color: var(--sf-blue);">signup.snowflake.com/cortex-code</a>. The Resource Monitor in Module 03 and the AI feature budgets + CoCo credit guardrails in Module 08 keep you within safe limits.</p>
         <p style="margin-top: var(--space-sm);"><strong>For this training</strong>, we will use the same CoCo account to run data prep, Cortex AI SQL labs, and tag-based AI feature budget setup.</p>
       </div>
     </section>
@@ -163,50 +221,58 @@
     <!-- ─── Quick Downloads ──────────────────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
-        <div class="section-letter">3</div>
+        <div class="section-letter">4</div>
         <h2 class="section-title">Quick Downloads</h2>
       </div>
 
       <div class="downloads-bar">
-        <a href="sql/04-environment-setup.sql" class="download-btn" target="_blank" rel="noopener">
+        <a href="sql/03-environment-setup.sql" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          Environment Setup SQL
+          M03 - Environment Setup SQL
         </a>
-        <a href="sql/05-ai-queries.sql" class="download-btn" target="_blank" rel="noopener">
+        <a href="sql/05-aisql-cost-lab.sql" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          AI SQL Exercises
+          M05 - AISQL Cost Lab
         </a>
-        <a href="sql/06-token-tracking.sql" class="download-btn" target="_blank" rel="noopener">
+        <a href="sql/06-usage-tracking.sql" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          Token Tracking SQL
+          M06 - Usage Tracking SQL
         </a>
-        <a href="sql/07-ai-feature-budgets.sql" class="download-btn" target="_blank" rel="noopener">
+        <a href="sql/07-kv-cache.sql" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          AI Feature Budgets SQL
+          M07 - KV Cache SQL
         </a>
-        <a href="sql/07-streamlit-app.py" class="download-btn" target="_blank" rel="noopener">
+        <a href="sql/08-budgets-spend-controls.sql" class="download-btn" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          Streamlit Dashboard
+          M08 - Budgets SQL
+        </a>
+        <a href="sql/09-finops-dashboard.py" class="download-btn" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          M09 - Streamlit Dashboard
         </a>
       </div>
 
@@ -228,72 +294,17 @@
           Snowflake CoCo CLI Guide
         </a>
       </div>
-    </section>
 
-    <!-- ─── Key Concepts ─────────────────────────────────────────────────────── -->
-    <section class="section">
-      <div class="section-header">
-        <div class="section-letter">4</div>
-        <h2 class="section-title">What You'll Learn</h2>
-      </div>
-
-      <div class="cols three">
-        <div class="panel">
-          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Understanding AI Costs</h4>
-          <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">Token fundamentals and pricing</li>
-            <li style="padding: var(--space-xs) 0;">AI Credits vs Platform Credits</li>
-            <li style="padding: var(--space-xs) 0;">Prompt cache / KV cache metrics</li>
-            <li style="padding: var(--space-xs) 0;">Cost estimation techniques</li>
-          </ul>
-        </div>
-        <div class="panel">
-          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Using Cortex AI</h4>
-          <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">AISQL functions + model selection</li>
-            <li style="padding: var(--space-xs) 0;">Cortex Agents (preferred over Analyst)</li>
-            <li style="padding: var(--space-xs) 0;">Snowflake CoWork orchestration</li>
-            <li style="padding: var(--space-xs) 0;">Snowflake CoCo CLI workflows</li>
-          </ul>
-        </div>
-        <div class="panel">
-          <h4 style="color: var(--sf-blue); margin-bottom: var(--space-md);">Governing AI Spend</h4>
-          <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--space-xs) 0;">Tag-based AI feature budgets</li>
-            <li style="padding: var(--space-xs) 0;">SERVICE_TYPE metering breakout</li>
-            <li style="padding: var(--space-xs) 0;">Usage attribution queries</li>
-            <li style="padding: var(--space-xs) 0;">Streamlit FinOps dashboard</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Central Thesis ───────────────────────────────────────────────────── -->
-    <section class="section">
-      <div class="panel panel-dark">
-        <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--sf-blue)" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-          Central Thesis
-        </h3>
-        <p style="font-size: 1.1rem; line-height: 1.7;">
-          <strong style="color: var(--sf-blue);">AI is now a cost center.</strong> Snowflake Cortex is both the tool that generates AI spend AND the platform to govern it. This training covers AISQL, Cortex Agents, Snowflake CoWork, and Snowflake CoCo - how tokens and AI Credits work, how to set tag-based AI feature budgets, and how to build a Streamlit FinOps dashboard - all in one session.
-        </p>
-        <div style="margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid rgba(255,255,255,0.1);">
-          <p style="color: var(--sf-ice); font-size: 0.95rem;">
-            The teams who govern AI costs now will be the ones who can afford to scale AI later.
-          </p>
-        </div>
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>How queries are organized</h5>
+        <p>Every SQL query has exactly one home so you are never reading the same query twice. Setup DDL lives in Module 03, AI function examples in Module 05, all usage and attribution queries in Module 06, cache KPIs in Module 07, and budget DDL in Module 08. Other modules link back to the canonical copy instead of repeating it.</p>
       </div>
     </section>
 
     <!-- ─── Get Started ──────────────────────────────────────────────────────── -->
     <section class="section text-center">
-      <a href="modules/01-ai-token-economy.html" class="nav-btn next" style="display: inline-flex; font-size: 1.1rem; padding: var(--space-lg) var(--space-2xl);">
-        Start Module 01: AI Token Economy
+      <a href="modules/01-ai-cost-foundations.html" class="nav-btn next" style="display: inline-flex; font-size: 1.1rem; padding: var(--space-lg) var(--space-2xl);">
+        Start Module 01: AI Cost Foundations
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -305,6 +316,7 @@
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
     <p><strong>FinOps For Snowflake AI</strong></p>
+    <p class="footer-disclaimer">This training is based on our personal learning and experience. It does not reflect any interest from the company we work for or from Snowflake.com.</p>
   </footer>
 
   <script src="js/main.js"></script>

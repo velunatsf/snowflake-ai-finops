@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 08: Streamlit Dashboard - FinOps for Snowflake AI</title>
+  <title>Module 09: FinOps Dashboard - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,36 +15,43 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link active" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link active" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 88.9%;"></div>
-    <span class="progress-text">8 of 9</span>
+    <div class="progress-bar-fill" style="width: 90%;"></div>
+    <span class="progress-text">09 of 10</span>
   </div>
 
   <main class="container">
     <!-- ─── Module Header ──────────────────────────────────────────────────── -->
     <header class="module-header">
       <div class="module-number">
-        <span>MODULE 08</span>
-        <span class="timing-badge lab">13 min</span>
+        <span>MODULE 09</span>
+        <span class="timing-badge lab">10 min</span>
       </div>
       <h1 class="module-title">Streamlit AI Cost Dashboard</h1>
       <p class="module-subtitle">Build a live FinOps dashboard using Snowflake CoCo</p>
-      
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>This is where everything converges. The tracking queries you wrote in Module 06 and the cache KPIs from Module 07 stop being one-off SQL and become a live Streamlit app that a FinOps team can actually watch every week.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
@@ -144,7 +151,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
             <li>Function Breakdown</li>
             <li>Model Cost Comparison</li>
             <li>Input / Output / Cache Usage</li>
-            <li>AI Budgets</li>
+            <li>AI Credits Transition by SERVICE_TYPE</li>
             <li>Top Expensive Queries</li>
           </ul>
         </div>
@@ -158,6 +165,50 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
             <li>Function Type Filter</li>
           </ul>
         </div>
+      </div>
+
+      <h3 style="margin-top: var(--space-xl);">Where Each Panel Comes From</h3>
+      <p>Almost every panel is a query you already wrote and ran by hand in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a>. This module does not re-teach that SQL: it wraps it in an app. Use the table below to trace a panel back to its source query when you need to change what it measures.</p>
+
+      <div style="overflow-x: auto; margin-top: var(--space-md);">
+        <table class="comparison-table" style="min-width: 640px;">
+          <thead>
+            <tr>
+              <th style="width: 40%;">Dashboard panel</th>
+              <th style="width: 60%;">Source query</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Credits by Function</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 1: AI Credits by Cortex Function</td>
+            </tr>
+            <tr>
+              <td>Cost by Model</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 2: Model Cost Comparison</td>
+            </tr>
+            <tr>
+              <td>Hourly Credit Consumption</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 3: Hourly AI Spend Trend</td>
+            </tr>
+            <tr>
+              <td>Week-over-Week Anomaly</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 11: Week-over-Week Cost Anomaly Detection</td>
+            </tr>
+            <tr>
+              <td>Attribution Coverage</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 12: Missing Cost Attribution</td>
+            </tr>
+            <tr>
+              <td>CoCo Input / Output / Cache Usage</td>
+              <td><a href="06-usage-tracking-telemetry.html">Module 06</a>, Query 13, with the KPI framing from <a href="07-kv-cache-optimization.html">Module 07: KV Cache Optimization</a></td>
+            </tr>
+            <tr>
+              <td>Budget and limit status</td>
+              <td>Not in this app. Budget spend against limit is verified in <a href="08-budgets-spend-controls.html">Module 08: Budgets &amp; Spend Controls</a></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -379,7 +430,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
 
           <!-- CoCo Input / Output / Cache Usage -->
           <div class="dash-panel">
-            <h4>CoCo Input / Output / Cache Usage <span style="font-size: 0.7rem; color: #9ca3af; font-weight: normal;">(see <a href="01b-kv-cache-optimization.html" style="color: #29B5E8;">Module 01b</a>)</span></h4>
+            <h4>CoCo Input / Output / Cache Usage <span style="font-size: 0.7rem; color: #9ca3af; font-weight: normal;">(see <a href="07-kv-cache-optimization.html" style="color: #29B5E8;">Module 07</a>)</span></h4>
             <div class="dash-bar">
               <span class="dash-bar-label">cache_read</span>
               <div class="dash-bar-track"><div class="dash-bar-fill" style="width:72%;background:#00C49A;"></div></div>
@@ -417,8 +468,8 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
                   </div>
                 </div>
                 <div class="dash-donut-legend">
-                  <div><span class="dash-dot" style="background:#00C49A;"></span> Tagged &mdash; 10.38 cr</div>
-                  <div><span class="dash-dot" style="background:#EF4444;"></span> Untagged &mdash; 3.95 cr</div>
+                  <div><span class="dash-dot" style="background:#00C49A;"></span> Tagged: 10.38 cr</div>
+                  <div><span class="dash-dot" style="background:#EF4444;"></span> Untagged: 3.95 cr</div>
                   <div style="margin-top:0.4rem; color:#F59E0B; font-size:0.65rem;">Target: &gt;90% tagged</div>
                 </div>
               </div>
@@ -451,7 +502,7 @@ Use Snowflake brand colors: #29B5E8 accent, #0B2B4E dark</pre>
     <section class="section">
       <div class="callout warn">
         <h5>AI Credits Transition - Update Your Dashboard Queries</h5>
-        <p>Four AI services have their own <code>SERVICE_TYPE</code> in <code>METERING_DAILY_HISTORY</code>: <code>CORTEX_AGENTS</code>, <code>CORTEX_CODE_CLI</code>, <code>CORTEX_CODE_SNOWSIGHT</code>, and <code>SNOWFLAKE_INTELLIGENCE</code> (Snowflake CoWork). Always include these with <code>AI_SERVICES</code>. Dollarize AI spend with <strong>AI Credits</strong> (~$2.00 global / $2.20 regional), not Platform Credit rates. See <a href="07-ai-credits-transition.html" style="color: var(--sf-blue);">Module 07: AI Feature Budgets &amp; Spend Controls</a> for tag-based budgets.</p>
+        <p>Four AI services have their own <code>SERVICE_TYPE</code> in <code>METERING_DAILY_HISTORY</code>: <code>CORTEX_AGENTS</code>, <code>CORTEX_CODE_CLI</code>, <code>CORTEX_CODE_SNOWSIGHT</code>, and <code>SNOWFLAKE_INTELLIGENCE</code> (Snowflake CoWork). Always include these with <code>AI_SERVICES</code>. Dollarize AI spend with <strong>AI Credits</strong> (~$2.00 global / $2.20 regional), not Platform Credit rates. See <a href="08-budgets-spend-controls.html" style="color: var(--sf-blue);">Module 08: Budgets &amp; Spend Controls</a> for tag-based budgets.</p>
       </div>
     </section>
 
@@ -538,6 +589,10 @@ st.markdown("""
         background: rgba(239, 68, 68, 0.1); border-left: 4px solid #EF4444;
         padding: 1rem; border-radius: 8px; margin: 1rem 0;
     }
+    .stMetric {
+        background: white; padding: 1rem; border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 &lt;/style&gt;
 """, unsafe_allow_html=True)
 
@@ -560,7 +615,7 @@ func_filter = st.sidebar.selectbox("Cortex Function",
      "AI_CLASSIFY", "AI_TRANSLATE", "AI_EMBED"])
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Note:** Account usage views have\n~45 min latency (AI Functions view often 2–5 min).")
+st.sidebar.markdown("**Note:** Account usage views have\n~45 min latency (AI Functions view often 2-5 min).")
 
 # ─── Dynamic WHERE Clauses ───────────────────────────────────────────────
 user_clause = f"AND u.NAME ILIKE '%{user_filter}%'" if user_filter else ""
@@ -697,10 +752,11 @@ st.divider()
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  ROW 3b: CoCo Input / Output / Cache Usage (TOKENS_GRANULAR)
-#  Concept: Module 01b - KV Cache Optimization
+#  Concept: Module 07 - KV Cache Optimization
+#  Source query: Module 06 - Usage Tracking &amp; AI Telemetry, Query 13
 # ═══════════════════════════════════════════════════════════════════════════
 st.subheader("📦 CoCo Input / Output / Cache Usage")
-st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 01b for cache FinOps KPIs.")
+st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 07 for cache FinOps KPIs.")
 
 try:
     cache_df = session.sql(f"""
@@ -889,12 +945,12 @@ with st.expander("📋 More Details", expanded=False):
 
     st.divider()
 
-    st.subheader("⚡ AI Credits Transition - New SERVICE_TYPE Billing")
+    st.subheader("⚡ AI Credits Transition - SERVICE_TYPE Breakdown")
     st.markdown("""
     &lt;div class="cost-alert"&gt;
-        &lt;strong&gt;Breaking Change:&lt;/strong&gt; Four AI services now bill under
-        their own &lt;code&gt;SERVICE_TYPE&lt;/code&gt; instead of
-        &lt;code&gt;AI_SERVICES&lt;/code&gt;.
+        &lt;strong&gt;Visibility Gap:&lt;/strong&gt; AI spend is split across multiple
+        &lt;code&gt;SERVICE_TYPE&lt;/code&gt; values. If your dashboards only filter on
+        &lt;code&gt;AI_SERVICES&lt;/code&gt;, you will miss spend billed under the new types.
     &lt;/div&gt;
     """, unsafe_allow_html=True)
 
@@ -904,18 +960,28 @@ with st.expander("📋 More Details", expanded=False):
                    MIN(USAGE_DATE)                  AS first_seen,
                    MAX(USAGE_DATE)                  AS last_seen,
                    ROUND(SUM(CREDITS_BILLED), 4)    AS total_credits_billed,
+                   ROUND(SUM(CREDITS_USED), 4)      AS total_credits_used,
                    ROUND(SUM(CREDITS_BILLED)*2, 2)  AS est_dollar_cost
             FROM SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
             WHERE SERVICE_TYPE IN ('AI_SERVICES','CORTEX_AGENTS','CORTEX_CODE_CLI',
                   'CORTEX_CODE_SNOWSIGHT','SNOWFLAKE_INTELLIGENCE')
               AND USAGE_DATE &gt;= DATEADD(day, -{days}, CURRENT_DATE)
+              AND CREDITS_BILLED &gt; 0
             GROUP BY SERVICE_TYPE ORDER BY total_credits_billed DESC
         """).to_pandas()
         if not ai_credits_df.empty:
+            total_ai = float(ai_credits_df['TOTAL_CREDITS_BILLED'].sum())
+            total_ai_dollar = float(ai_credits_df['EST_DOLLAR_COST'].sum())
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("AI SERVICE_TYPEs Active", f"{len(ai_credits_df)} of 5")
+            c2.metric("Total AI Credits", f"{total_ai:,.4f}")
+            c3.metric("Est. Cost (@ $2/AI cr)", f"${total_ai_dollar:,.2f}")
+
             st.dataframe(ai_credits_df, use_container_width=True,
                          hide_index=True)
         else:
-            st.info("No new AI Credit service types detected yet.")
+            st.info("No AI Credit service types detected yet.")
     except Exception as e:
         st.warning(f"Could not query METERING_DAILY_HISTORY: {e}")
 
@@ -926,7 +992,7 @@ st.markdown("""
             padding:1rem;'&gt;
     &lt;strong&gt;FinOps for Snowflake AI&lt;/strong&gt;&lt;br&gt;&lt;br&gt;
     Pricing based on $2/AI Credit estimate · Validate against your contract
-    rate&lt;br&gt;Account usage views have ~45 min latency (AI Functions view often 2–5 min)
+    rate&lt;br&gt;Account usage views have ~45 min latency (AI Functions view often 2-5 min)
 &lt;/div&gt;
 """, unsafe_allow_html=True)</pre>
         </div>
@@ -940,7 +1006,7 @@ st.markdown("""
 
     <!-- ─── Download ───────────────────────────────────────────────────────── -->
     <section class="section text-center">
-      <a href="../sql/07-streamlit-app.py" class="download-btn" download style="display: inline-flex;">
+      <a href="../sql/09-finops-dashboard.py" class="download-btn" download style="display: inline-flex;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -952,15 +1018,22 @@ st.markdown("""
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="07-ai-credits-transition.html" class="nav-btn prev">
+      <a href="08-budgets-spend-controls.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 07: AI Feature Budgets &amp; Spend Controls
+        Module 08: Budgets &amp; Spend Controls
       </a>
-      <a href="09-closing-note.html" class="nav-btn next">
-        Module 09: Closing Note
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="10-wrap-up-next-steps.html" class="nav-btn next">
+        Module 10: Wrap-Up &amp; Next Steps
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -971,7 +1044,7 @@ st.markdown("""
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 08: Streamlit Dashboard</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 09: FinOps Dashboard</p>
   </footer>
 
   <script src="../js/main.js"></script>

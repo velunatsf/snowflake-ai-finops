@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- AI for FinOps Training - Module 04: Environment Setup
+-- AI for FinOps Training - Module 03: Lab Environment Setup
 -- FinOps for Snowflake AI · Snowflake AI FinOps Training
 -- ═══════════════════════════════════════════════════════════════════════════
 --
@@ -150,5 +150,5 @@ LIMIT 5;
 --   - Warehouse: cortex_wh (SMALL, 60s auto-suspend)
 --   - Table: customer_feedback (500 rows)
 --
--- Proceed to Module 05: AI SQL Hands-On Exercises
+-- Proceed to Module 05: AISQL Cost Lab
 -- ═══════════════════════════════════════════════════════════════════════════

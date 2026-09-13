@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 01b: KV Cache Optimization - FinOps for Snowflake AI</title>
+  <title>Module 07: KV Cache Optimization - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -14,40 +14,51 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="01b-kv-cache-optimization.html" class="nav-link active" data-module="01b"><span class="num">01b</span> KV Cache</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link active" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 16%;"></div>
-    <span class="progress-text">01b of 9+</span>
+    <div class="progress-bar-fill" style="width: 70%;"></div>
+    <span class="progress-text">07 of 10</span>
   </div>
 
   <main class="container">
     <header class="module-header">
       <div class="module-number">
-        <span>MODULE 01b</span>
-        <span class="timing-badge concept">15 min</span>
+        <span>MODULE 07</span>
+        <span class="timing-badge concept">10 min</span>
       </div>
       <h1 class="module-title">KV Cache Optimization</h1>
-      <p class="module-subtitle">Prompt cache metrics that drive both cost and performance in multi-turn AI</p>
+      <p class="module-subtitle">The largest single lever on multi-turn AI cost, and on latency too</p>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>This is where the optimization work starts. You met the four token types back in Module 01 and you can now query them from Module 06. Here we go deep on the two cache types, because on conversational workloads they decide whether you pay for the same context once or on every single turn.</p>
+        <p style="margin-top: var(--space-sm);">This module owns all cache SQL. Module 06 deliberately leaves it out so the queries exist in exactly one place.</p>
+      </div>
 
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Explain why prompt / KV cache can cut repeated-context spend toward ~90%</li>
-          <li>Distinguish <code>cache_read_input</code>, <code>cache_write_input</code>, <code>input</code>, and <code>output</code></li>
-          <li>Connect high cache-read share to faster multi-turn latency and lower AI Credits</li>
-          <li>Query CoCo, CoWork, and Agents usage views for weekly cache KPIs</li>
-          <li>Choose the right CoCo view: unified <code>SNOWFLAKE_COCO_USAGE_HISTORY</code> vs interface-specific</li>
+          <li>Explain why prompt cache reuse can cut repeated-context spend dramatically</li>
+          <li>Distinguish <code>cache_read_input</code>, <code>cache_write_input</code>, <code>input</code>, and <code>output</code> in practice</li>
+          <li>Connect a high cache-read share to both lower credits and faster multi-turn responses</li>
+          <li>Compute a weekly cache hit rate for CoCo, CoWork, and Cortex Agents</li>
+          <li>Pick the right CoCo view for a KPI without double counting</li>
+          <li>Name the user behaviours that destroy cache reuse</li>
         </ul>
       </div>
     </header>
@@ -87,7 +98,7 @@ FinOps for Snowflake AI
 
       <div class="callout tip" style="margin-top: var(--space-lg);">
         <h5>Context usage vs spend limits</h5>
-        <p>A UI reading "context usage 20% (~50.1k / 256k Tokens)" measures how full <em>this conversation's</em> model window is. Daily/monthly CoCo limits and AI feature budgets are separate controls (Module 07).</p>
+        <p>A UI reading "context usage 20% (~50.1k / 256k Tokens)" measures how full <em>this conversation's</em> model window is. Daily and monthly CoCo limits and AI feature budgets are separate controls, covered in Module 08.</p>
       </div>
     </section>
 
@@ -174,7 +185,7 @@ FinOps for Snowflake AI
         <h2 class="section-title">Weekly Cache KPI Queries</h2>
       </div>
 
-      <p>Full lab queries also live in <a href="06-token-usage-tracking.html">Module 06 Query 13</a> and <code>training/sql/06-token-tracking.sql</code>.</p>
+      <p>These three queries are the canonical cache KPIs for the workshop. They are not repeated in Module 06. The runnable file is <a href="../sql/07-kv-cache.sql" target="_blank" rel="noopener"><code>training/sql/07-kv-cache.sql</code></a>, and the general usage and attribution queries they complement are in <a href="06-usage-tracking-telemetry.html">Module 06</a>.</p>
 
       <div class="panel" style="margin-top: var(--space-lg);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
@@ -278,112 +289,51 @@ ORDER BY total_credits DESC;</pre>
       </div>
     </section>
 
-    <!-- Section D: AI telemetry architecture -->
+    <!-- Section D: Habits -->
     <section class="section">
       <div class="section-header">
         <div class="section-letter">D</div>
-        <h2 class="section-title">AI Cost Telemetry Architecture</h2>
+        <h2 class="section-title">Turning Cache Into a Standing Practice</h2>
       </div>
 
-      <p>Attendees should understand that Snowflake splits AI telemetry by <strong>product surface</strong> and <strong>execution layer</strong>. That is why CoCo, CoWork, and Cortex Agents each have their own history view.</p>
-
-      <div style="overflow-x: auto; margin-top: var(--space-md);">
-        <table class="comparison-table" style="min-width: 780px;">
-          <thead>
-            <tr>
-              <th style="width: 28%;">View</th>
-              <th style="width: 24%;">What it tracks</th>
-              <th style="width: 48%;">Purpose in FinOps</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><a href="https://docs.snowflake.com/en/sql-reference/account-usage/snowflake_coco_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COCO_USAGE_HISTORY</code></a></td>
-              <td>Strictly Snowflake CoCo interactions across CLI, Desktop, and Snowsight</td>
-              <td>Unified developer-assistant KPI layer. Use it to answer: which teams, users, and interfaces are driving CoCo token spend?</td>
-            </tr>
-            <tr>
-              <td><a href="https://docs.snowflake.com/en/sql-reference/organization-usage/snowflake_cowork_usage_history" target="_blank" rel="noopener"><code>SNOWFLAKE_COWORK_USAGE_HISTORY</code></a></td>
-              <td>Strictly Snowflake CoWork interactions for business-assistant usage</td>
-              <td>User-facing knowledge-work telemetry. Use it to measure adoption and cost of research, chat, and business workflow orchestration. <code>SERVICE_TYPE</code> may still surface as <code>SNOWFLAKE_INTELLIGENCE</code>.</td>
-            </tr>
-            <tr>
-              <td><a href="https://docs.snowflake.com/en/sql-reference/account-usage/cortex_agent_usage_history" target="_blank" rel="noopener"><code>CORTEX_AGENT_USAGE_HISTORY</code></a></td>
-              <td>Low-level programmatic execution of Cortex Agents</td>
-              <td>Application / API telemetry. Use it to measure custom agent apps, backend orchestration, and additive sub-tool costs that should not be blurred into CoCo or CoWork user history.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p>A cache hit rate is only useful if somebody looks at it on a schedule and knows what to do when it drops. Here is the operating routine.</p>
 
       <div class="cols two" style="margin-top: var(--space-lg);">
         <div class="panel" style="border-top: 4px solid var(--sf-blue);">
-          <h4>Why Snowflake separates these views</h4>
-          <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li><strong>User actions vs background pipelines:</strong> CoCo and CoWork track direct human interactions with Snowflake products.</li>
-            <li><strong>Programmatic execution:</strong> Cortex Agents track custom agent applications, API flows, and backend orchestration.</li>
-            <li><strong>Cleaner attribution:</strong> separating these surfaces prevents standard chat adoption metrics from being mixed with application execution logs.</li>
-          </ul>
+          <h4>Weekly review</h4>
+          <ol style="padding-left: 1.25rem; color: #6b7280; line-height: 1.7;">
+            <li>Run the three queries in Section C and record <code>cache_read_pct_of_prompt</code> per surface.</li>
+            <li>Compare against last week. A falling ratio with rising credits is the signal to investigate.</li>
+            <li>Check whether the drop is concentrated in one team, one interface, or one agent.</li>
+          </ol>
         </div>
         <div class="panel" style="border-top: 4px solid var(--sf-good);">
-          <h4>Why agent billing needs its own lens</h4>
+          <h4>What to do about a low ratio</h4>
           <ul style="list-style: disc; padding-left: 1.5rem; color: #6b7280;">
-            <li><strong>Additive cost model:</strong> one agent request can trigger multiple underlying calls.</li>
-            <li><strong>Multi-step execution:</strong> Cortex Search, Analyst SQL generation, and LLM inference may all contribute cost.</li>
-            <li><strong>FinOps impact:</strong> use <code>CORTEX_AGENT_USAGE_HISTORY</code> when debugging high-cost application workflows, not just user-facing assistant usage.</li>
+            <li>Coach users to continue a thread rather than starting fresh for the same context.</li>
+            <li>Stabilize system prompts and attached documents so they stay byte-identical across turns.</li>
+            <li>For agents, stop rebuilding the full prompt programmatically on every step.</li>
+            <li>Where the window genuinely fills, use <code>/compact</code> instead of restarting.</li>
           </ul>
         </div>
       </div>
 
-      <div class="panel" style="margin-top: var(--space-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-          <h4 style="margin: 0;">Absolute total Snowflake AI architecture spend</h4>
-          <span class="badge high">Executive KPI</span>
-        </div>
-        <p>Use a unified audit query when you want one view of total AI architecture spend across developer assistants, business assistants, and programmatic agents.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">SQL</span>
-            <button class="copy-btn"><span>Copy</span></button>
-          </div>
-          <div class="code-content">
-            <pre>-- Comprehensive AI Credit Expenditure Audit
--- Note the timestamp columns:
---   CoCo org view   -> USAGE_TIME
---   CoWork org view -> START_TIME
---   Agent view      -> START_TIME
-SELECT
-    'Cortex Code / CoCo Developer Assistant'            AS ai_layer,
-    usage_time                                          AS event_time,
-    account_name,
-    user_name,
-    token_credits
-FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COCO_USAGE_HISTORY
-
-UNION ALL
-
-SELECT
-    'Snowflake CoWork Business Assistant'               AS ai_layer,
-    start_time                                          AS event_time,
-    account_name,
-    user_name,
-    token_credits
-FROM SNOWFLAKE.ORGANIZATION_USAGE.SNOWFLAKE_COWORK_USAGE_HISTORY
-
-UNION ALL
-
-SELECT
-    'Programmatic Cortex Agents API / App Layer'        AS ai_layer,
-    start_time                                          AS event_time,
-    NULL                                                AS account_name,
-    user_name,
-    token_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AGENT_USAGE_HISTORY
-ORDER BY event_time DESC;</pre>
-          </div>
-        </div>
-        <p style="margin-top: var(--space-md); margin-bottom: 0; color: #6b7280;">If you need a true organization-wide rollup for Agents too, run an org-account variant for Agent usage when available in your environment, or union account-level extracts from each Snowflake account into a central reporting table.</p>
+      <div class="callout tip" style="margin-top: var(--space-lg);">
+        <h5>Where cache fits with the other controls</h5>
+        <p>Cache optimization reduces what a given workload costs. It does not stop a workload from running away, so it is not a substitute for a spending limit. Pair it with the tag-based AI feature budgets and per-user CoCo limits you build next in <a href="08-budgets-spend-controls.html">Module 08</a>, and put the ratio on the dashboard you build in <a href="09-finops-dashboard.html">Module 09</a>.</p>
       </div>
+    </section>
+
+    <!-- Download SQL -->
+    <section class="section text-center">
+      <a href="../sql/07-kv-cache.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download the Cache KPI Queries
+      </a>
     </section>
 
     <!-- Checkpoint -->
@@ -429,24 +379,31 @@ ORDER BY event_time DESC;</pre>
       </div>
 
       <div class="checkpoint-question">
-        <p><strong>Q5:</strong> Why does Snowflake keep CoCo, CoWork, and Agents in separate telemetry views?</p>
+        <p><strong>Q5:</strong> Your cache hit rate is healthy at 85 percent, but total AI credits doubled this month. Has cache optimization failed?</p>
         <button class="reveal-btn">Reveal Answer</button>
         <div class="checkpoint-answer">
-          Because they represent different architectural layers. CoCo and CoWork measure direct user interaction with Snowflake products, while <code>CORTEX_AGENT_USAGE_HISTORY</code> measures programmatic agent execution and additive backend tool usage. Keeping them separate preserves clean attribution and better FinOps analysis.
+          <strong>No.</strong> A high hit rate means each conversation is efficient; it says nothing about how many conversations are happening. Rising volume with a healthy ratio usually means adoption grew, which is a budgeting question rather than an optimization one. Confirm the volume story with the trend queries in <a href="06-usage-tracking-telemetry.html">Module 06</a>, then set limits in <a href="08-budgets-spend-controls.html">Module 08</a>.
         </div>
       </div>
     </section>
 
     <nav class="nav-footer">
-      <a href="01-ai-token-economy.html" class="nav-btn prev">
+      <a href="06-usage-tracking-telemetry.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 01: AI Token Economy
+        Module 06: Usage Tracking &amp; AI Telemetry
       </a>
-      <a href="02-cortex-ai-capabilities.html" class="nav-btn next">
-        Module 02: Cortex AI Capabilities
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="08-budgets-spend-controls.html" class="nav-btn next">
+        Module 08: Budgets &amp; Spend Controls
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -456,7 +413,7 @@ ORDER BY event_time DESC;</pre>
   </main>
 
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 01b: KV Cache Optimization</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 07: KV Cache Optimization</p>
   </footer>
 
   <script src="../js/main.js"></script>

@@ -18,6 +18,18 @@ CREATE TAG IF NOT EXISTS cost_center;
 -- ALTER USER fin_john SET TAG cost_center = 'FinanceTeam';
 -- ALTER USER USER_COCO SET TAG cost_center = 'DataScience';
 
+-- STEP 1b: Tag the AGENT object for per-use-case attribution
+-- Tagging users answers "which team spent this". Tagging the agent answers
+-- "which use case spent this", regardless of who invoked it. This tag is what
+-- appears in AGENT_TAGS (see QUERY 22 in 06-usage-tracking.sql).
+-- Requires APPLY TAG on the account, or APPLY on the tag + OWNERSHIP of agent.
+-- ALTER AGENT IF EXISTS my_support_agent SET TAG cost_center = 'CustomerSupport';
+-- ALTER AGENT my_support_agent UNSET TAG cost_center;
+--
+-- To cap a single use case rather than a team, scope the budget to the agent
+-- tag with SET_RESOURCE_TAGS instead of the SET_USER_TAGS call in STEP 3.
+-- NOTE: tag changes can take up to 8 hours to be reflected in budgets.
+
 -- STEP 2: Create budget instance and notifications
 CREATE OR REPLACE SNOWFLAKE.CORE.BUDGET my_ai_budget();
 

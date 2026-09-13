@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   AI for FinOps Training — Snowflake Design System
+   AI for FinOps Training - Snowflake Design System
    FinOps for Snowflake AI · Snowflake AI FinOps Training
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -193,6 +193,24 @@ code {
   opacity: 0.7;
 }
 
+/* Home link in the module nav */
+.nav-link.nav-home {
+  background: rgba(41, 181, 232, 0.16);
+  color: var(--sf-white);
+  font-weight: 600;
+  margin-right: var(--space-xs);
+}
+
+.nav-link.nav-home:hover {
+  background: var(--sf-blue);
+  color: var(--sf-navy);
+}
+
+.nav-link.nav-home svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* ─── Progress Bar ─────────────────────────────────────────────────────────── */
 .progress-bar {
   background: var(--sf-silver);
@@ -343,6 +361,36 @@ code {
   background: rgba(107, 114, 128, 0.2);
   color: #9ca3af;
   border: 1px solid #6b7280;
+}
+
+.timing-badge.break {
+  background: rgba(217, 70, 239, 0.15);
+  color: #a21caf;
+  border: 1px solid #d946ef;
+}
+
+/* ─── Break Row (agenda) ───────────────────────────────────────────────────── */
+.agenda-table tr.break-row td {
+  background: rgba(217, 70, 239, 0.06);
+  border-top: 1px dashed #d946ef;
+  border-bottom: 1px dashed #d946ef;
+}
+
+.agenda-table tr.break-row:hover td {
+  background: rgba(217, 70, 239, 0.1);
+}
+
+.agenda-table tr.break-row .break-label {
+  font-weight: 700;
+  color: var(--sf-navy);
+}
+
+.agenda-table tr.break-row .break-why {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin-top: 2px;
 }
 
 /* ─── Step Component ───────────────────────────────────────────────────────── */
@@ -912,6 +960,19 @@ code {
   pointer-events: none;
 }
 
+.nav-btn.home {
+  background: transparent;
+  color: var(--sf-navy);
+  border: 2px solid var(--sf-silver);
+  padding: calc(var(--space-md) - 2px) var(--space-lg);
+}
+
+.nav-btn.home:hover {
+  border-color: var(--sf-blue);
+  color: var(--sf-blue);
+  text-decoration: none;
+}
+
 /* ─── Hero Section (Index Page) ────────────────────────────────────────────── */
 .hero {
   background: linear-gradient(135deg, var(--sf-navy) 0%, #0d3a66 50%, #1a4a7a 100%);
@@ -1374,6 +1435,14 @@ code {
 .site-footer p {
   margin-bottom: var(--space-xs);
   font-size: 0.85rem;
+}
+
+.site-footer .footer-disclaimer {
+  max-width: 36rem;
+  margin: var(--space-md) auto 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  opacity: 0.7;
 }
 
 .site-footer a {

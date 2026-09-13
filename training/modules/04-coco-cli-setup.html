@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 04: CoCo Setup - FinOps for Snowflake AI</title>
+  <title>Module 04: CoCo CLI Setup - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,24 +15,26 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link active" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link active" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 44.4%;"></div>
-    <span class="progress-text">4 of 9</span>
+    <div class="progress-bar-fill" style="width: 40%;"></div>
+    <span class="progress-text">04 of 10</span>
   </div>
 
   <main class="container">
@@ -42,15 +44,21 @@ FinOps for Snowflake AI
         <span>MODULE 04</span>
         <span class="timing-badge setup">5 min</span>
       </div>
-      <h1 class="module-title">CoCo Setup</h1>
+      <h1 class="module-title">CoCo CLI Setup</h1>
       <p class="module-subtitle">Install the Snowflake CoCo CLI (official name for the product formerly called Cortex Code) and connect to your Snowflake account</p>
-      
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>This is the last setup step before the labs begin. CoCo is both a tool and a workload: it is what you will use to build the FinOps dashboard in <a href="09-finops-dashboard.html">Module 09</a>, and every prompt you send through it draws AI Credits that show up in the telemetry you query in <a href="06-usage-tracking-telemetry.html">Module 06</a>. Treat the prompts below as the first entries in your own spend history.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Install the Snowflake CoCo CLI on your workstation</li>
-          <li>Connect to your Snowflake account via Browser-Based SSO</li>
-          <li>Run your first prompt and verify the connection</li>
+          <li>Install the Snowflake CoCo CLI on macOS, Linux, or Windows</li>
+          <li>Connect to the account you built in Module 03 using Browser-Based SSO</li>
+          <li>Confirm the CLI is using the expected role, warehouse, and database</li>
+          <li>Run your first prompt and recognize that it consumed billable tokens</li>
         </ul>
       </div>
     </header>
@@ -58,9 +66,10 @@ FinOps for Snowflake AI
     <div class="panel" style="margin-top: var(--space-lg);">
       <h4>Requirements</h4>
       <ul style="list-style: disc; padding-left: 1.5rem;">
-        <li>Snowflake account with <code>cortex_analyst</code> role configured (Module 03)</li>
+        <li>Snowflake account with the <code>cortex_analyst</code> role configured (<a href="03-lab-environment-setup.html">Module 03: Lab Environment Setup</a>)</li>
         <li>Terminal with bash, zsh, or fish (macOS/Linux) or PowerShell (Windows)</li>
-        <li>The <code>USE AI FUNCTIONS</code> privilege and <code>SNOWFLAKE.CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) database role (granted in Module 03)</li>
+        <li>The <code>USE AI FUNCTIONS</code> privilege and the <code>SNOWFLAKE.CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) database role, both granted in Module 03</li>
+        <li>MFA enrolled for <code>USER_COCO</code>, since the browser login will require it</li>
       </ul>
     </div>
 
@@ -218,7 +227,8 @@ user = "YOUR_USER"
 authenticator = "externalbrowser"
 role = "cortex_analyst"
 warehouse = "cortex_wh"
-database = "cortex_lab"</pre>
+database = "cortex_lab"
+schema = "ai_workshop"</pre>
               </div>
             </div>
           </div>
@@ -239,7 +249,7 @@ database = "cortex_lab"</pre>
         <div class="step-number">5</div>
         <div class="step-content">
           <h4>Verify Connection</h4>
-          <p>Once connected, verify your session status:</p>
+          <p>Once connected, check the session before you spend anything on it:</p>
           <div class="code-block">
             <div class="code-header">
               <span class="code-lang">CoCo</span>
@@ -250,6 +260,7 @@ database = "cortex_lab"</pre>
             </div>
           </div>
           <p style="color: #6b7280; font-size: 0.9rem;">This prints your active connection, role, warehouse, database, and schema.</p>
+          <p style="margin-top: var(--space-sm);">Confirm four values before continuing: role <code>cortex_analyst</code>, warehouse <code>cortex_wh</code>, database <code>cortex_lab</code>, and schema <code>ai_workshop</code>. If the role or warehouse is wrong, the labs will either fail on privileges or run compute outside the Resource Monitor you created in Module 03. Correct it in <code>~/.snowflake/connections.toml</code> and relaunch rather than switching context by hand each session.</p>
         </div>
       </div>
     </section>
@@ -283,13 +294,14 @@ database = "cortex_lab"</pre>
         <div class="step-number">2</div>
         <div class="step-content">
           <h4>Try More Examples</h4>
+          <p>Keep these scoped to the lab schema you built in Module 03. Both prompts should return quickly, and both give CoCo a reason to read your metadata:</p>
           <div class="code-block">
             <div class="code-header">
               <span class="code-lang">CoCo</span>
               <button class="copy-btn"><span>Copy</span></button>
             </div>
             <div class="code-content">
-              <pre>Show me the top 10 largest tables in my account by row count</pre>
+              <pre>List the tables in CORTEX_LAB.AI_WORKSHOP with their row counts</pre>
             </div>
           </div>
           <div class="code-block">
@@ -298,7 +310,7 @@ database = "cortex_lab"</pre>
               <button class="copy-btn"><span>Copy</span></button>
             </div>
             <div class="code-content">
-              <pre>Explain what the SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY view contains</pre>
+              <pre>Describe the columns in CORTEX_LAB.AI_WORKSHOP.CUSTOMER_FEEDBACK and show me five rows</pre>
             </div>
           </div>
         </div>
@@ -306,7 +318,7 @@ database = "cortex_lab"</pre>
 
       <div class="callout tip">
         <h5>Build the Cost-Check Habit</h5>
-        <p>Your first prompt cost tokens. At this point, you should already be thinking: "How much did that cost?" This cost awareness habit is what we're building throughout this training. In Module 06, you'll learn to query your actual token consumption.</p>
+        <p>Every prompt above cost tokens, including the ones that returned nothing interesting. The habit worth forming now is asking "how much did that cost?" immediately after each answer, not at the end of the month. You will put a number on it in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a>, where the <code>ACCOUNT_USAGE</code> and usage-history queries for AI spend live.</p>
       </div>
     </section>
 
@@ -377,23 +389,31 @@ database = "cortex_lab"</pre>
             <button class="copy-btn"><span>Copy</span></button>
           </div>
           <div class="code-content">
-            <pre>Tell me about #SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY</pre>
+            <pre>Tell me about #CORTEX_LAB.AI_WORKSHOP.CUSTOMER_FEEDBACK</pre>
           </div>
         </div>
+        <p style="margin-top: var(--space-sm);">This shortcut is not free: the schema and the sample rows are sent to the model as input tokens, so a wide table costs more to reference than a narrow one. That trade-off is the subject of <a href="07-kv-cache-optimization.html">Module 07: KV Cache Optimization</a>.</p>
       </div>
     </section>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="03-environment-setup.html" class="nav-btn prev">
+      <a href="03-lab-environment-setup.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 03: Environment Setup
+        Module 03: Lab Environment Setup
       </a>
-      <a href="05-ai-sql-hands-on.html" class="nav-btn next">
-        Module 05: AI SQL Hands-On
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="05-aisql-cost-lab.html" class="nav-btn next">
+        Module 05: AISQL Cost Lab
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -404,7 +424,7 @@ database = "cortex_lab"</pre>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 04: CoCo Setup</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 04: CoCo CLI Setup</p>
   </footer>
 
   <script src="../js/main.js"></script>

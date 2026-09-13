@@ -25,10 +25,10 @@ This project gives practitioners the SQL, dashboards, skill files, and training 
 ```
 snowflake-ai-finops/
 ├── SKILL.md                    # CoCo skill file (governance + optimization)
-├── training/                   # 9-module hands-on training (static HTML)
+├── training/                   # 10-module hands-on training (static HTML)
 │   ├── index.html              # Training hub
-│   ├── modules/                # AI Token Economy → Closing Note
-│   └── sql/                    # Runnable SQL & Streamlit app
+│   ├── modules/                # AI Cost Foundations through Wrap-Up & Next Steps
+│   └── sql/                    # Runnable SQL & Streamlit app, one file per module
 ├── dashboard/                  # Standalone Streamlit AI cost dashboard
 │   ├── streamlit_app.py        # Local or Snowflake-deployed
 │   └── requirements.txt
@@ -76,7 +76,7 @@ Run `sql/setup/environment-setup.sql` in Snowsight to create:
 **Option A: Streamlit in Snowflake**
 ```sql
 -- In Snowsight: Projects → Streamlit → + Streamlit App
--- Paste training/sql/07-streamlit-app.py
+-- Paste training/sql/09-finops-dashboard.py
 ```
 
 **Option B: Local Streamlit**

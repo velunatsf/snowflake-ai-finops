@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- AI for FinOps Training - Module 05: AI SQL Hands-On Exercises
+-- AI for FinOps Training - Module 05: AISQL Cost Lab
 -- FinOps for Snowflake AI · Snowflake AI FinOps Training
 -- ═══════════════════════════════════════════════════════════════════════════
 --
@@ -114,7 +114,7 @@ LIMIT 10;
 
 -- ★ Cost Check: Compare AI_COMPLETE() cost vs AI_CLASSIFY().
 -- WARNING: We use mistral-7b - the budget tier model. For a simple 3-word
--- extraction task, a premium model would cost 10–20× more with no quality gain.
+-- extraction task, a premium model would cost 10 to 20x more with no quality gain.
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -175,14 +175,14 @@ LIMIT 3;
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Model              | Quality (subjective) | Credits Used | Cost Index
 -- ──────────────────────────────────────────────────────────────────────────
--- mistral-7b         | [observe]            | [from tracking] | 1×
+-- mistral-7b         | [observe]            | [from tracking] | 1x
 -- llama3.1-70b         | [observe]            | [from tracking] | ?×
 -- claude-4-sonnet   | [observe]            | [from tracking] | ?×
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- KEY INSIGHT: This comparison is the single most important FinOps exercise
 -- in this training. The right model choice for your use case can reduce AI
--- spend by 80–90% with equivalent output quality.
+-- spend by 80 to 90% with equivalent output quality.
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

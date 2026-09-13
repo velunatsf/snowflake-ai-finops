@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════
 # Snowflake Cortex AI Cost Dashboard
-# FinOps for Snowflake AI - Module 08
+# FinOps for Snowflake AI - Module 09: FinOps Dashboard
 # ═══════════════════════════════════════════════════════════════════════════
 #
 # DEPLOYMENT:
@@ -9,7 +9,7 @@
 #   3. Database: cortex_lab | Schema: ai_workshop
 #   4. Paste this code → Run
 #
-# NOTE: account_usage views have ~45 min latency (AI Functions view often 2–5 min) for recent data
+# NOTE: account_usage views have ~45 min latency (AI Functions view often 2-5 min) for recent data
 # ═══════════════════════════════════════════════════════════════════════════
 
 import streamlit as st
@@ -94,7 +94,7 @@ func_filter = st.sidebar.selectbox(
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
 **Note:** Account usage views have  
-~45 min latency (AI Functions view often 2–5 min) for recent data.
+~45 min latency (AI Functions view often 2-5 min) for recent data.
 """)
 
 # ─── Build Dynamic WHERE Clauses ──────────────────────────────────────────────
@@ -283,11 +283,12 @@ st.divider()
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  ROW 3b: CoCo Input / Output / Cache Usage (TOKENS_GRANULAR)
-#  Concept: Module 01b - KV Cache Optimization
+#  Concept: Module 07 - KV Cache Optimization
+#  Source query: Module 06 - Usage Tracking & AI Telemetry, Query 13
 # ═══════════════════════════════════════════════════════════════════════════════
 
 st.subheader("📦 CoCo Input / Output / Cache Usage")
-st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 01b for cache FinOps KPIs.")
+st.caption("Flatten TOKENS_GRANULAR from SNOWFLAKE_COCO_USAGE_HISTORY. See Module 07 for cache FinOps KPIs.")
 
 try:
     cache_query = f"""
@@ -604,6 +605,6 @@ st.markdown("""
     <strong>FinOps for Snowflake AI</strong><br>
     <br>
     Pricing based on $2/AI Credit estimate · Validate against your contract rate<br>
-    Account usage views have ~45 min latency (AI Functions view often 2–5 min)
+    Account usage views have ~45 min latency (AI Functions view often 2-5 min)
 </div>
 """, unsafe_allow_html=True)

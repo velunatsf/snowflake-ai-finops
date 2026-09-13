@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 03: Environment Setup - FinOps for Snowflake AI</title>
+  <title>Module 03: Lab Environment Setup - FinOps for Snowflake AI</title>
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="icon" type="image/png" href="../icons/CoCo-Training.png">
 </head>
@@ -15,24 +15,26 @@
         <img src="../icons/CoCo-Training.png" alt="CoCo Training" width="28" height="28">
 FinOps for Snowflake AI
       </a>
-      <div class="nav-modules">
-        <a href="01-ai-token-economy.html" class="nav-link" data-module="01"><span class="num">01</span> Tokens</a>
-        <a href="02-cortex-ai-capabilities.html" class="nav-link" data-module="02"><span class="num">02</span> Capabilities</a>
-        <a href="03-environment-setup.html" class="nav-link active" data-module="03"><span class="num">03</span> Environment</a>
-        <a href="04-cortex-code-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo Setup</a>
-        <a href="05-ai-sql-hands-on.html" class="nav-link" data-module="05"><span class="num">05</span> SQL Labs</a>
-        <a href="06-token-usage-tracking.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
-        <a href="07-ai-credits-transition.html" class="nav-link" data-module="07"><span class="num">07</span> AI Budgets</a>
-        <a href="08-streamlit-dashboard.html" class="nav-link" data-module="08"><span class="num">08</span> Dashboard</a>
-        <a href="09-closing-note.html" class="nav-link" data-module="09"><span class="num">09</span> Closing</a>
+            <div class="nav-modules">
+        <a href="../index.html" class="nav-link nav-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="01-ai-cost-foundations.html" class="nav-link" data-module="01"><span class="num">01</span> Foundations</a>
+        <a href="02-snowflake-ai-toolbox.html" class="nav-link" data-module="02"><span class="num">02</span> AI Toolbox</a>
+        <a href="03-lab-environment-setup.html" class="nav-link active" data-module="03"><span class="num">03</span> Lab Setup</a>
+        <a href="04-coco-cli-setup.html" class="nav-link" data-module="04"><span class="num">04</span> CoCo CLI</a>
+        <a href="05-aisql-cost-lab.html" class="nav-link" data-module="05"><span class="num">05</span> AISQL Lab</a>
+        <a href="06-usage-tracking-telemetry.html" class="nav-link" data-module="06"><span class="num">06</span> Tracking</a>
+        <a href="07-kv-cache-optimization.html" class="nav-link" data-module="07"><span class="num">07</span> KV Cache</a>
+        <a href="08-budgets-spend-controls.html" class="nav-link" data-module="08"><span class="num">08</span> Budgets</a>
+        <a href="09-finops-dashboard.html" class="nav-link" data-module="09"><span class="num">09</span> Dashboard</a>
+        <a href="10-wrap-up-next-steps.html" class="nav-link" data-module="10"><span class="num">10</span> Wrap-Up</a>
       </div>
     </div>
   </nav>
 
   <!-- ─── Progress Bar ─────────────────────────────────────────────────────── -->
   <div class="progress-bar">
-    <div class="progress-bar-fill" style="width: 33.3%;"></div>
-    <span class="progress-text">3 of 9</span>
+    <div class="progress-bar-fill" style="width: 30%;"></div>
+    <span class="progress-text">03 of 10</span>
   </div>
 
   <main class="container">
@@ -40,25 +42,31 @@ FinOps for Snowflake AI
     <header class="module-header">
       <div class="module-number">
         <span>MODULE 03</span>
-        <span class="timing-badge lab">10 min</span>
+        <span class="timing-badge setup">10 min</span>
       </div>
-      <h1 class="module-title">Environment Setup</h1>
-      <p class="module-subtitle">Build a governed AI lab environment with cost controls</p>
-      
+      <h1 class="module-title">Lab Environment Setup</h1>
+      <p class="module-subtitle">Build a governed, cost-capped AI lab environment in Snowflake</p>
+
+      <div class="callout tip" style="margin-bottom: var(--space-lg);">
+        <h5>Where you are</h5>
+        <p>This is where the hands-on work begins. Modules 01 and 02 gave you the vocabulary and the function catalog; this module turns those concepts into a real Snowflake account with a dedicated role, a right-sized warehouse, a credit quota, and sample data. Everything from here on is hands-on, so run each statement as you read it rather than saving the work for later.</p>
+      </div>
+
       <div class="learning-objectives">
         <h4>Learning Objectives</h4>
         <ul>
-          <li>Sign Up for Snowflake CoCo and create your training user</li>
-          <li>Build a governed AI lab environment in Snowflake</li>
-          <li>Configure role, warehouse, and MFA for secure access</li>
-          <li>Understand why each step exists from a cost governance lens</li>
+          <li>Sign up for Snowflake CoCo and create your training user</li>
+          <li>Create the role, database, schema, and warehouse the labs depend on</li>
+          <li>Grant the exact Cortex privileges the AI functions require, and no more</li>
+          <li>Cap warehouse compute with a Resource Monitor and know what it does not cap</li>
+          <li>Load the sample tables used by Modules 05 through 09, then verify the whole environment</li>
         </ul>
       </div>
     </header>
 
     <div class="callout cost">
       <h5>Key Principle - Two Cost Layers</h5>
-      <p>Resource Monitors cap <strong>warehouse compute</strong> credits. Cortex AI functions consume <strong>AI token credits</strong> billed separately. You need both: a Resource Monitor for compute and <code>METERING_DAILY_HISTORY</code> / Budgets for AI spend.</p>
+      <p>Resource Monitors cap <strong>warehouse compute</strong> credits. Cortex AI functions consume <strong>AI Credits</strong>, which are metered and billed separately. You need a control for each layer: the Resource Monitor you build in Section F covers compute, while AI spend is measured in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a> and governed with Budgets in <a href="08-budgets-spend-controls.html">Module 08: Budgets &amp; Spend Controls</a>.</p>
     </div>
 
     <!-- ─── Section A: Sign Up for Snowflake CoCo ──────────────────────────────── -->
@@ -96,6 +104,7 @@ FinOps for Snowflake AI
             <li><strong>Browser-based SSO</strong> - Interactive use on a machine with a web browser</li>
             <li><strong>Programmatic Access Token (PAT)</strong> - Headless environments or automation</li>
           </ul>
+          <p style="margin-top: var(--space-sm);">You only need the account here. Installing the CLI and choosing an authenticator happens in <a href="04-coco-cli-setup.html">Module 04: CoCo CLI Setup</a>.</p>
         </div>
       </div>
     </section>
@@ -222,7 +231,7 @@ GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_analyst;</pre>
           </div>
           <div class="callout tip">
             <h5>Permission Note</h5>
-            <p><code>USE AI FUNCTIONS</code> + <code>CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) is the current access model. Explicit grants improve governance visibility. Use <code>IMPORTED PRIVILEGES</code> so later modules can query <code>ACCOUNT_USAGE</code>.</p>
+            <p><code>USE AI FUNCTIONS</code> plus <code>CORTEX_USER</code> (or <code>AI_FUNCTIONS_USER</code>) is the current access model. Granting them explicitly rather than relying on the PUBLIC default makes the entitlement visible to anyone auditing the account. The <code>IMPORTED PRIVILEGES</code> grant is what makes the telemetry views readable later; the queries that use them live in <a href="06-usage-tracking-telemetry.html">Module 06: Usage Tracking &amp; AI Telemetry</a>.</p>
           </div>
         </div>
       </div>
@@ -266,11 +275,16 @@ GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_analyst;</pre>
         <h2 class="section-title">Resource Monitor (Warehouse Compute Guard)</h2>
       </div>
 
+      <div class="callout warn" style="margin-bottom: var(--space-lg);">
+        <h5>A Resource Monitor Caps Compute Only</h5>
+        <p>A Resource Monitor watches the credits a warehouse burns while it is running, and it can suspend that warehouse when the quota is reached. It has no visibility into AI Credits, so a Cortex query can keep spending on tokens even after the monitor fires. Nothing in this module caps AI spend. The AI feature budget DDL lives in <a href="08-budgets-spend-controls.html">Module 08: Budgets &amp; Spend Controls</a>, and you will not need it until then.</p>
+      </div>
+
       <div class="step">
         <div class="step-number">1</div>
         <div class="step-content">
           <h4>Create Resource Monitor</h4>
-          <p><strong>Why:</strong> Resource Monitors control <strong>warehouse compute</strong> credits. They do not cap Cortex AI token credits, which are billed separately. This monitor protects against runaway warehouse costs during training.</p>
+          <p><strong>Why:</strong> A 50-credit quota is well above what this workshop consumes, so the monitor should never fire during normal use. It exists to catch the accident: a warehouse left running overnight, or a query fanned out across the full TPCH tables.</p>
           <div class="code-block">
             <div class="code-header">
               <span class="code-lang">SQL</span>
@@ -290,7 +304,7 @@ ALTER WAREHOUSE cortex_wh
           </div>
           <div class="callout tip">
             <h5>Why SUSPEND_IMMEDIATE at 90%?</h5>
-            <p>This prevents the warehouse from running up compute credits. Note: Cortex AI token costs are separate and not capped by Resource Monitors. To track AI spend, query <code>METERING_DAILY_HISTORY</code> or use Snowflake Budgets.</p>
+            <p>The two notify triggers give you warning at 50 and 75 percent so you can investigate while the lab is still usable. <code>SUSPEND_IMMEDIATE</code> at 90 percent kills running statements instead of letting them finish, which is the right trade in a training account where an unattended query is far more likely than urgent work. In production you would usually pair <code>SUSPEND</code> at 90 percent with <code>SUSPEND_IMMEDIATE</code> at 100 percent.</p>
           </div>
         </div>
       </div>
@@ -305,7 +319,7 @@ ALTER WAREHOUSE cortex_wh
 
       <div class="callout tip" style="margin-bottom: var(--space-lg);">
         <h5>Login as USER_COCO</h5>
-        <p>From this point onward, <strong>log in as USER_COCO</strong> (the training user created in Step A) to create and own the sample data sets. This ensures the cortex_analyst role has full ownership of all lab objects.</p>
+        <p>Sections A through F run as <code>ACCOUNTADMIN</code>. From this point onward, <strong>log in as USER_COCO</strong> (the training user you created in Section B) so that the sample tables are owned by <code>cortex_analyst</code>. If you load the data as <code>ACCOUNTADMIN</code>, the later labs will fail on privilege errors rather than on anything you did wrong.</p>
       </div>
 
       <div class="step">
@@ -345,7 +359,7 @@ LIMIT 500;</pre>
         <div class="step-number">2</div>
         <div class="step-content">
           <h4>Create ORDERS, CUSTOMER, and SUPPLIER Tables</h4>
-          <p><strong>Why:</strong> Larger datasets for AI_FILTER, cost tracking exercises, and multi-table analysis scenarios.</p>
+          <p><strong>Why:</strong> The AISQL labs in Module 05 need a table large enough that row count visibly drives token cost. These come from <code>TPCH_SF10</code>, so the copy takes a few minutes of warehouse time and is the largest compute cost in the entire workshop. Run it once, and let the warehouse auto-suspend when it finishes.</p>
           <div class="code-block">
             <div class="code-header">
               <span class="code-lang">SQL</span>
@@ -445,6 +459,42 @@ LIMIT 5;</pre>
       </div>
     </section>
 
+    <!-- ─── Knowledge Check ────────────────────────────────────────────────── -->
+    <section class="checkpoint">
+      <h3>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Knowledge Check
+      </h3>
+
+      <div class="checkpoint-question">
+        <p><strong>Q1:</strong> Your <code>cortex_lab_monitor</code> suspends <code>cortex_wh</code> at 90 percent of its quota. Does that stop a runaway <code>AI_COMPLETE()</code> bill?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          No. The monitor only governs warehouse compute credits. AI Credits are metered against the Cortex functions themselves, so they are unaffected by warehouse suspension policy. You need a Budget on the AI feature, which you build in <a href="08-budgets-spend-controls.html">Module 08</a>.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q2:</strong> Why does <code>cortex_analyst</code> need <code>IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE</code> when none of the setup statements read from that database?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          Because the telemetry views live there. Without this grant, the <code>ACCOUNT_USAGE</code> queries in <a href="06-usage-tracking-telemetry.html">Module 06</a> return an object-does-not-exist error rather than a permission error, which makes the cause hard to spot. Granting it during setup avoids that detour.
+        </div>
+      </div>
+
+      <div class="checkpoint-question">
+        <p><strong>Q3:</strong> Why is <code>AUTO_SUSPEND = 300</code> with <code>MAX_CLUSTER_COUNT = 1</code> the right shape for a lab warehouse?</p>
+        <button class="reveal-btn">Reveal Answer</button>
+        <div class="checkpoint-answer">
+          A workshop is bursty: you run a statement, then read for several minutes. Five minutes of idle keeps the warehouse warm across a single exercise without billing through a whole discussion, and capping clusters at one removes any chance that a large scan silently scales out and multiplies the credit burn.
+        </div>
+      </div>
+    </section>
+
     <!-- ─── Expected Results ───────────────────────────────────────────────── -->
     <section class="section">
       <div class="panel" style="background: linear-gradient(135deg, var(--sf-good), #059669); color: white;">
@@ -464,7 +514,7 @@ LIMIT 5;</pre>
 
     <!-- ─── Download SQL ───────────────────────────────────────────────────── -->
     <section class="section text-center">
-      <a href="../sql/04-environment-setup.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
+      <a href="../sql/03-environment-setup.sql" class="download-btn" target="_blank" rel="noopener" style="display: inline-flex;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -476,15 +526,22 @@ LIMIT 5;</pre>
 
     <!-- ─── Navigation Footer ──────────────────────────────────────────────── -->
     <nav class="nav-footer">
-      <a href="02-cortex-ai-capabilities.html" class="nav-btn prev">
+      <a href="02-snowflake-ai-toolbox.html" class="nav-btn prev">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Module 02: Cortex AI Capabilities
+        Module 02: The Snowflake AI Toolbox
       </a>
-      <a href="04-cortex-code-setup.html" class="nav-btn next">
-        Module 04: CoCo Setup
+      <a href="../index.html" class="nav-btn home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </a>
+      <a href="04-coco-cli-setup.html" class="nav-btn next">
+        Module 04: CoCo CLI Setup
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -495,7 +552,7 @@ LIMIT 5;</pre>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
-    <p><strong>FinOps for Snowflake AI</strong> - Module 03: Environment Setup</p>
+    <p><strong>FinOps for Snowflake AI</strong> - Module 03: Lab Environment Setup</p>
   </footer>
 
   <script src="../js/main.js"></script>

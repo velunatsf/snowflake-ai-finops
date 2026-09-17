@@ -1039,6 +1039,16 @@ code {
   color: var(--sf-ice);
 }
 
+a.hero-meta-item {
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+a.hero-meta-item:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
 /* ─── Agenda Table ─────────────────────────────────────────────────────────── */
 .agenda-table {
   width: 100%;
@@ -1447,6 +1457,18 @@ code {
 
 .site-footer a {
   color: var(--sf-blue);
+}
+
+.site-footer .footer-github {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.site-footer .footer-github:hover {
+  text-decoration: underline;
 }
 
 /* ─── Utility Classes ──────────────────────────────────────────────────────── */
